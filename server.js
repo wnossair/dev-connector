@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const passport = require('passport');
 
 const users = require('./routes/api/users.js');
 const profile = require('./routes/api/profile.js');
@@ -20,6 +21,11 @@ mongoose
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
+// Passport 
+app.use(passport.initialize());
+require('./config/passport')(passport);
+
+// Test the app is running
 app.get('/', (req, res) => res.send('Hello World'));
 
 // Use Routes
