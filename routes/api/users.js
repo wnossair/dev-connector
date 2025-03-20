@@ -5,6 +5,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
+// Load input validation
+const validateRegisterInput = require("../../validation/register");
+
 // Load local modules
 const User = require("../../models/User.js");
 const keys = require("../../config/keys.js");
@@ -18,7 +21,14 @@ router.get("/test", (req, res) => res.json({ msg: "Users Works" }));
 // @desc    Register user
 // @access  Public
 router.post("/register", (req, res) => {
-  User.findOne({ email: req.body.email }).then((user) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  // Vheck Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  User.findOne({ email: req.body.email }).then(user => {
     if (user) {
       return res.status(400).json({ email: "Email already exists" });
     }
@@ -37,13 +47,16 @@ router.post("/register", (req, res) => {
     });
 
     bcrypt.genSalt(10, (err, salt) => {
+      if (err) throw err;
+
       bcrypt.hash(newUser.password, salt, (err, hash) => {
         if (err) throw err;
+
         newUser.password = hash;
         newUser
           .save()
-          .then((user) => res.json(user))
-          .catch((err) => console.log(err));
+          .then(user => res.json(user))
+          .catch(err => console.log(err));
       });
     });
   });
@@ -57,13 +70,13 @@ router.post("/login", (req, res) => {
 
   // Find User
   User.findOne({ email })
-    .then((user) => {
+    .then(user => {
       // Check for user
       if (!user) {
         return res.status(404).json({ email: "User not found" });
       }
 
-      bcrypt.compare(password, user.password).then((isMatch) => {
+      bcrypt.compare(password, user.password).then(isMatch => {
         if (isMatch) {
           // res.json({ msg: "Success" });
           // User Matched
@@ -86,7 +99,7 @@ router.post("/login", (req, res) => {
         }
       });
     })
-    .catch((err) => console.log(err));
+    .catch(err => console.log(err));
 });
 
 // @route   GET api/users/current
