@@ -98,4 +98,76 @@ router.delete(
   }
 );
 
+// @route   POST api/posts/like/:id
+// @desc    Like post
+// @access  Private
+router.post(
+  "/like/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const updatedPost = await Post.findByIdAndUpdate(
+        req.params.id,
+        { $addToSet: { likes: { user: req.user.id } } },
+        { new: true }
+      ).lean();
+
+      if (!updatedPost) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Post not found" });
+      }
+
+      res.status(200).json({
+        success: true,
+        post: updatedPost,
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        error: "SERVER_ERROR",
+        message: err.message,
+      });
+    }
+  }
+);
+
+//////////////////////////////////////////////////////////////////////
+// THE FOLLOWING CODE FOLLOWS THE LATEST BEST PRACTICES NOT THE COURSE
+//////////////////////////////////////////////////////////////////////
+
+// @route   DELETE api/posts/like/:id
+// @desc    Delete a like on a post
+// @access  Private
+router.delete(
+  "/like/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const updatedPost = await Post.findByIdAndUpdate(
+        req.params.id,
+        { $pull: { likes: { user: req.user.id } } },
+        { new: true }
+      ).lean();
+
+      if (!updatedPost) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Post not found" });
+      }
+
+      res.status(200).json({
+        success: true,
+        post: updatedPost,
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        error: "SERVER_ERROR",
+        message: err.message,
+      });
+    }
+  }
+);
+
 module.exports = router;

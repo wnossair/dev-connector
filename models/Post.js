@@ -23,6 +23,8 @@ const PostSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "users",
       },
+      // Disable automatic _id for like objects for $addToSet to work
+      _id: false,
     },
   ],
   comments: [
