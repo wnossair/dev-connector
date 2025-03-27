@@ -4,13 +4,17 @@
   "description": "social network for developers",
   "main": "server.js",
   "scripts": {
+    "client-install": "npm install --prefix client",
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "Wassim Nossair",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "concurrently": "^9.1.2",
     "express": "^4.21.2",
     "gravatar": "^1.8.2",
     "jsonwebtoken": "^9.0.2",
