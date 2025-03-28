@@ -6,7 +6,7 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
-    password2: "",
+    confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -77,9 +77,9 @@ const Register = () => {
                 <input
                   type="password"
                   placeholder="Confirm Password"
-                  name="password2"
+                  name="confirmPassword"
                   autoComplete="new-password"
-                  value={formData.password2}
+                  value={formData.confirmPassword}
                   onChange={handleChange}
                   className="form-control form-control-lg"
                 />
