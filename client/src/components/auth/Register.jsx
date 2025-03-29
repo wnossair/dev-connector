@@ -11,11 +11,17 @@ const Register = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // 2. Universal change handler
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   // 3. Submit handler
@@ -32,6 +38,7 @@ const Register = () => {
         confirmPassword: formData.confirmPassword,
       });
       console.log("Registration successful:", res.data);
+      setIsSuccess(true);
     } catch (err) {
       if (err.response?.data) {
         setErrors(err.response.data);
@@ -136,6 +143,11 @@ const Register = () => {
                 Sign Up
               </button>
             </form>
+            {isSuccess && (
+              <div className="alert alert-success mt-3">
+                Registration successful! You can now login with your email/password
+              </div>
+            )}
           </div>
         </div>
       </div>
