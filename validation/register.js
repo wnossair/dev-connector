@@ -27,6 +27,10 @@ module.exports = function validateRegisterInput(data) {
     errors.email = "Email field is required";
   }
 
+  if (!Validator.equals(data.password, data.confirmPassword)) {
+    errors.confirmPassword = "Passwords must match";
+  }
+
   if (!Validator.isLength(data.password, { min: 6, max: 30 })) {
     errors.password = "Password must be between 6 and 30 characters";
   }
@@ -42,10 +46,6 @@ module.exports = function validateRegisterInput(data) {
 
   if (Validator.isEmpty(data.confirmPassword)) {
     errors.confirmPassword = "Password confirmation field is required";
-  }
-
-  if (!Validator.equals(data.password, data.confirmPassword)) {
-    errors.confirmPassword = "Passwords must match";
   }
 
   return {

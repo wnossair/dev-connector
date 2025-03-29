@@ -22,7 +22,7 @@ const Login = () => {
   // 3. Submit handler
   const handleSubmit = e => {
     e.preventDefault();
-    console.log("Submitted:", formData.email);
+    console.log("Submitted:", formData);
     // Add API call here
   };
 

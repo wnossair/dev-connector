@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const Register = () => {
   // 1. Single state object for all inputs
@@ -25,7 +26,16 @@ const Register = () => {
   const handleSubmit = e => {
     e.preventDefault();
     console.log("Submitted:", formData);
-    // Add API call here
+
+    axios
+      .post("/api/users/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      })
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err.response.data));
   };
 
   return (
