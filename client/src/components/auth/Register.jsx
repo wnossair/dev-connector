@@ -1,7 +1,16 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { register } from "../../features/auth/authSlice";
+import { clearAppError } from "../../features/error/errorSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const Register = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const appError = useSelector(state => state.error);
+
   // 1. Single state object for all inputs
   const [formData, setFormData] = useState({
     name: "",
@@ -10,42 +19,35 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState({});
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // 2. Universal change handler
-  const handleChange = e => {
+  useEffect(() => {
+    if (appError) {
+      setFieldErrors(prev => ({ ...prev, ...appError }));
+    }
+  }, [appError]);
+
+  const onChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
-  // 3. Submit handler
-  const handleSubmit = async e => {
+  const onSubmit = async e => {
     e.preventDefault();
-    console.log("Submitted:", formData);
-    setErrors({});
+    dispatch(clearAppError());
+    setFieldErrors({});
 
-    try {
-      const res = await axios.post("/api/users/register", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      });
-      console.log("Registration successful:", res.data);
-      setIsSuccess(true);
-    } catch (err) {
-      if (err.response?.data) {
-        setErrors(err.response.data);
-      } else {
-        console.error("Registration error:", err.response.data);
-      }
-    }
+    await dispatch(register(formData))
+      .unwrap()
+      .then(result => {
+        console.log("Registration success:", result.payload);
+        navigate("/login");
+      })
+      .catch(err => console.log("Registration error:", err));
   };
 
   return (
@@ -55,7 +57,7 @@ const Register = () => {
           <div className="col-md-8 m-auto">
             <h1 className="display-4 text-center">Sign Up</h1>
             <p className="lead text-center">Create your DevConnector account</p>
-            <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={onSubmit} noValidate>
               {/* Name Field */}
               <div className="row mb-3">
                 <label htmlFor="name" className="col-sm-2 col-form-label">
@@ -64,15 +66,15 @@ const Register = () => {
                 <div className="col-sm-10">
                   <input
                     type="text"
-                    className={`form-control ${errors.name && "is-invalid"}`}
+                    className={`form-control ${fieldErrors.name && "is-invalid"}`}
                     placeholder="Name"
                     id="name"
                     name="name"
                     value={formData.name}
-                    onChange={handleChange}
+                    onChange={onChange}
                     autoComplete="name"
                   />
-                  {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                  {fieldErrors.name && <div className="invalid-feedback">{fieldErrors.name}</div>}
                 </div>
               </div>
 
@@ -84,15 +86,15 @@ const Register = () => {
                 <div className="col-sm-10">
                   <input
                     type="email"
-                    className={`form-control ${errors.email && "is-invalid"}`}
+                    className={`form-control ${fieldErrors.email && "is-invalid"}`}
                     placeholder="Email Address"
                     id="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleChange}
+                    onChange={onChange}
                     autoComplete="email"
                   />
-                  {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                  {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
                   <small className="form-text text-muted">
                     This site uses Gravatar so if you want a profile image, use a Gravatar email
                   </small>
@@ -107,15 +109,17 @@ const Register = () => {
                 <div className="col-sm-10">
                   <input
                     type="password"
-                    className={`form-control ${errors.password && "is-invalid"}`}
+                    className={`form-control ${fieldErrors.password && "is-invalid"}`}
                     placeholder="Password"
                     id="password"
                     name="password"
                     value={formData.password}
-                    onChange={handleChange}
+                    onChange={onChange}
                     autoComplete="new-password"
                   />
-                  {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                  {fieldErrors.password && (
+                    <div className="invalid-feedback">{fieldErrors.password}</div>
+                  )}
                 </div>
               </div>
 
@@ -127,15 +131,17 @@ const Register = () => {
                 <div className="col-sm-10">
                   <input
                     type="password"
-                    className={`form-control ${errors.confirmPassword && "is-invalid"}`}
+                    className={`form-control ${fieldErrors.confirmPassword && "is-invalid"}`}
                     placeholder="Confirm Password"
                     id="confirmPassword"
                     name="confirmPassword"
                     value={formData.confirmPassword}
-                    onChange={handleChange}
+                    onChange={onChange}
                     autoComplete="new-password"
                   />
-                  {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
+                  {fieldErrors.confirmPassword && (
+                    <div className="invalid-feedback">{fieldErrors.confirmPassword}</div>
+                  )}
                 </div>
               </div>
 
@@ -143,11 +149,6 @@ const Register = () => {
                 Sign Up
               </button>
             </form>
-            {isSuccess && (
-              <div className="alert alert-success mt-3">
-                Registration successful! You can now login with your email/password
-              </div>
-            )}
           </div>
         </div>
       </div>
