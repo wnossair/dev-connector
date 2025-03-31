@@ -1,46 +1,121 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
-const Navbar = () => (
-  <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
-    <div className="container">
-      <Link className="navbar-brand" to="/">
-        DevConnector
-      </Link>
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#mobile-nav"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../features/auth/authSlice";
 
-      <div className="collapse navbar-collapse" id="mobile-nav">
-        <ul className="navbar-nav mr-auto">
-          <li className="nav-item">
-            <Link className="nav-link" to="/profiles">
-              {" "}
-              Developers
-            </Link>
-          </li>
-        </ul>
+const Navbar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, loading } = useSelector(state => state.auth);
+  const [logoutLoading, setLogoutLoading] = React.useState(false);
 
-        <ul className="navbar-nav ml-auto">
-          <li className="nav-item">
-            <Link className="nav-link" to="/register">
-              Sign Up
-            </Link>{" "}
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/login">
-              Login
-            </Link>{" "}
-          </li>
-        </ul>
+  const handleLogout = async () => {
+    try {
+      setLogoutLoading(true);
+      // await new Promise(resolve => setTimeout(resolve, 5000));
+      await dispatch(logoutUser()).unwrap();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
+
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+      <div className="container">
+        <Link className="navbar-brand" to="/">
+          DevConnector
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/profiles">
+                Developers
+              </Link>
+            </li>
+          </ul>
+
+          <ul className="navbar-nav ms-auto align-items-center">
+            {isAuthenticated ? (
+              <>
+                <li className="nav-item pe-3">
+                  <Link className="nav-link" to="/dashboard">
+                    Dashboard
+                  </Link>
+                </li>
+                <li className="nav-item pe-3">
+                  <Link className="nav-link" to={`/profile/${user?.profile?.handle || user?._id}`}>
+                    Profile
+                  </Link>
+                </li>
+                <li className="nav-item d-flex align-items-center">
+                  <button
+                    className="nav-link"
+                    onClick={handleLogout}
+                    disabled={logoutLoading || loading}
+                  >
+                    {logoutLoading ? (
+                      <span className="d-flex align-items-center gap-1">
+                        <span className="spinner-border spinner-border-sm" role="status" />
+                        Logging out...
+                      </span>
+                    ) : (
+                      "Logout"
+                    )}
+                  </button>
+                  {user?.avatar && (
+                    <Link to={`/profile/${user?.profile?.handle || user?._id}`}>
+                      <img
+                        src={user?.avatar}
+                        alt="User Avatar"
+                        className="rounded-circle ms-2"
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          objectFit: "cover",
+                        }}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        title={user?.name}
+                      />
+                    </Link>
+                  )}
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/register">
+                    Sign Up
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">
+                    Login
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 export default Navbar;

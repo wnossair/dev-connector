@@ -7,14 +7,15 @@ import { setAppError } from "../error/errorSlice";
 
 const initialState = {
   token: localStorage.getItem("token"),
-  isAuthenticated: false,  
-  loading: false,          
+  isAuthenticated: false,
+  loading: false,
   user: null,
 };
 
 // Clear state and storage
 const clearStateAndStorage = state => {
   localStorage.removeItem("token");
+  apiUtils.setAuthToken(null);
 
   state.token = null;
   state.isAuthenticated = false;
@@ -63,17 +64,14 @@ export const loadUser = createAsyncThunk("auth/load", async (_, { dispatch, reje
   }
 });
 
-export const initializeAuth = createAsyncThunk(
-  "auth/initialize",
-  async (_, { dispatch }) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      apiUtils.setAuthToken(token);
-      await dispatch(loadUser()).unwrap();
-    }
-    return { token };
+export const initializeAuth = createAsyncThunk("auth/initialize", async (_, { dispatch }) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    apiUtils.setAuthToken(token);
+    await dispatch(loadUser()).unwrap();
   }
-);
+  return { token };
+});
 
 // Create the auth slice
 const authSlice = createSlice({
@@ -81,9 +79,7 @@ const authSlice = createSlice({
   initialState,
   // Sync Actions
   reducers: {
-    logoutUser: state => {
-      clearStateAndStorage(state);
-    },
+    logoutUser: state => clearStateAndStorage(state),
   },
   // Async Actions Setup
   extraReducers: builder => {
