@@ -1,74 +1,106 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { loginUser } from "../../features/auth/authSlice";
+import { clearAppError } from "../../features/error/errorSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const Login = () => {
-  // 1. Single state object for all inputs
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const appError = useSelector(state => state.error);
+  const currentUser = useSelector(state => state.auth.user);
+
+  // Use State Hooks
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // 2. Universal change handler
-  const handleChange = e => {
-    const { name, value, type, checked } = e.target;
+  // Use Effect Hooks
+  useEffect(() => {
+    if (appError && typeof appError === "object") {
+      setFieldErrors(prev => ({ ...prev, ...appError }));
+    }
+  }, [appError]);
 
-    setFormData(prev => ({
-      ...prev, // Copy previous state
-      [name]: type === "checkbox" ? checked : value, // Handle checkboxes too
-    }));
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/dashboard");
+    }
+  }, [currentUser]);
+
+  // Event Handlers
+  const onChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
-  // 3. Submit handler
-  const handleSubmit = e => {
+  const onSubmit = async e => {
     e.preventDefault();
-    console.log("Submitted:", formData);
-    // Add API call here
+    dispatch(clearAppError());
+    setFieldErrors({});
+
+    await dispatch(loginUser(formData))
+      .unwrap()
+      .catch(err => console.log("Login error:", err));
   };
 
+  // Component
   return (
     <div className="login">
       <div className="container">
         <div className="row">
           <div className="col-md-8 m-auto">
             <h1 className="display-4 text-center">Log In</h1>
-            <p className="lead text-center">
-              Sign in to your DevConnector account
-            </p>
-            <form onSubmit={handleSubmit}>
+            <p className="lead text-center">Sign in to your DevConnector account</p>
+            <form onSubmit={onSubmit} noValidate>
+              {/* Email Field */}
               <div className="row mb-3">
-                <label for="email" className="col-sm-2 col-form-label">
+                <label htmlFor="email" className="col-sm-2 col-form-label">
                   Email
                 </label>
                 <div className="col-sm-10">
                   <input
                     type="email"
-                    className="form-control"
+                    className={`form-control ${fieldErrors.email && "is-invalid"}`}
                     placeholder="Email Address"
                     id="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleChange}
+                    onChange={onChange}
                     autoComplete="email"
                   />
+                  {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
                 </div>
               </div>
 
+              {/* Password Field */}
               <div className="row mb-3">
-                <label for="password" className="col-sm-2 col-form-label">
+                <label htmlFor="password" className="col-sm-2 col-form-label">
                   Password
                 </label>
                 <div className="col-sm-10">
                   <input
                     type="password"
-                    className="form-control"
+                    className={`form-control ${fieldErrors.password && "is-invalid"}`}
                     placeholder="Password"
                     id="password"
                     name="password"
                     value={formData.password}
-                    onChange={handleChange}
-                    autoComplete="current-password"
+                    onChange={onChange}
+                    autoComplete="new-password"
                   />
+                  {fieldErrors.password && (
+                    <div className="invalid-feedback">{fieldErrors.password}</div>
+                  )}
                 </div>
               </div>
 

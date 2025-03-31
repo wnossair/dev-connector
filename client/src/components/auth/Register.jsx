@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { register } from "../../features/auth/authSlice";
+import { registerUser } from "../../features/auth/authSlice";
 import { clearAppError } from "../../features/error/errorSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -41,7 +41,7 @@ const Register = () => {
     dispatch(clearAppError());
     setFieldErrors({});
 
-    await dispatch(register(formData))
+    await dispatch(registerUser(formData))
       .unwrap()
       .then(result => {
         console.log("Registration success:", result.payload);
