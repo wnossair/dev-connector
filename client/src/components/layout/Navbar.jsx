@@ -7,14 +7,14 @@ import { logoutUser } from "../../features/auth/authSlice";
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, user, loading } = useSelector(state => state.auth);
+  const { isAuthenticated, user } = useSelector(state => state.auth);
   const [logoutLoading, setLogoutLoading] = React.useState(false);
 
   const handleLogout = async () => {
     try {
       setLogoutLoading(true);
       // await new Promise(resolve => setTimeout(resolve, 5000));
-      await dispatch(logoutUser()).unwrap();
+      dispatch(logoutUser());
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);
@@ -64,11 +64,7 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="nav-item d-flex align-items-center">
-                  <button
-                    className="nav-link"
-                    onClick={handleLogout}
-                    disabled={logoutLoading || loading}
-                  >
+                  <button className="nav-link" onClick={handleLogout} disabled={logoutLoading}>
                     {logoutLoading ? (
                       <span className="d-flex align-items-center gap-1">
                         <span className="spinner-border spinner-border-sm" role="status" />

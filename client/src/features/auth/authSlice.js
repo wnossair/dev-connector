@@ -47,7 +47,7 @@ export const loginUser = createAsyncThunk(
 
       return { token: res.data.token };
     } catch (err) {
-      console.log(err);
+      console.error(err);
       dispatch(setAppError(err.response.data));
       return rejectWithValue(err.response.data);
     }
@@ -59,19 +59,36 @@ export const loadUser = createAsyncThunk("auth/load", async (_, { dispatch, reje
     const res = await axios.get("/api/users/current");
     return { user: res.data };
   } catch (err) {
+    if (err.response?.status === 401) {
+      dispatch(logoutUser());
+      return { user: null };
+    }
     dispatch(setAppError(err.response.data));
     return rejectWithValue(err.response.data);
   }
 });
 
-export const initializeAuth = createAsyncThunk("auth/initialize", async (_, { dispatch }) => {
-  const token = localStorage.getItem("token");
-  if (token) {
+export const verifyAuth = createAsyncThunk(
+  "auth/verify",
+  async (force = false, { dispatch, getState }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      dispatch(logoutUser());
+      return { isValid: false };
+    }
+
     apiUtils.setAuthToken(token);
-    await dispatch(loadUser()).unwrap();
+
+    if (force || !getState().auth.user)
+      await dispatch(loadUser())
+        .unwrap()
+        .catch(() => {
+          return { isValid: false };
+        });
+
+    return { isValid: true };
   }
-  return { token };
-});
+);
 
 // Create the auth slice
 const authSlice = createSlice({
