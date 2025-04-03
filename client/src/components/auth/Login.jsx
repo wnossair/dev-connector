@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import { loginUser } from "../../features/auth/authSlice";
 import { clearAppError } from "../../features/error/errorSlice";
-import { useDispatch, useSelector } from "react-redux";
+
+import TextFieldGroup from "../common/TextFieldGroup";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -63,46 +65,30 @@ const Login = () => {
             <p className="lead text-center">Sign in to your DevConnector account</p>
             <form onSubmit={onSubmit} noValidate>
               {/* Email Field */}
-              <div className="row mb-3">
-                <label htmlFor="email" className="col-sm-2 col-form-label">
-                  Email
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="email"
-                    className={`form-control ${fieldErrors.email && "is-invalid"}`}
-                    placeholder="Email Address"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={onChange}
-                    autoComplete="email"
-                  />
-                  {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
-                </div>
-              </div>
+              <TextFieldGroup
+                name="email"
+                value={formData.email}
+                type="email"
+                placeholder="Email Address"
+                label="Email"
+                id="email"
+                error={fieldErrors.email}
+                onChange={onChange}
+                autoComplete="email"
+              />
 
               {/* Password Field */}
-              <div className="row mb-3">
-                <label htmlFor="password" className="col-sm-2 col-form-label">
-                  Password
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="password"
-                    className={`form-control ${fieldErrors.password && "is-invalid"}`}
-                    placeholder="Password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={onChange}
-                    autoComplete="new-password"
-                  />
-                  {fieldErrors.password && (
-                    <div className="invalid-feedback">{fieldErrors.password}</div>
-                  )}
-                </div>
-              </div>
+              <TextFieldGroup
+                name="password"
+                value={formData.password}
+                type="password"
+                placeholder="Password"
+                label="Password"
+                id="password"
+                error={fieldErrors.password}
+                onChange={onChange}
+                autoComplete="current-password"
+              />
 
               <button type="submit" className="btn btn-primary">
                 Log in

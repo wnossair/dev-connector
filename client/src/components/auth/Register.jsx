@@ -5,6 +5,8 @@ import { registerUser } from "../../features/auth/authSlice";
 import { clearAppError } from "../../features/error/errorSlice";
 import { useDispatch, useSelector } from "react-redux";
 
+import TextFieldGroup from "../common/TextFieldGroup";
+
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -59,91 +61,57 @@ const Register = () => {
             <p className="lead text-center">Create your DevConnector account</p>
             <form onSubmit={onSubmit} noValidate>
               {/* Name Field */}
-              <div className="row mb-3">
-                <label htmlFor="name" className="col-sm-2 col-form-label">
-                  Name
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="text"
-                    className={`form-control ${fieldErrors.name && "is-invalid"}`}
-                    placeholder="Name"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={onChange}
-                    autoComplete="name"
-                  />
-                  {fieldErrors.name && <div className="invalid-feedback">{fieldErrors.name}</div>}
-                </div>
-              </div>
+              <TextFieldGroup
+                name="name"
+                value={formData.name}
+                type="text"
+                placeholder="Name"
+                label="Name"
+                id="name"
+                error={fieldErrors.name}
+                onChange={onChange}
+                autoComplete="name"
+              />
 
               {/* Email Field */}
-              <div className="row mb-3">
-                <label htmlFor="email" className="col-sm-2 col-form-label">
-                  Email
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="email"
-                    className={`form-control ${fieldErrors.email && "is-invalid"}`}
-                    placeholder="Email Address"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={onChange}
-                    autoComplete="email"
-                  />
-                  {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
-                  <small className="form-text text-muted">
-                    This site uses Gravatar so if you want a profile image, use a Gravatar email
-                  </small>
-                </div>
-              </div>
+              <TextFieldGroup
+                name="email"
+                value={formData.email}
+                type="email"
+                placeholder="Email Address"
+                label="Email"
+                id="email"
+                error={fieldErrors.email}
+                onChange={onChange}
+                autoComplete="email"
+                info = "This site uses Gravatar so if you want a profile image, use a Gravatar email"
+              />
 
               {/* Password Field */}
-              <div className="row mb-3">
-                <label htmlFor="password" className="col-sm-2 col-form-label">
-                  Password
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="password"
-                    className={`form-control ${fieldErrors.password && "is-invalid"}`}
-                    placeholder="Password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={onChange}
-                    autoComplete="new-password"
-                  />
-                  {fieldErrors.password && (
-                    <div className="invalid-feedback">{fieldErrors.password}</div>
-                  )}
-                </div>
-              </div>
+              <TextFieldGroup
+                name="password"
+                value={formData.password}
+                type="password"
+                placeholder="Password"
+                label="Password"
+                id="password"
+                error={fieldErrors.password}
+                onChange={onChange}
+                autoComplete="new-password"
+              />
 
               {/* Confirm Password Field */}
-              <div className="row mb-3">
-                <label htmlFor="confirmPassword" className="col-sm-2 col-form-label">
-                  Confirm
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="password"
-                    className={`form-control ${fieldErrors.confirmPassword && "is-invalid"}`}
-                    placeholder="Confirm Password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={onChange}
-                    autoComplete="new-password"
-                  />
-                  {fieldErrors.confirmPassword && (
-                    <div className="invalid-feedback">{fieldErrors.confirmPassword}</div>
-                  )}
-                </div>
-              </div>
+              <TextFieldGroup
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                type="password"
+                placeholder="Confirm Password"
+                label="Confirm Password"
+                id="confirmPassword"
+                error={fieldErrors.confirmPassword}
+                onChange={onChange}
+                autoComplete="new-password"
+              />
 
               <button type="submit" className="btn btn-primary">
                 Sign Up
