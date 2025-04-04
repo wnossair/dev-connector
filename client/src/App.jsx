@@ -26,9 +26,14 @@ const App = () => {
     const delayInMinutes = 5;
     let intervalId;
 
-    const checkAuth = () => {
-      if (isAuthenticated) {
-        store.dispatch(verifyAuth(true)).catch(err => console.error("auth/verify error:", err));
+    const checkAuth = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        // Forced to check with server if auth expired
+        await store.dispatch(verifyAuth({ forceRefresh: true }));
+      } catch (err) {
+        console.error("auth/verify error:", err);
       }
     };
 

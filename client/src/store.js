@@ -1,6 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
+
 import authReducer from "./features/auth/authSlice";
 import errorReducer from "./features/error/errorSlice";
+import profileReducer from "./features/profile/profileSlice";
+
+import { injectStore } from "./utils/api";
 
 const localStorageMiddleware =
   ({ getState }) =>
@@ -25,8 +29,12 @@ const store = configureStore({
   reducer: {
     auth: authReducer,
     error: errorReducer,
+    profile: profileReducer,
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(localStorageMiddleware),
 });
+
+// Inject store into API
+injectStore(store);
 
 export default store;

@@ -3,10 +3,12 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/auth/authSlice";
+import { clearProfile } from "../../features/profile/profileSlice";
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { isAuthenticated, user } = useSelector(state => state.auth);
   const [logoutLoading, setLogoutLoading] = React.useState(false);
 
@@ -15,6 +17,8 @@ const Navbar = () => {
       setLogoutLoading(true);
       // await new Promise(resolve => setTimeout(resolve, 5000));
       dispatch(logoutUser());
+      dispatch(clearProfile());
+
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);
