@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export const createApi = () => {
-  // Remove getStore parameter
   const api = axios.create({
     baseURL: "/api",
     timeout: 10000,

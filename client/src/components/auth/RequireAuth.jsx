@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 
 const RequireAuth = ({ children }) => {
   const { isAuthenticated } = useSelector(state => state.auth);
+  const token = localStorage.getItem("token");
+
   const navigate = useNavigate();
-  
-  // Go to 
+
+  // Go to
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !token) {
       navigate("/login");
     }
   }, [isAuthenticated, navigate]);

@@ -3,19 +3,19 @@ import { api } from "../../utils/api";
 import { setAppError } from "../error/errorSlice";
 
 const initialState = {
-  profile: null,
+  current: null,
   loading: false,
 };
 
-export const loadCurrentProfile = createAsyncThunk(
+export const loadProfile = createAsyncThunk(
   "profile/current",
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get("/profile");
-      return { profile: response.data };
+      return { current: response.data };
     } catch (error) {
       if (error.response?.status === 404) {
-        return { profile: {} }; // Return empty profile for 404
+        return { current: {} }; // Return empty profile for 404
       }
 
       const errorData = error.response?.data || { message: "Failed to load profile" };
@@ -30,13 +30,13 @@ const profileSlice = createSlice({
   initialState,
   reducers: {
     clearProfile: state => {
-      state.profile = null;
+      state.current = null;
     },
   },
   extraReducers: builder => {
     // 1. First add all specific cases
-    builder.addCase(loadCurrentProfile.fulfilled, (state, action) => {
-      state.profile = action.payload.profile;
+    builder.addCase(loadProfile.fulfilled, (state, action) => {
+      state.current = action.payload.current;
     });
 
     // 2. Then add matchers
