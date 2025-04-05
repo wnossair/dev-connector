@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import TextFieldGroup from "../common/TextFieldGroup";
+import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
+import SelectListGroup from "../common/SelectListGroup";
+import InputGroup from "../common/inputGroup";
 
 const CreateProfile = () => {
   const profile = useSelector(state => state.profile);
