@@ -9,13 +9,15 @@ import ContainerLayout from "./components/layout/ContainerLayout";
 
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Dashboard from "./components/dashboard/Dashboard";
+
+import CreateProfile from "./components/profile/CreateProfile";
 
 import store from "./store";
 import { verifyAuth } from "./features/auth/authSlice";
 
 import "./App.css";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -57,6 +59,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/create-profile" element={<CreateProfile />} />
               {/* Add more protected routes here */}
 
               {/* Catch-all Route */}

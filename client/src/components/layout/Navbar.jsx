@@ -11,7 +11,6 @@ const Navbar = () => {
 
   const logout = async () => {
     try {
-      setLogoutLoading(true);
       dispatch(logoutUser());
       dispatch(clearProfile());
       navigate("/login");
