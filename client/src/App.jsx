@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
@@ -9,14 +9,13 @@ import ContainerLayout from "./components/layout/ContainerLayout";
 
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
-import RequireAuth from "./components/auth/RequireAuth";
-
 import Dashboard from "./components/dashboard/Dashboard";
 
 import store from "./store";
 import { verifyAuth } from "./features/auth/authSlice";
 
 import "./App.css";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -56,14 +55,13 @@ const App = () => {
           <Route element={<ContainerLayout />}>
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <RequireAuth>
-                  <Dashboard />
-                </RequireAuth>
-              }
-            />{" "}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              {/* Add more protected routes here */}
+
+              {/* Catch-all Route */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Route>
           </Route>
         </Routes>
       </main>
