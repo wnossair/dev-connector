@@ -10,7 +10,7 @@ const SelectListGroup = ({
   onChange,
   options,
   disabled = false,
-  autoComplete = off,
+  autoComplete = "off",
 }) => {
   const selectOptions = options.map(item => (
     <option key={item.label} value={item.value}>
@@ -20,24 +20,31 @@ const SelectListGroup = ({
 
   return (
     <div className="row mb-3">
-      <label htmlFor={id} className="col-sm-2 col-form-label">
-        {label}
-      </label>
-      <div className="col-sm-10">
-        <select
-          className={`form-control ${error && "is-invalid"}`}
-          id={id}
-          name={name}
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-          autoComplete={autoComplete}
+      {label && (
+        <label
+          htmlFor={id}
+          className="col-sm-2 col-form-label fw-medium d-flex align-items-center mb-0"
         >
-          {selectOptions}
-        </select>
-        {error && <div className="invalid-feedback">{error}</div>}
-        {info && <small className="form-text text-muted">{info}</small>}
+          {label}
+        </label>
+      )}
+      <div className={`${label ? "col-sm-10" : "col-sm-12"}`}>
+        <div className="d-flex align-items-center">
+          <select
+            className={`form-control form-control-lg ${error && "is-invalid"}`}
+            id={id}
+            name={name}
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+            autoComplete={autoComplete}
+          >
+            {selectOptions}
+          </select>
+        </div>
       </div>
+      {error && <div className="invalid-feedback">{error}</div>}
+      {info && <small className="form-text text-muted">{info}</small>}
     </div>
   );
 };

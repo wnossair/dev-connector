@@ -11,7 +11,7 @@ const InputGroup = ({
   error = null,
   onChange,
   disabled = false,
-  autoComplete = off,
+  autoComplete = "off",
 }) => {
   return (
     <div className="input-group mb-3">
@@ -20,9 +20,11 @@ const InputGroup = ({
           <i className={icon} />
         </span>
       </div>
-      <label htmlFor={id} className="col-sm-2 col-form-label">
-        {label}
-      </label>
+      {label && (
+        <label htmlFor={id} className="col-sm-2 col-form-label">
+          {label}
+        </label>
+      )}
       <div className="col-sm-10">
         <input
           className={`form-control ${error && "is-invalid"}`}

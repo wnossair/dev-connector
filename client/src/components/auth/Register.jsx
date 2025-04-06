@@ -84,7 +84,7 @@ const Register = () => {
                 error={fieldErrors.email}
                 onChange={onChange}
                 autoComplete="email"
-                info = "This site uses Gravatar so if you want a profile image, use a Gravatar email"
+                info="This site uses Gravatar so if you want a profile image, use a Gravatar email"
               />
 
               {/* Password Field */}
@@ -106,16 +106,19 @@ const Register = () => {
                 value={formData.confirmPassword}
                 type="password"
                 placeholder="Confirm Password"
-                label="Confirm Password"
+                label="Confirm"
                 id="confirmPassword"
                 error={fieldErrors.confirmPassword}
                 onChange={onChange}
                 autoComplete="new-password"
               />
 
-              <button type="submit" className="btn btn-primary">
-                Sign Up
-              </button>
+              {/* Submit Button - Fixed Alignment */}
+              <div className="col-sm-12">
+                <button type="submit" className="btn btn-primary w-100">
+                  Sign Up
+                </button>
+              </div>
             </form>
           </div>
         </div>

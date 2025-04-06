@@ -70,7 +70,6 @@ const Login = () => {
                 value={formData.email}
                 type="email"
                 placeholder="Email Address"
-                label="Email"
                 id="email"
                 error={fieldErrors.email}
                 onChange={onChange}
@@ -83,16 +82,18 @@ const Login = () => {
                 value={formData.password}
                 type="password"
                 placeholder="Password"
-                label="Password"
                 id="password"
                 error={fieldErrors.password}
                 onChange={onChange}
                 autoComplete="current-password"
               />
 
-              <button type="submit" className="btn btn-primary">
-                Log in
-              </button>
+              {/* Submit Button - Fixed Alignment */}
+              <div className="col-sm-12">
+                <button type="submit" className="btn btn-primary w-100">
+                  Log in
+                </button>
+              </div>
             </form>
           </div>
         </div>
