@@ -1,80 +1,73 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
+import { clearAppError, setAppError } from "../../features/error/errorSlice";
+import { createProfile } from "../../features/profile/profileSlice";
+
+// Social Inputs
+const SocialInputs = ({ formData, fieldErrors, onChange }) => {
+  return (
+    <>
+      <InputGroup
+        name="twitter"
+        value={formData.twitter}
+        placeholder="Twitter Profile URL"
+        id="twitter"
+        icon="bi bi-twitter"
+        onChange={onChange}
+        error={fieldErrors.twitter}
+      />
+      <InputGroup
+        name="facebook"
+        value={formData.facebook}
+        placeholder="Facebook Profile URL"
+        id="facebook"
+        icon="bi bi-facebook"
+        onChange={onChange}
+        error={fieldErrors.facebook}
+      />
+      <InputGroup
+        name="linkedin"
+        value={formData.linkedin}
+        placeholder="Linkedin Profile URL"
+        id="linkedin"
+        icon="bi bi-linkedin"
+        onChange={onChange}
+        error={fieldErrors.linkedin}
+      />
+      <InputGroup
+        name="youtube"
+        value={formData.youtube}
+        placeholder="Youtube Profile URL"
+        id="youtube"
+        icon="bi bi-youtube"
+        onChange={onChange}
+        error={fieldErrors.youtube}
+      />
+      <InputGroup
+        name="instagram"
+        value={formData.instagram}
+        placeholder="Instagram Profile URL"
+        id="instagram"
+        icon="bi bi-instagram"
+        onChange={onChange}
+        error={fieldErrors.instagram}
+      />
+    </>
+  );
+};
+
 const CreateProfile = () => {
-  const profile = useSelector(state => state.profile);
-  const appError = useSelector(state => state.errors);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // Select Options for Status
-  const options = [
-    { label: "* Select Professional Status", value: 0 },
-    { label: "Developer", value: "Developer" },
-    { label: "Junior Developer", value: "Junior Developer" },
-    { label: "Senior Developer", value: "Senior Developer" },
-    { label: "Manager", value: "Manager" },
-    { label: "Student or Learning", value: "Student" },
-    { label: "Instructor or Teacher", value: "Instructor" },
-    { label: "Intern", value: "Intern" },
-    { label: "Other", value: "Other" },
-  ];
-
-  // Social Inputs
-  const SocialInputs = () => {
-    return (
-      <>
-        <InputGroup
-          name="twitter"
-          value={formData.twitter}
-          placeholder="Twitter Profile URL"
-          id="twitter"
-          icon="bi bi-twitter"
-          onChange={onChange}
-          error={fieldErrors.twitter}
-        />
-        <InputGroup
-          name="facebook"
-          value={formData.facebook}
-          placeholder="Facebook Profile URL"
-          id="facebook"
-          icon="bi bi-facebook"
-          onChange={onChange}
-          error={fieldErrors.facebook}
-        />
-        <InputGroup
-          name="linkedin"
-          value={formData.linkedin}
-          placeholder="Linkedin Profile URL"
-          id="linkedin"
-          icon="bi bi-linkedin"
-          onChange={onChange}
-          error={fieldErrors.linkedin}
-        />
-        <InputGroup
-          name="youtube"
-          value={formData.youtube}
-          placeholder="Youtube Profile URL"
-          id="youtube"
-          icon="bi bi-youtube"
-          onChange={onChange}
-          error={fieldErrors.youtube}
-        />
-        <InputGroup
-          name="instagram"
-          value={formData.instagram}
-          placeholder="Instagram Profile URL"
-          id="instagram"
-          icon="bi bi-instagram"
-          onChange={onChange}
-          error={fieldErrors.instagram}
-        />
-      </>
-    );
-  };
+  const appError = useSelector(state => state.error);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -96,6 +89,13 @@ const CreateProfile = () => {
 
   const [fieldErrors, setFieldErrors] = useState({});
 
+  // Use Effect Hooks
+  useEffect(() => {
+    if (appError && typeof appError === "object") {
+      setFieldErrors(prev => ({ ...prev, ...appError }));
+    }
+  }, [appError]);
+
   // Event Handlers
   const toggleSocialInputs = () => {
     setFormData(prev => ({
@@ -115,7 +115,30 @@ const CreateProfile = () => {
 
   const onSubmit = async e => {
     e.preventDefault();
+    setFieldErrors({});
+
+    try {
+      console.log(formData);
+      const profile = await dispatch(createProfile(formData)).unwrap();
+      if (profile) navigate("/dashboard");
+    } catch (err) {
+      dispatch(setAppError(err));
+      console.log("Edit profile error: ", err);
+    }
   };
+
+  // Select Options for Status
+  const options = [
+    { label: "* Select Professional Status", value: 0 },
+    { label: "Developer", value: "Developer" },
+    { label: "Junior Developer", value: "Junior Developer" },
+    { label: "Senior Developer", value: "Senior Developer" },
+    { label: "Manager", value: "Manager" },
+    { label: "Student or Learning", value: "Student" },
+    { label: "Instructor or Teacher", value: "Instructor" },
+    { label: "Intern", value: "Intern" },
+    { label: "Other", value: "Other" },
+  ];
 
   // Component
   return (
@@ -223,6 +246,7 @@ const CreateProfile = () => {
 
               <div className="mb-3">
                 <button
+                  type="button"
                   onClick={toggleSocialInputs}
                   className={`btn btn-outline-secondary btn-light ${
                     formData.displaySocialInputs ? "active" : ""
@@ -233,7 +257,9 @@ const CreateProfile = () => {
                 </button>
                 <span className="text-muted ms-2">(Optional)</span>
               </div>
-              {formData.displaySocialInputs && <SocialInputs />}
+              {formData.displaySocialInputs && (
+                <SocialInputs formData={formData} fieldErrors={fieldErrors} onChange={onChange} />
+              )}
               <input type="submit" value="Submit" className="btn btn-info btn-block mt-4" />
             </form>
           </div>

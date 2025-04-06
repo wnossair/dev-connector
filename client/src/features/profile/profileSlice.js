@@ -7,6 +7,13 @@ const initialState = {
   loading: false,
 };
 
+const transformErrors = errors => {
+  return errors.reduce((acc, { path, msg }) => {
+    acc[path] = msg;
+    return acc;
+  }, {});
+};
+
 export const loadProfile = createAsyncThunk(
   "profile/current",
   async (_, { dispatch, rejectWithValue }) => {
@@ -25,6 +32,23 @@ export const loadProfile = createAsyncThunk(
   }
 );
 
+export const createProfile = createAsyncThunk(
+  "profile/create",
+  async (profileData, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.post("/profile", profileData);
+      return { current: response.data };
+    } catch (error) {
+      const errorData = transformErrors(error.response?.data?.errors) || {
+        message: "Failed to load profile",
+      };
+
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
 const profileSlice = createSlice({
   name: "profile",
   initialState,
@@ -35,9 +59,13 @@ const profileSlice = createSlice({
   },
   extraReducers: builder => {
     // 1. First add all specific cases
-    builder.addCase(loadProfile.fulfilled, (state, action) => {
-      state.current = action.payload.current;
-    });
+    builder
+      .addCase(loadProfile.fulfilled, (state, action) => {
+        state.current = action.payload.current;
+      })
+      .addCase(createProfile.fulfilled, (state, action) => {
+        state.current = action.payload.current;
+      });
 
     // 2. Then add matchers
     builder

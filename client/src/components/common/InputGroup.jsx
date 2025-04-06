@@ -37,7 +37,7 @@ const InputGroup = ({
           disabled={disabled}
           autoComplete={autoComplete}
         />
-        {error && <div className="invalid-feedback">{error}</div>}
+        {error && <div className="invalid-feedback d-block">{error}</div>}
       </div>
     </div>
   );

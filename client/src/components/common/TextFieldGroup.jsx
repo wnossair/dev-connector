@@ -38,7 +38,7 @@ const TextFieldGroup = ({
           />
         </div>
       </div>
-      {error && <div className="invalid-feedback">{error}</div>}
+      {error && <div className="invalid-feedback d-block">{error}</div>}
       {info && <small className="form-text text-muted">{info}</small>}
     </div>
   );
