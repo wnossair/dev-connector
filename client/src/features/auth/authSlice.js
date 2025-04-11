@@ -72,7 +72,6 @@ export const verifyAuth = createAsyncThunk(
   async ({ forceRefresh = false } = {}, { getState }) => {
     // 1. Fast path - token exists and we have user data (and not forcing refresh)
     if (!forceRefresh && getState().auth.user) {
-      console.log(forceRefresh);
       return { isValid: true };
     }
 

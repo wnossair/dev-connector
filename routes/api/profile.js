@@ -294,13 +294,25 @@ router.delete(
   }
 );
 
-// @route   DELETE api/profile/profile
-// @desc    Delete education entry from profile
-// @access  Private
-router.delete("/", passport.authenticate("jwt", { session: false }), (req, res) => {
-  Profile.findOneAndDelete({ user: req.user.id }).then(() => {
-    User.findOneAndDelete({ _id: req.user.id }).then(() => res.json({ success: true }));
-  });
+// @route    DELETE api/profile
+// @desc     Delete profile, user & posts
+// @access   Private
+router.delete("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  try {
+    // Remove user posts
+    // Remove profile
+    // Remove user
+    await Promise.all([
+      Post.deleteMany({ user: req.user.id }),
+      Profile.findOneAndDelete({ user: req.user.id }),
+      User.findOneAndDelete({ _id: req.user.id }),
+    ]);
+
+    res.json({ msg: "User deleted" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
 });
 
 module.exports = router;

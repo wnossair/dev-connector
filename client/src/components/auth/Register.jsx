@@ -13,7 +13,7 @@ const Register = () => {
 
   const appError = useSelector(state => state.error);
 
-  // 1. Single state object for all inputs
+  // Local states
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,14 +21,33 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  // Use effect hooks
+  useEffect(() => {
+    // Clear all errors on mount
+    dispatch(clearAppError());
+    setFieldErrors({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  }, [dispatch]);
 
   useEffect(() => {
-    if (appError) {
+    // Only show errors after user interaction
+    if (appError && Object.values(formData).some(v => v !== "")) {
       setFieldErrors(prev => ({ ...prev, ...appError }));
     }
-  }, [appError]);
+  }, [appError, formData]);
 
+  // Event handlers
   const onChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));

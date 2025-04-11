@@ -49,6 +49,20 @@ export const createProfile = createAsyncThunk(
   }
 );
 
+export const deleteAccount = createAsyncThunk(
+  "profile/delete",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      await api.delete("/profile");
+      return true;
+    } catch (error) {
+      const errorData = error.response?.data || { message: "Failed to delete profile" };
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
 const profileSlice = createSlice({
   name: "profile",
   initialState,
@@ -65,6 +79,9 @@ const profileSlice = createSlice({
       })
       .addCase(createProfile.fulfilled, (state, action) => {
         state.current = action.payload.current;
+      })
+      .addCase(deleteAccount.fulfilled, state => {
+        state.current = null;
       });
 
     // 2. Then add matchers
