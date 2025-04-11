@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 
 import CreateProfile from "./components/profile/CreateProfile";
+import EditProfile from "./components/profile/EditProfile";
 
 import store from "./store";
 import { verifyAuth } from "./features/auth/authSlice";
@@ -60,6 +61,7 @@ const App = () => {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/create-profile" element={<CreateProfile />} />
+              <Route path="/edit-profile" element={<EditProfile />} />
               {/* Add more protected routes here */}
 
               {/* Catch-all Route */}

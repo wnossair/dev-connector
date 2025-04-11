@@ -37,8 +37,8 @@ const Dashboard = () => {
           dispatch(logoutUser());
         }
       } catch (error) {
-        console.log("Delete account error:", error);
         dispatch(setAppError(error));
+        console.log("Delete account error:", error);
       }
     }
   };
