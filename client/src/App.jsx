@@ -14,13 +14,13 @@ import Dashboard from "./components/dashboard/Dashboard";
 
 import CreateProfile from "./components/profile/CreateProfile";
 import EditProfile from "./components/profile/EditProfile";
+import AddExperience from "./components/profile/AddExperience";
+import AddEducation from "./components/profile/AddEducation";
 
 import store from "./store";
 import { verifyAuth } from "./features/auth/authSlice";
 
 import "./App.css";
-import AddExperience from "./components/profile/AddExperience";
-import AddEducation from "./components/profile/AddEducation";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);

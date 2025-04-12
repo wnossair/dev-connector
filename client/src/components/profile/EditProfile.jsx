@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import TextFieldGroup from "../common/TextFieldGroup";
@@ -175,6 +175,9 @@ const EditProfile = () => {
       <div className="container">
         <div className='"row'>
           <div className="col-lg-8 m-auto">
+            <Link to="/dashboard" className="btn btn-light">
+              Go Back
+            </Link>
             <div className="display-4 text-center">Edit Your Profile</div>
             <p className="lead text-center">Let's update your information to what's new</p>
             <small className="d-block p-3">* = required fields</small>

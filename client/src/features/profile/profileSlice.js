@@ -95,6 +95,20 @@ export const deleteExperience = createAsyncThunk(
   }
 );
 
+export const deleteEducation = createAsyncThunk(
+  "profile/education/delete",
+  async (expId, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/profile/education/${expId}`);
+      return { current: response.data };
+    } catch (error) {
+      const errorData = error.response?.data || { message: "Failed to delete education" };
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
 export const deleteAccount = createAsyncThunk(
   "profile/delete",
   async (_, { dispatch, rejectWithValue }) => {
@@ -133,6 +147,9 @@ const profileSlice = createSlice({
         state.current = action.payload.current;
       })
       .addCase(deleteExperience.fulfilled, (state, action) => {
+        state.current = action.payload.current;
+      })
+      .addCase(deleteEducation.fulfilled, (state, action) => {
         state.current = action.payload.current;
       })
       .addCase(deleteAccount.fulfilled, state => {
