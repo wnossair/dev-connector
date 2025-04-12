@@ -59,7 +59,22 @@ export const addExperience = createAsyncThunk(
       console.log(error);
       const errorData = error.response?.data  || { message: "Failed to add experience" };
 
-      console.log(errorData);
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
+export const addEducation = createAsyncThunk(
+  "profile/education/add",
+  async (educationData, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.post("/profile/education", educationData);
+      return { current: response.data };
+    } catch (error) {
+      console.log(error);
+      const errorData = error.response?.data  || { message: "Failed to add education" };
+
       dispatch(setAppError(errorData));
       return rejectWithValue(errorData);
     }
@@ -98,6 +113,9 @@ const profileSlice = createSlice({
         state.current = action.payload.current;
       })
       .addCase(addExperience.fulfilled, (state, action) => {
+        state.current = action.payload.current;
+      })
+      .addCase(addEducation.fulfilled, (state, action) => {
         state.current = action.payload.current;
       })
       .addCase(deleteAccount.fulfilled, state => {

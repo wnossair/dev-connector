@@ -260,7 +260,7 @@ const CreateProfile = () => {
               {formData.displaySocialInputs && (
                 <SocialInputs formData={formData} fieldErrors={fieldErrors} onChange={onChange} />
               )}
-              <input type="submit" value="Submit" className="btn btn-info btn-block mt-4" />
+              <input type="submit" value="Submit" className="btn btn-info form-control mt-4" />
             </form>
           </div>
         </div>

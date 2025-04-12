@@ -319,7 +319,7 @@
               "type": "text"
             },
             {
-              "key": "fieldofstudy",
+              "key": "fieldOfStudy",
               "value": "Test Field of Study",
               "type": "text"
             },

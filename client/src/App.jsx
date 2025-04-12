@@ -20,6 +20,7 @@ import { verifyAuth } from "./features/auth/authSlice";
 
 import "./App.css";
 import AddExperience from "./components/profile/AddExperience";
+import AddEducation from "./components/profile/AddEducation";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -64,6 +65,7 @@ const App = () => {
               <Route path="/create-profile" element={<CreateProfile />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/add-experience" element={<AddExperience />} />
+              <Route path="/add-education" element={<AddEducation />} />
               {/* Add more protected routes here */}
 
               {/* Catch-all Route */}

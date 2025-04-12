@@ -287,7 +287,7 @@ const EditProfile = () => {
               {formData.displaySocialInputs && (
                 <SocialInputs formData={formData} fieldErrors={fieldErrors} onChange={onChange} />
               )}
-              <input type="submit" value="Update" className="btn btn-info btn-block mt-4" />
+              <input type="submit" value="Update" className="btn btn-info form-control mt-4" />
             </form>
           </div>
         </div>

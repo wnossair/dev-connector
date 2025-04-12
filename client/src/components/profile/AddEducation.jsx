@@ -4,9 +4,9 @@ import TextFieldGroup from "../common/TextFieldGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { clearAppError } from "../../features/error/errorSlice";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
-import { addExperience } from "../../features/profile/profileSlice";
+import { addEducation } from "../../features/profile/profileSlice";
 
-const AddExperience = () => {
+const AddEducation = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -14,9 +14,9 @@ const AddExperience = () => {
 
   // Local States
   const [formData, setFormData] = useState({
-    title: "",
-    company: "",
-    location: "",
+    school: "",
+    degree: "",
+    fieldOfStudy: "",
     from: "",
     to: "",
     current: false,
@@ -24,8 +24,8 @@ const AddExperience = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState({
-    title: "", // Empty
-    company: "", // Empty
+    school: "", // Empty
+    degree: "", // Empty
     from: "", // After to
     to: "", // Not set and not current
   });
@@ -58,55 +58,56 @@ const AddExperience = () => {
     setFieldErrors({});
 
     try {
-      await dispatch(addExperience(formData)).unwrap();
+      await dispatch(addEducation(formData)).unwrap();
       navigate("/dashboard");
     } catch (error) {
-      console.log("Add Experience error: ", error);
+      console.log("Add Education error: ", error);
     }
   };
 
   return (
-    <div className="section add-experience">
+    <div className="section add-education">
       <div className="container">
         <div className="row">
           <div className="col-md-8 m-auto">
             <Link to="/dashboard" className="btn btn-light">
               Go Back
             </Link>
-            <h1 className="display-4 text-center">Add Your Experience</h1>
-            <p className="lead text-center">(Software Engineering Experience)</p>
+            <h1 className="display-4 text-center">Add Your Education</h1>
+            <p className="lead text-center">Add any school, bootcamp, etc that you have attended</p>
             <small className="d-block pb-3">* = required field</small>
             <form onSubmit={onSubmit} noValidate>
-              {/* Title Field */}
+              {/* School Field */}
               <TextFieldGroup
-                name="title"
-                value={formData.title}
-                placeholder="* Job Title"
-                id="title"
-                error={fieldErrors.title}
+                name="school"
+                value={formData.school}
+                placeholder="* School Or Bootcamp"
+                id="school"
+                error={fieldErrors.school}
                 onChange={onChange}
                 required={true}
               />
 
-              {/* Company Field */}
+              {/* Degree Field */}
               <TextFieldGroup
-                name="company"
-                value={formData.company}
-                placeholder="* Company"
-                id="company"
-                error={fieldErrors.company}
+                name="degree"
+                value={formData.degree}
+                placeholder="* Degree Or Certificate"
+                id="degree"
+                error={fieldErrors.degree}
                 onChange={onChange}
                 required={true}
               />
 
-              {/* Location Field */}
+              {/* Field of Study Field */}
               <TextFieldGroup
-                name="location"
-                value={formData.location}
-                placeholder="Location"
-                id="location"
-                error={fieldErrors.location}
+                name="fieldOfStudy"
+                value={formData.fieldOfStudy}
+                placeholder="* Field Of Study"
+                id="fieldOfStudy"
+                error={fieldErrors.fieldOfStudy}
                 onChange={onChange}
+                required={true}
               />
 
               {/* From Field */}
@@ -144,7 +145,7 @@ const AddExperience = () => {
                   id="current"
                 />
                 <label className="form-check-label" htmlFor="current">
-                  Current Job
+                  Currently Student
                 </label>
               </div>
 
@@ -152,10 +153,10 @@ const AddExperience = () => {
               <TextAreaFieldGroup
                 name="description"
                 value={formData.description}
-                placeholder="Job Description"
+                placeholder="Program Description"
                 id="description"
                 onChange={onChange}
-                info="Some of your responsabilities, etc"
+                info="Tell us about your experience and what you learned"
               />
 
               <input type="submit" className="btn btn-info form-control mt-4" />
@@ -167,4 +168,4 @@ const AddExperience = () => {
   );
 };
 
-export default AddExperience;
+export default AddEducation;
