@@ -3,7 +3,7 @@ import React from "react";
 const TextFieldGroup = ({
   name,
   value,
-  placeholder,
+  placeholder = "",
   label,
   id,
   error = null,
@@ -12,18 +12,21 @@ const TextFieldGroup = ({
   onChange,
   disabled = false,
   autoComplete = "off",
+  required = false,
 }) => {
   return (
     <div className="row mb-3">
       {label && (
-        <label
-          htmlFor={id}
-          className="col-sm-2 col-form-label fw-medium d-flex align-items-center mb-0"
-        >
-          {label}
-        </label>
+        <div className="col-12 mb-2">
+          <label
+            htmlFor={id}
+            className="fw-medium text-nowrap" // Added text-nowrap to prevent wrapping
+          >
+            {label}
+          </label>
+        </div>
       )}
-      <div className={`${label ? "col-sm-10" : "col-sm-12"}`}>
+      <div className="col-12">
         <div className="d-flex align-items-center">
           <input
             type={type}
@@ -35,6 +38,7 @@ const TextFieldGroup = ({
             onChange={onChange}
             disabled={disabled}
             autoComplete={autoComplete}
+            required={required}
           />
         </div>
       </div>

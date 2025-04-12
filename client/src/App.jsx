@@ -19,13 +19,14 @@ import store from "./store";
 import { verifyAuth } from "./features/auth/authSlice";
 
 import "./App.css";
+import AddExperience from "./components/profile/AddExperience";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
 
   // Periodic check for Authorization
   useEffect(() => {
-    const delayInMinutes = 5;
+    const delayInMinutes = 10;
     let intervalId;
 
     const checkAuth = async () => {
@@ -62,6 +63,7 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/create-profile" element={<CreateProfile />} />
               <Route path="/edit-profile" element={<EditProfile />} />
+              <Route path="/add-experience" element={<AddExperience />} />
               {/* Add more protected routes here */}
 
               {/* Catch-all Route */}

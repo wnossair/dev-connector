@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import ProfileActions from "./ProfileActions";
 import { logoutUser } from "../../features/auth/authSlice";
-import { setAppError } from "../../features/error/errorSlice";
+import { clearAppError, setAppError } from "../../features/error/errorSlice";
 import { deleteAccount, loadProfile } from "../../features/profile/profileSlice";
 
 const Dashboard = () => {
@@ -14,6 +14,11 @@ const Dashboard = () => {
   const { current: currentProfile, loading } = useSelector(state => state.profile);
 
   // Use Effect Hooks
+  useEffect(() => {
+    // Clear all errors on mount
+    dispatch(clearAppError());
+  }, [dispatch]);
+
   useEffect(() => {
     if (user && !currentProfile && !loading) {
       dispatch(loadProfile());
