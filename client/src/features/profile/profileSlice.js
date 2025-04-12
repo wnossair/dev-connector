@@ -57,7 +57,7 @@ export const addExperience = createAsyncThunk(
       return { current: response.data };
     } catch (error) {
       console.log(error);
-      const errorData = error.response?.data  || { message: "Failed to add experience" };
+      const errorData = error.response?.data || { message: "Failed to add experience" };
 
       dispatch(setAppError(errorData));
       return rejectWithValue(errorData);
@@ -73,8 +73,22 @@ export const addEducation = createAsyncThunk(
       return { current: response.data };
     } catch (error) {
       console.log(error);
-      const errorData = error.response?.data  || { message: "Failed to add education" };
+      const errorData = error.response?.data || { message: "Failed to add education" };
 
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
+export const deleteExperience = createAsyncThunk(
+  "profile/experience/delete",
+  async (expId, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/profile/experience/${expId}`);
+      return { current: response.data };
+    } catch (error) {
+      const errorData = error.response?.data || { message: "Failed to delete experience" };
       dispatch(setAppError(errorData));
       return rejectWithValue(errorData);
     }
@@ -116,6 +130,9 @@ const profileSlice = createSlice({
         state.current = action.payload.current;
       })
       .addCase(addEducation.fulfilled, (state, action) => {
+        state.current = action.payload.current;
+      })
+      .addCase(deleteExperience.fulfilled, (state, action) => {
         state.current = action.payload.current;
       })
       .addCase(deleteAccount.fulfilled, state => {

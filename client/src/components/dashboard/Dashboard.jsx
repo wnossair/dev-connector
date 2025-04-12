@@ -6,6 +6,7 @@ import ProfileActions from "./ProfileActions";
 import { logoutUser } from "../../features/auth/authSlice";
 import { clearAppError, setAppError } from "../../features/error/errorSlice";
 import { deleteAccount, loadProfile } from "../../features/profile/profileSlice";
+import Experience from "./Experience";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -67,6 +68,8 @@ const Dashboard = () => {
       </h2>
       <ProfileActions />
       {/* Add experience and education */}
+      <Experience experience={currentProfile.experience} />
+      
       <div style={{ marginBottom: "60px" }} />
       <button onClick={onDeleteAccountClick} className="btn btn-danger">
         Delete My Account
