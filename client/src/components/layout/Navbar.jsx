@@ -73,7 +73,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4 px-2">
       <div className="container-fluid px-1">
         <Link className="navbar-brand" to="/">
-          DevConnector
+          Developer Social Network
         </Link>
         <button
           className="navbar-toggler"

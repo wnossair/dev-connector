@@ -9,6 +9,7 @@ import { deleteAccount, loadProfile } from "../../features/profile/profileSlice"
 
 import Experience from "./Experience";
 import Education from "./Education";
+import { Spinner } from "../common/Feedback";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -27,15 +28,6 @@ const Dashboard = () => {
       dispatch(loadProfile());
     }
   }, [currentProfile, loading, dispatch]);
-
-  // Loading Spinner (Bootstrap)
-  const Spinner = () => (
-    <div className="d-flex justify-content-center my-5">
-      <div className="spinner-border text-secondary" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  );
 
   // Event handlers
   const onDeleteAccountClick = async e => {

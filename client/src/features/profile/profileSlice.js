@@ -5,6 +5,7 @@ import { setAppError } from "../error/errorSlice";
 const initialState = {
   current: null,
   loading: false,
+  all: [],
 };
 
 const transformErrors = errors => {
@@ -26,6 +27,20 @@ export const loadProfile = createAsyncThunk(
       }
 
       const errorData = error.response?.data || { message: "Failed to load profile" };
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
+export const loadAllProfiles = createAsyncThunk(
+  "profile/all",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.get("/profile/all");
+      return { current: response.data };
+    } catch (error) {
+      const errorData = error.response?.data || { message: "Failed to load all profiles" };
       dispatch(setAppError(errorData));
       return rejectWithValue(errorData);
     }
@@ -134,6 +149,9 @@ const profileSlice = createSlice({
   extraReducers: builder => {
     // 1. First add all specific cases
     builder
+      .addCase(loadAllProfiles.fulfilled, (state, action) => {
+        state.all = action.payload.current;
+      })
       .addCase(loadProfile.fulfilled, (state, action) => {
         state.current = action.payload.current;
       })
