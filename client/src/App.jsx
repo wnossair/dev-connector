@@ -22,6 +22,7 @@ import { verifyAuth } from "./features/auth/authSlice";
 
 import "./App.css";
 import Profiles from "./components/developers/Profiles";
+import Profile from "./components/profile/Profile";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profiles" element={<Profiles />} />
+            <Route path="/profile/user/:handle" element={<Profile />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/create-profile" element={<CreateProfile />} />

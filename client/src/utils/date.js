@@ -18,6 +18,6 @@ export const formatDate = dateString => {
  */
 export const getDateRange = (from, to, current) => {
   const fromDate = formatDate(from);
-  const toDate = current ? "Now" : formatDate(to);
+  const toDate = current ? "Current" : formatDate(to);
   return `${fromDate} ${"→"} ${toDate}`;
 };

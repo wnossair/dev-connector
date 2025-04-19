@@ -1,0 +1,60 @@
+import React, { useEffect } from "react";
+import ProfileHeader from "./ProfileHeader";
+import ProfileAbout from "./ProfileAbout";
+import ProfileCredentials from "./ProfileCredentials";
+import ProfileGithub from "./ProfileGithub";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loadProfileByHandle } from "../../features/profile/profileSlice";
+import { Spinner } from "../common/Feedback";
+
+const Profile = () => {
+  const { handle } = useParams();
+  const dispatch = useDispatch();
+  const { display: profile, loading } = useSelector(state => state.profile);
+
+  useEffect(() => {
+    if (handle) {
+      dispatch(loadProfileByHandle(handle));
+    }
+  }, [handle, dispatch]);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (!profile) {
+    return (
+      <div className="container">
+        <h4>No profile found...</h4>
+        <Link to="/profiles" className="btn btn-light">
+          Back To Profiles
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="profile">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="row">
+              <div className="col-6">
+                <Link to="/profiles" className="btn btn-light mb-3 float-left">
+                  Back To Profiles
+                </Link>
+              </div>
+              <ProfileHeader profile={profile} />
+              <ProfileAbout profile={profile} />
+              <ProfileCredentials profile={profile} />
+              {profile.githubusername && <ProfileGithub username={profile.githubusername} />}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Profile;

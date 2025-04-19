@@ -4,6 +4,7 @@ import { setAppError } from "../error/errorSlice";
 
 const initialState = {
   current: null,
+  display: null,
   loading: false,
   all: [],
 };
@@ -15,7 +16,25 @@ const transformErrors = errors => {
   }, {});
 };
 
-export const loadProfile = createAsyncThunk(
+export const loadProfileByHandle = createAsyncThunk(
+  "profile/handle",
+  async (handle, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.get(`/profile/handle/${handle}`);
+      return { display: response.data };
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return { display: {} }; // Return empty profile for 404
+      }
+
+      const errorData = error.response?.data || { message: `Failed to load profile for ${handle}` };
+      dispatch(setAppError(errorData));
+      return rejectWithValue(errorData);
+    }
+  }
+);
+
+export const loadCurrentProfile = createAsyncThunk(
   "profile/current",
   async (_, { dispatch, rejectWithValue }) => {
     try {
@@ -149,10 +168,13 @@ const profileSlice = createSlice({
   extraReducers: builder => {
     // 1. First add all specific cases
     builder
+      .addCase(loadProfileByHandle.fulfilled, (state, action) => {
+        state.display = action.payload.display;
+      })
       .addCase(loadAllProfiles.fulfilled, (state, action) => {
         state.all = action.payload.current;
       })
-      .addCase(loadProfile.fulfilled, (state, action) => {
+      .addCase(loadCurrentProfile.fulfilled, (state, action) => {
         state.current = action.payload.current;
       })
       .addCase(createProfile.fulfilled, (state, action) => {

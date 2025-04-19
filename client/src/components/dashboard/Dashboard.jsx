@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import ProfileActions from "./ProfileActions";
 import { logoutUser } from "../../features/auth/authSlice";
 import { clearAppError, setAppError } from "../../features/error/errorSlice";
-import { deleteAccount, loadProfile } from "../../features/profile/profileSlice";
+import { deleteAccount, loadCurrentProfile } from "../../features/profile/profileSlice";
 
 import Experience from "./Experience";
 import Education from "./Education";
@@ -25,7 +25,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user && !currentProfile && !loading) {
-      dispatch(loadProfile());
+      dispatch(loadCurrentProfile());
     }
   }, [currentProfile, loading, dispatch]);
 

@@ -7,11 +7,11 @@ import { Provider } from "react-redux";
 
 import store from "./store";
 import { loadUser, verifyAuth } from "./features/auth/authSlice";
-import { loadProfile } from "./features/profile/profileSlice.js";
+import { loadCurrentProfile } from "./features/profile/profileSlice.js";
 
 if (store.dispatch(verifyAuth())) {
   store.dispatch(loadUser());
-  store.dispatch(loadProfile())
+  store.dispatch(loadCurrentProfile())
 }
 
 createRoot(document.getElementById("root")).render(

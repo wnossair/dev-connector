@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const ProfileItem = ({ profile }) => {
   const { avatar, name, _id } = profile.user;
-  const { status, company, location, skills } = profile;
+  const { status, company, location, skills, handle } = profile;
 
   return (
     <div className="card card-body bg-light mb-3" key={_id}>
@@ -17,7 +17,7 @@ const ProfileItem = ({ profile }) => {
             {status} at {company ?? ""}
           </p>
           <p>{location ?? ""}</p>
-          <Link to={`/profile/user/${_id}`} className="btn btn-info">
+          <Link to={`/profile/user/${handle}`} className="btn btn-info">
             View Profile
           </Link>
         </div>
