@@ -24,7 +24,7 @@ export const loadProfileByHandle = createAsyncThunk(
       return { display: response.data };
     } catch (error) {
       if (error.response?.status === 404) {
-        return { display: {} }; // Return empty profile for 404
+        return { display: null }; // Return empty profile for 404
       }
 
       const errorData = error.response?.data || { message: `Failed to load profile for ${handle}` };

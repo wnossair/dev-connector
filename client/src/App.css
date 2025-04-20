@@ -37,3 +37,7 @@ img {
 .form-control::placeholder {
   color: #bbb !important;
 }
+
+.credential-item p {
+  margin-bottom: 0.25rem; /* Same as mb-1 */
+}

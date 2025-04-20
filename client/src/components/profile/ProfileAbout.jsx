@@ -6,17 +6,17 @@ const ProfileAbout = ({ profile }) => {
 
   return (
     // Profile About
-    <div className="row">
+    <div className="row mt-3">
       <div className="col-md-12">
         <div className="card card-body bg-light mb-3">
           {bio && (
             <>
-              <h3 className="text-center text-primary">{`${firstName}'s Bio`}</h3>
+              <h3 className="text-center text-info mb-1">{`${firstName}'s Bio`}</h3>
               <p className="lead">{bio}</p>
               <hr />
             </>
           )}
-          <h3 className="text-center text-primary">Skill Set</h3>
+          <h3 className="text-center text-info mb-1">Skill Set</h3>
           <div className="row">
             <div className="d-flex flex-wrap justify-content-center align-items-center">
               {Array.isArray(skills) &&

@@ -11,7 +11,7 @@ import { Spinner } from "../common/Feedback";
 const Profile = () => {
   const { handle } = useParams();
   const dispatch = useDispatch();
-  const { display: profile, loading } = useSelector(state => state.profile);
+  const { display: profile, loading, error } = useSelector(state => state.profile);
 
   useEffect(() => {
     if (handle) {
@@ -23,11 +23,12 @@ const Profile = () => {
     return <Spinner />;
   }
 
-  if (!profile) {
+  if (error || !profile) {
     return (
       <div className="container">
-        <h4>No profile found...</h4>
-        <Link to="/profiles" className="btn btn-light">
+        <h1 className="display-4">Profile not found</h1>
+        <p>Sorry, this page does not exist.</p>
+        <Link to="/profiles" className="btn btn-dark">
           Back To Profiles
         </Link>
       </div>
@@ -41,7 +42,7 @@ const Profile = () => {
           <div className="col-md-12">
             <div className="row">
               <div className="col-6">
-                <Link to="/profiles" className="btn btn-light mb-3 float-left">
+                <Link to="/profiles" className="btn btn-dark mb-3 float-left">
                   Back To Profiles
                 </Link>
               </div>

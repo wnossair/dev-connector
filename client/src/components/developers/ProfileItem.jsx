@@ -17,7 +17,7 @@ const ProfileItem = ({ profile }) => {
             {status} at {company ?? ""}
           </p>
           <p>{location ?? ""}</p>
-          <Link to={`/profile/user/${handle}`} className="btn btn-info">
+          <Link to={`/profile/user/${handle}`} className="btn btn-success">
             View Profile
           </Link>
         </div>
