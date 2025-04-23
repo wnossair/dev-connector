@@ -22,6 +22,11 @@ const Navbar = () => {
   const authLinks = (
     <>
       <li className="nav-item pe-2">
+        <Link className="nav-link" to="/feed">
+          Post Feed
+        </Link>
+      </li>
+      <li className="nav-item pe-2">
         <Link className="nav-link" to="/dashboard">
           Dashboard
         </Link>
