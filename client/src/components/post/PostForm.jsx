@@ -6,7 +6,6 @@ import { addPost } from "../../features/post/postSlice";
 
 const PostForm = () => {
   const dispatch = useDispatch();
-
   const appError = useSelector(state => state.error);
   const { user } = useSelector(state => state.auth);
 
@@ -14,38 +13,31 @@ const PostForm = () => {
   const [errorText, setErrorText] = useState("");
 
   useEffect(() => {
-    // Clear all errors on mount
     dispatch(clearAppError());
     setErrorText("");
   }, [dispatch]);
 
   useEffect(() => {
-    // Only show errors after user interaction
     if (appError?.text) {
       setErrorText(appError.text);
     }
   }, [appError, postText]);
 
-  // Event handlers
   const onChange = e => {
     setPostText(e.target.value);
-
     dispatch(clearAppError());
     setErrorText("");
   };
 
   const onSubmit = async e => {
     e.preventDefault();
-
     try {
       const postData = {
         text: postText,
         name: user.name,
         avatar: user.avatar,
       };
-
-      const result = await dispatch(addPost(postData)).unwrap();
-      console.log("Post success:", result.current);
+      await dispatch(addPost(postData)).unwrap();
       setPostText("");
     } catch (err) {
       console.error("Post error:", err);
@@ -55,7 +47,7 @@ const PostForm = () => {
   return (
     <div className="post-form mb-3">
       <div className="card card-info">
-        <div className="card-header bg-primary text-white">Say Somthing...</div>
+        <div className="card-header bg-primary text-white">Say Something...</div>
         <div className="card-body">
           <form onSubmit={onSubmit}>
             <div className="form-group">
