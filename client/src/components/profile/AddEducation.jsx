@@ -24,15 +24,14 @@ const AddEducation = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState({
-    school: "", // Empty
-    degree: "", // Empty
-    from: "", // After to
-    to: "", // Not set and not current
+    school: "",
+    degree: "",
+    from: "",
+    to: "",
   });
 
   // Use effect hooks
   useEffect(() => {
-    // Only show errors after user interaction
     if (appError && Object.values(formData).some(v => v !== "")) {
       setFieldErrors(prev => ({ ...prev, ...appError }));
     }
@@ -66,105 +65,99 @@ const AddEducation = () => {
   };
 
   return (
-    <div className="section add-education">
-      <div className="container">
-        <div className="row">
-          <div className="col-md-8 m-auto">
-            <Link to="/dashboard" className="btn btn-light">
-              Go Back
-            </Link>
-            <h1 className="display-4 text-center">Add Your Education</h1>
-            <p className="lead text-center">Add any school, bootcamp, etc that you have attended</p>
-            <small className="d-block pb-3">* = required field</small>
-            <form onSubmit={onSubmit} noValidate>
-              {/* School Field */}
-              <TextFieldGroup
-                name="school"
-                value={formData.school}
-                placeholder="* School Or Bootcamp"
-                id="school"
-                error={fieldErrors.school}
-                onChange={onChange}
-                required={true}
-              />
+    <section className="container">
+      <h1 className="large text-primary">Add Your Education</h1>
+      <p className="lead">
+        Add any school, bootcamp, etc that you have attended
+      </p>
+      <small>* = required field</small>
+      <form className="form" onSubmit={onSubmit} noValidate>
+        {/* School Field */}
+        <TextFieldGroup
+          name="school"
+          value={formData.school}
+          placeholder="* School or Bootcamp"
+          error={fieldErrors.school}
+          onChange={onChange}
+          required={true}
+        />
 
-              {/* Degree Field */}
-              <TextFieldGroup
-                name="degree"
-                value={formData.degree}
-                placeholder="* Degree Or Certificate"
-                id="degree"
-                error={fieldErrors.degree}
-                onChange={onChange}
-                required={true}
-              />
+        {/* Degree Field */}
+        <TextFieldGroup
+          name="degree"
+          value={formData.degree}
+          placeholder="* Degree or Certificate"
+          error={fieldErrors.degree}
+          onChange={onChange}
+          required={true}
+        />
 
-              {/* Field of Study Field */}
-              <TextFieldGroup
-                name="fieldOfStudy"
-                value={formData.fieldOfStudy}
-                placeholder="* Field Of Study"
-                id="fieldOfStudy"
-                error={fieldErrors.fieldOfStudy}
-                onChange={onChange}
-                required={true}
-              />
+        {/* Field of Study Field */}
+        <TextFieldGroup
+          name="fieldOfStudy"
+          value={formData.fieldOfStudy}
+          placeholder="Field Of Study"
+          error={fieldErrors.fieldOfStudy}
+          onChange={onChange}
+        />
 
-              {/* From Field */}
-              <TextFieldGroup
-                name="from"
-                value={formData.from}
-                id="from"
-                error={fieldErrors.from}
-                onChange={onChange}
-                label="* From Date"
-                type="date"
-                required={true}
-              />
-
-              {/* To Field */}
-              <TextFieldGroup
-                name="to"
-                value={formData.to}
-                id="to"
-                error={fieldErrors.to}
-                onChange={onChange}
-                disabled={formData.current}
-                label="To Date"
-                type="date"
-              />
-
-              {/* Current Field */}
-              <div className="form-check mb-4">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  name="current"
-                  checked={formData.current}
-                  onChange={onChange}
-                  id="current"
-                />
-                <label className="form-check-label" htmlFor="current">
-                  Currently Student
-                </label>
-              </div>
-
-              {/* Description Field */}
-              <TextAreaFieldGroup
-                name="description"
-                value={formData.description}
-                placeholder="Program Description"
-                id="description"
-                onChange={onChange}
-                info="Tell us about your experience and what you learned"
-              />
-
-              <input type="submit" className="btn btn-info form-control mt-4" />
-            </form>
-          </div>
+        {/* From Date */}
+        <div className="form-group">
+          <h4>From Date</h4>
+          <TextFieldGroup
+            name="from"
+            value={formData.from}
+            error={fieldErrors.from}
+            onChange={onChange}
+            type="date"
+            required={true}
+          />
         </div>
-      </div>
-    </div>
+
+        {/* Current School Checkbox */}
+        <div className="form-group">
+          <p>
+            <input
+              type="checkbox"
+              name="current"
+              checked={formData.current}
+              onChange={onChange}
+            />{" "}
+            Current School or Bootcamp
+          </p>
+        </div>
+
+        {/* To Date */}
+        <div className="form-group">
+          <h4>To Date</h4>
+          <TextFieldGroup
+            name="to"
+            value={formData.to}
+            error={fieldErrors.to}
+            onChange={onChange}
+            type="date"
+            disabled={formData.current}
+          />
+        </div>
+
+        {/* Description Field */}
+        <div className="form-group">
+          <TextAreaFieldGroup
+            name="description"
+            value={formData.description}
+            placeholder="Program Description"
+            onChange={onChange}
+            cols="30"
+            rows="5"
+          />
+        </div>
+
+        <input type="submit" className="btn btn-primary my-1" />
+        <Link className="btn btn-light my-1" to="/dashboard">
+          Go Back
+        </Link>
+      </form>
+    </section>
   );
 };
 

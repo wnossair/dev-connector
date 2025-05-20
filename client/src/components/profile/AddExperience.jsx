@@ -24,15 +24,14 @@ const AddExperience = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState({
-    title: "", // Empty
-    company: "", // Empty
-    from: "", // After to
-    to: "", // Not set and not current
+    title: "",
+    company: "",
+    from: "",
+    to: "",
   });
 
   // Use effect hooks
   useEffect(() => {
-    // Only show errors after user interaction
     if (appError && Object.values(formData).some(v => v !== "")) {
       setFieldErrors(prev => ({ ...prev, ...appError }));
     }
@@ -66,104 +65,99 @@ const AddExperience = () => {
   };
 
   return (
-    <div className="section add-experience">
-      <div className="container">
-        <div className="row">
-          <div className="col-md-8 m-auto">
-            <Link to="/dashboard" className="btn btn-light">
-              Go Back
-            </Link>
-            <h1 className="display-4 text-center">Add Your Experience</h1>
-            <p className="lead text-center">(Software Engineering Experience)</p>
-            <small className="d-block pb-3">* = required field</small>
-            <form onSubmit={onSubmit} noValidate>
-              {/* Title Field */}
-              <TextFieldGroup
-                name="title"
-                value={formData.title}
-                placeholder="* Job Title"
-                id="title"
-                error={fieldErrors.title}
-                onChange={onChange}
-                required={true}
-              />
+    <section className="container">
+      <h1 className="large text-primary">Add An Experience</h1>
+      <p className="lead">
+        Add any developer/programming positions that you have had in the past
+      </p>
+      <small>* = required field</small>
+      <form className="form" onSubmit={onSubmit} noValidate>
+        {/* Title Field */}
+        <TextFieldGroup
+          name="title"
+          value={formData.title}
+          placeholder="* Job Title"
+          error={fieldErrors.title}
+          onChange={onChange}
+          required={true}
+        />
 
-              {/* Company Field */}
-              <TextFieldGroup
-                name="company"
-                value={formData.company}
-                placeholder="* Company"
-                id="company"
-                error={fieldErrors.company}
-                onChange={onChange}
-                required={true}
-              />
+        {/* Company Field */}
+        <TextFieldGroup
+          name="company"
+          value={formData.company}
+          placeholder="* Company"
+          error={fieldErrors.company}
+          onChange={onChange}
+          required={true}
+        />
 
-              {/* Location Field */}
-              <TextFieldGroup
-                name="location"
-                value={formData.location}
-                placeholder="Location"
-                id="location"
-                error={fieldErrors.location}
-                onChange={onChange}
-              />
+        {/* Location Field */}
+        <TextFieldGroup
+          name="location"
+          value={formData.location}
+          placeholder="Location"
+          error={fieldErrors.location}
+          onChange={onChange}
+        />
 
-              {/* From Field */}
-              <TextFieldGroup
-                name="from"
-                value={formData.from}
-                id="from"
-                error={fieldErrors.from}
-                onChange={onChange}
-                label="* From Date"
-                type="date"
-                required={true}
-              />
-
-              {/* To Field */}
-              <TextFieldGroup
-                name="to"
-                value={formData.to}
-                id="to"
-                error={fieldErrors.to}
-                onChange={onChange}
-                disabled={formData.current}
-                label="To Date"
-                type="date"
-              />
-
-              {/* Current Field */}
-              <div className="form-check mb-4">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  name="current"
-                  checked={formData.current}
-                  onChange={onChange}
-                  id="current"
-                />
-                <label className="form-check-label" htmlFor="current">
-                  Current Job
-                </label>
-              </div>
-
-              {/* Description Field */}
-              <TextAreaFieldGroup
-                name="description"
-                value={formData.description}
-                placeholder="Job Description"
-                id="description"
-                onChange={onChange}
-                info="Some of your responsabilities, etc"
-              />
-
-              <input type="submit" className="btn btn-info form-control mt-4" />
-            </form>
-          </div>
+        {/* From Date */}
+        <div className="form-group">
+          <h4>From Date</h4>
+          <TextFieldGroup
+            name="from"
+            value={formData.from}
+            error={fieldErrors.from}
+            onChange={onChange}
+            type="date"
+            required={true}
+          />
         </div>
-      </div>
-    </div>
+
+        {/* Current Job Checkbox */}
+        <div className="form-group">
+          <p>
+            <input
+              type="checkbox"
+              name="current"
+              checked={formData.current}
+              onChange={onChange}
+            />{" "}
+            Current Job
+          </p>
+        </div>
+
+        {/* To Date */}
+        <div className="form-group">
+          <h4>To Date</h4>
+          <TextFieldGroup
+            name="to"
+            value={formData.to}
+            error={fieldErrors.to}
+            onChange={onChange}
+            type="date"
+            disabled={formData.current}
+          />
+        </div>
+
+        {/* Description Field */}
+        <div className="form-group">
+          <TextAreaFieldGroup
+            name="description"
+            value={formData.description}
+            placeholder="Job Description"
+            onChange={onChange}
+            cols="30"
+            rows="5"
+          />
+        </div>
+
+        <input type="submit" className="btn btn-primary my-1" />
+        <Link className="btn btn-light my-1" to="/dashboard">
+          Go Back
+        </Link>
+      </form>
+    </section>
   );
 };
 

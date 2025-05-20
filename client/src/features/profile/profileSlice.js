@@ -117,9 +117,9 @@ export const addEducation = createAsyncThunk(
 
 export const deleteExperience = createAsyncThunk(
   "profile/experience/delete",
-  async (expId, { dispatch, rejectWithValue }) => {
+  async (id, { dispatch, rejectWithValue }) => {
     try {
-      const response = await api.delete(`/profile/experience/${expId}`);
+      const response = await api.delete(`/profile/experience/${id}`);
       return { current: response.data };
     } catch (error) {
       const errorData = error.response?.data || { message: "Failed to delete experience" };
@@ -131,9 +131,9 @@ export const deleteExperience = createAsyncThunk(
 
 export const deleteEducation = createAsyncThunk(
   "profile/education/delete",
-  async (expId, { dispatch, rejectWithValue }) => {
+  async (id, { dispatch, rejectWithValue }) => {
     try {
-      const response = await api.delete(`/profile/education/${expId}`);
+      const response = await api.delete(`/profile/education/${id}`);
       return { current: response.data };
     } catch (error) {
       const errorData = error.response?.data || { message: "Failed to delete education" };
