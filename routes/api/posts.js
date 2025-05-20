@@ -1,11 +1,12 @@
-const express = require("express");
-const router = express.Router();
-const passport = require("passport");
-const { validationResult } = require("express-validator");
-const { postValidation } = require("../../middleware/validation.js");
+import express from "express";
+import passport from "passport";
+import { validationResult } from "express-validator";
+import { postValidation } from "../../middleware/validation.js";
 
 // Models
-const Post = require("../../models/Post");
+import Post from "../../models/Post.js";
+
+const router = express.Router();
 
 // @route   GET api/posts/test
 // @desc    Tests posts route
@@ -89,7 +90,8 @@ router.delete("/:id", passport.authenticate("jwt", { session: false }), async (r
       return res.status(401).json({ msg: "User not authorized" });
     }
 
-    await post.remove();
+    await post.deleteOne(); // Updated method
+
     res.json({ msg: "Post removed" });
   } catch (err) {
     console.error(err.message);
@@ -222,4 +224,4 @@ router.delete(
   }
 );
 
-module.exports = router;
+export default router;

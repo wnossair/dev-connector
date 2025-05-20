@@ -1,6 +1,6 @@
-const { body, check } = require("express-validator");
+import { body, check } from "express-validator";
 
-exports.registerValidation = [
+export const registerValidation = [
   body("name")
     .notEmpty()
     .withMessage("Name field is required")
@@ -23,7 +23,7 @@ exports.registerValidation = [
     .withMessage("Passwords must match"),
 ];
 
-exports.loginValidation = [
+export const loginValidation = [
   body("email")
     .notEmpty()
     .withMessage("Email field is required")
@@ -32,7 +32,7 @@ exports.loginValidation = [
   body("password").notEmpty().withMessage("Password field is required"),
 ];
 
-exports.profileValidation = [
+export const profileValidation = [
   body("handle")
     .notEmpty()
     .withMessage("Profile handle is required")
@@ -48,7 +48,7 @@ exports.profileValidation = [
   body("instagram").optional({ checkFalsy: true }).isURL().withMessage("Not a valid URL"),
 ];
 
-exports.postValidation = [
+export const postValidation = [
   body("text")
     .notEmpty()
     .withMessage("Text field is required")
@@ -56,7 +56,7 @@ exports.postValidation = [
     .withMessage("Posts must be between 10 and 300 characters"),
 ];
 
-exports.experienceValidation = [
+export const experienceValidation = [
   body("title").notEmpty().withMessage("Job title field is required"),
   body("company").notEmpty().withMessage("Company field is required"),
   body("from")
@@ -77,7 +77,7 @@ exports.experienceValidation = [
   body("current").optional().isBoolean().withMessage("Current must be a boolean"),
 ];
 
-exports.educationValidation = [
+export const educationValidation = [
   body("school").notEmpty().withMessage("School field is required"),
   body("degree").notEmpty().withMessage("Degree field is required"),
   body("fieldOfStudy").notEmpty().withMessage("Field of study is required"),

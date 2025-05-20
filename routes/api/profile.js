@@ -1,16 +1,18 @@
-const express = require("express");
-const router = express.Router();
-const passport = require("passport");
-const { validationResult } = require("express-validator");
-const {
+import express from "express";
+import passport from "passport";
+import { validationResult } from "express-validator";
+import {
   profileValidation,
   experienceValidation,
   educationValidation,
-} = require("../../middleware/validation.js");
+} from "../../middleware/validation.js";
 
 // Load Models
-const Profile = require("../../models/Profile");
-const User = require("../../models/User");
+import Profile from "../../models/Profile.js";
+import User from "../../models/User.js";
+import Post from "../../models/Post.js";
+
+const router = express.Router();
 
 // @route   GET api/profile/test
 // @desc    Tests profile route
@@ -324,4 +326,4 @@ router.delete("/", passport.authenticate("jwt", { session: false }), async (req,
   }
 });
 
-module.exports = router;
+export default router;

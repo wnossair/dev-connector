@@ -1,37 +1,41 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const passport = require('passport');
+import express from "express";
+import mongoose from "mongoose";
+import passport from "passport";
 
-const users = require('./routes/api/users.js');
-const profile = require('./routes/api/profile.js');
-const posts = require('./routes/api/posts.js');
+import usersRoutes from "./routes/api/users.js";
+import profileRoutes from "./routes/api/profile.js";
+import postsRoutes from "./routes/api/posts.js";
+
+import keys from "./config/keys.js";
+import passportConfig from "./config/passport.js";
 
 const app = express();
 
 // Body parser middleware
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // DB Config
-const db = require('./config/keys').mongoURI;
+const db = keys.mongoURI;
 
 // Connect to MongoDB
 mongoose
   .connect(db)
   .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .catch(err => console.log(err));
 
-// Passport 
+// Passport middleware
 app.use(passport.initialize());
-require('./config/passport')(passport);
+// Passport Config
+passportConfig(passport);
 
 // Test the app is running
-app.get('/', (req, res) => res.send('Hello World'));
+app.get("/", (req, res) => res.send("Hello World"));
 
 // Use Routes
-app.use('/api/users', users);
-app.use('/api/profile', profile);
-app.use('/api/posts', posts);
+app.use("/api/users", usersRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/posts", postsRoutes);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on port ${port}`));

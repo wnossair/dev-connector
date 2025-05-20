@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import mongoose from "mongoose";
+const { Schema, model } = mongoose; // Destructuring Schema and model
 
 // Create Schema
 const ProfileSchema = new Schema({
@@ -114,8 +114,9 @@ const ProfileSchema = new Schema({
   },
   date: {
     type: Date,
-    default: Date.Now,
+    default: Date.now,
   },
 });
 
-module.exports = Profile = mongoose.model("profile", ProfileSchema);
+const Profile = model("profile", ProfileSchema);
+export default Profile;

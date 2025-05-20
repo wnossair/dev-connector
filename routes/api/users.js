@@ -1,15 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const gravatar = require("gravatar");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const passport = require("passport");
-const { validationResult } = require("express-validator");
-const { registerValidation, loginValidation } = require("../../middleware/validation.js");
+import express from "express";
+import gravatar from "gravatar";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import passport from "passport";
+import { validationResult } from "express-validator";
+import { registerValidation, loginValidation } from "../../middleware/validation.js";
 
 // Load models and config
-const User = require("../../models/User.js");
-const keys = require("../../config/keys.js");
+import User from "../../models/User.js";
+import keys from "../../config/keys.js";
+
+const router = express.Router();
 
 // @route   GET api/users/test
 // @desc    Tests users route
@@ -107,4 +108,4 @@ router.get("/current", passport.authenticate("jwt", { session: false }), (req, r
   });
 });
 
-module.exports = router;
+export default router;
