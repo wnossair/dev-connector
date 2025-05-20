@@ -1,0 +1,34 @@
+{
+  "name": "devconnector",
+  "version": "1.0.0",
+  "description": "social network for developers",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "client-install": "npm install --prefix ../client",
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "npm run dev --prefix ../client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "Wassim Nossair",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "concurrently": "^9.1.2",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "gravatar": "^1.8.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "validator": "^13.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
