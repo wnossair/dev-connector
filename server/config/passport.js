@@ -20,7 +20,10 @@ export default passport => {
           }
           return done(null, false);
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.error("Error in JWT Strategy user lookup:", err); // Log the error
+          return done(err, false); // Pass error to Passport
+        });
     })
   );
 };
