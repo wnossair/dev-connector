@@ -1,15 +1,15 @@
 {
   "name": "dev-connector-root",
   "version": "1.0.0",
-  "description": "Root orchestrator for DevConnector frontend and backend",
+  "description": "Root orchestrator for DevConnector frontend and server",
   "private": true,
   "scripts": {
-    "server": "npm run server --prefix backend",
+    "server": "npm run server --prefix server",
     "client": "npm run dev --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "install-backend": "npm install --prefix backend",
+    "install-server": "npm install --prefix server",
     "install-client": "npm install --prefix client",
-    "install-all": "npm install && npm run install-backend && npm run install-client"
+    "install-all": "npm install && npm run install-server && npm run install-client"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

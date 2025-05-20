@@ -2,10 +2,12 @@ import express from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 
+// Import routes
 import usersRoutes from "./routes/api/users.js";
 import profileRoutes from "./routes/api/profile.js";
 import postsRoutes from "./routes/api/posts.js";
 
+// Import config (which now loads .env)
 import keys from "./config/keys.js";
 import passportConfig from "./config/passport.js";
 
@@ -27,7 +29,7 @@ mongoose
 // Passport middleware
 app.use(passport.initialize());
 // Passport Config
-passportConfig(passport);
+passportConfig(passport); // This will use the updated keys
 
 // Test the app is running
 app.get("/", (req, res) => res.send("Hello World"));
@@ -37,5 +39,5 @@ app.use("/api/users", usersRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/posts", postsRoutes);
 
-const port = process.env.PORT || 5000;
+const port = keys.port; // Use port from config
 app.listen(port, () => console.log(`Server running on port ${port}`));
