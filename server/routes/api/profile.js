@@ -56,7 +56,7 @@ router.post(
         company,
         website,
         location,
-        status,
+        role,
         skills,
         bio,
         githubusername,
@@ -73,7 +73,7 @@ router.post(
         company,
         website,
         location,
-        status,
+        role,
         bio,
         githubusername,
       };

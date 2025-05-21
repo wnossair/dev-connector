@@ -38,7 +38,7 @@ export const profileValidation = [
     .withMessage("Profile handle is required")
     .isLength({ min: 2, max: 40 })
     .withMessage("Handle must be between 2 and 40 characters"),
-  body("status").notEmpty().withMessage("Status field is required"),
+  body("role").notEmpty().withMessage("Role field is required"),
   body("skills").notEmpty().withMessage("Skills field is required"),
   body("website").optional({ checkFalsy: true }).isURL().withMessage("Not a valid URL"),
   body("youtube").optional({ checkFalsy: true }).isURL().withMessage("Not a valid URL"),

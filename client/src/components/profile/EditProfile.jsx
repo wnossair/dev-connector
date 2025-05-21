@@ -77,7 +77,7 @@ const EditProfile = () => {
     company: "",
     website: "",
     location: "",
-    status: "",
+    role: "",
     skills: "",
     githubusername: "",
     bio: "",
@@ -104,7 +104,7 @@ const EditProfile = () => {
         handle: currentProfile.handle || "",
         company: currentProfile.company || "",
         website: currentProfile.website || "",
-        status: currentProfile.status || "",
+        role: currentProfile.role || "",
         skills: currentProfile.skills?.join(",") || "",
         githubusername: currentProfile.githubusername || "",
         bio: currentProfile.bio || "",
@@ -156,9 +156,9 @@ const EditProfile = () => {
     }
   };
 
-  // Select Options for Status
+  // Select Options for Role
   const options = [
-    { label: "* Select Professional Status", value: "" },
+    { label: "* Select Professional Role", value: "" },
     { label: "Developer", value: "Developer" },
     { label: "Junior Developer", value: "Junior Developer" },
     { label: "Senior Developer", value: "Senior Developer" },
@@ -194,14 +194,14 @@ const EditProfile = () => {
                 info="A unique handle for your profile URL. Your full name, company name, nickname, etc"
               />
 
-              {/* Professional Status Field */}
+              {/* Professional Role Field */}
               <SelectListGroup
-                name="status"
-                value={formData.status}
-                placeholder="Status"
-                id="status"
+                name="role"
+                value={formData.role}
+                placeholder="Role"
+                id="role"
                 options={options}
-                error={fieldErrors.status}
+                error={fieldErrors.role}
                 onChange={onChange}
                 info="Give us an idea of where you are at in your career"
               />

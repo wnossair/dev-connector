@@ -76,7 +76,7 @@ const CreateProfile = () => {
     company: "",
     website: "",
     location: "",
-    status: "",
+    role: "",
     skills: "",
     githubusername: "",
     bio: "",
@@ -127,9 +127,9 @@ const CreateProfile = () => {
     }
   };
 
-  // Select Options for Status
+  // Select Options for Role
   const options = [
-    { label: "* Select Professional Status", value: 0 },
+    { label: "* Select Professional Role", value: 0 },
     { label: "Developer", value: "Developer" },
     { label: "Junior Developer", value: "Junior Developer" },
     { label: "Senior Developer", value: "Senior Developer" },
@@ -164,14 +164,14 @@ const CreateProfile = () => {
                 info="A unique handle for your profile URL. Your full name, company name, nickname, etc"
               />
 
-              {/* Professional Status Field */}
+              {/* Professional Role Field */}
               <SelectListGroup
-                name="status"
-                value={formData.status}
-                placeholder="Status"
-                id="status"
+                name="role"
+                value={formData.role}
+                placeholder="Role"
+                id="role"
                 options={options}
-                error={fieldErrors.status}
+                error={fieldErrors.role}
                 onChange={onChange}
                 info="Give us an idea of where you are at in your career"
               />

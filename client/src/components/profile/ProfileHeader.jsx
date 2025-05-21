@@ -3,7 +3,7 @@ import React from "react";
 const ProfileHeader = ({ profile }) => {
   const {
     user: { avatar = "https://www.gravatar.com/avatar/default?s=200", name },
-    status,
+    role,
     company,
     location,
     website,
@@ -29,7 +29,7 @@ const ProfileHeader = ({ profile }) => {
           <div className="text-center">
             <h1 className="display-4 text-center">{name}</h1>
             <p className="lead text-center">
-              {status}
+              {role}
               {company && ` at ${company}`}
             </p>
             {location && <p>{location}</p>}

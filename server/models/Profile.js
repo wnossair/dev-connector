@@ -22,7 +22,7 @@ const ProfileSchema = new Schema({
   location: {
     type: String,
   },
-  status: {
+  role: {
     type: String,
     required: true,
   },

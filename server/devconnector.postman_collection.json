@@ -180,7 +180,7 @@
               "type": "text"
             },
             {
-              "key": "status",
+              "key": "role",
               "value": "test",
               "type": "text"
             },
