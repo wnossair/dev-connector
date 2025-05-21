@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../utils/api";
 import { setAppError } from "../error/errorSlice";
+import { logoutUser } from "../auth/authSlice"; // Import for handling 401
 
 const initialState = {
   current: null,
@@ -9,11 +10,25 @@ const initialState = {
   all: [],
 };
 
-const transformErrors = errors => {
-  return errors.reduce((acc, { path, msg }) => {
-    acc[path] = msg;
-    return acc;
-  }, {});
+// Utility to handle error dispatching for profile slice
+const transformAndDispatchError = (error, dispatch, defaultMessage = "An error occurred") => {
+  const apiResponse = error.response?.data;
+  const errorDetails = apiResponse?.error;
+  const errorMessage = apiResponse?.message || defaultMessage;
+
+  const errorToDispatch = errorDetails || { message: errorMessage };
+  dispatch(setAppError(errorToDispatch));
+
+  // If 401, dispatch logout
+  if (error.response?.status === 401) {
+    dispatch(logoutUser());
+  }
+
+  return {
+    status: error.response?.status,
+    message: errorMessage,
+    error: errorDetails,
+  };
 };
 
 export const loadProfileByHandle = createAsyncThunk(
@@ -21,15 +36,19 @@ export const loadProfileByHandle = createAsyncThunk(
   async (handle, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get(`/profile/handle/${handle}`);
-      return { display: response.data };
+      // response.data is { success: true, message: "...", data: { profile }, error: null }
+      return { display: response.data.data.profile }; // Correctly extracting from nested 'data'
     } catch (error) {
+      // For 404, the server now sends a structured response.
       if (error.response?.status === 404) {
-        return { display: null }; // Return empty profile for 404
+        dispatch(
+          setAppError(error.response.data.error || { message: `Profile for ${handle} not found` })
+        );
+        return { display: null }; // Maintain previous behavior of returning null for UI
       }
-
-      const errorData = error.response?.data || { message: `Failed to load profile for ${handle}` };
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, `Failed to load profile for ${handle}`)
+      );
     }
   }
 );
@@ -39,15 +58,20 @@ export const loadCurrentProfile = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get("/profile");
-      return { current: response.data };
+      return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
       if (error.response?.status === 404) {
-        return { current: {} }; // Return empty profile for 404
+        // No profile exists for the current user
+        dispatch(
+          setAppError(
+            error.response.data.error || { message: "No profile found. Please create one." }
+          )
+        );
+        return { current: {} }; // Return empty object as before
       }
-
-      const errorData = error.response?.data || { message: "Failed to load profile" };
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to load current profile")
+      );
     }
   }
 );
@@ -57,11 +81,11 @@ export const loadAllProfiles = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get("/profile/all");
-      return { current: response.data };
+      return { profiles: response.data.data.profiles }; // Correctly extracting
     } catch (error) {
-      const errorData = error.response?.data || { message: "Failed to load all profiles" };
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to load all profiles")
+      );
     }
   }
 );
@@ -71,14 +95,12 @@ export const createProfile = createAsyncThunk(
   async (profileData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/profile", profileData);
-      return { current: response.data };
+      return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      const errorData = transformErrors(error.response?.data?.errors) || {
-        message: "Failed to load profile",
-      };
-
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      // Server validation errors are in error.response.data.error
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to create/update profile")
+      );
     }
   }
 );
@@ -88,13 +110,11 @@ export const addExperience = createAsyncThunk(
   async (experienceData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/profile/experience", experienceData);
-      return { current: response.data };
+      return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      console.log(error);
-      const errorData = error.response?.data || { message: "Failed to add experience" };
-
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to add experience")
+      );
     }
   }
 );
@@ -104,13 +124,9 @@ export const addEducation = createAsyncThunk(
   async (educationData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/profile/education", educationData);
-      return { current: response.data };
+      return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      console.log(error);
-      const errorData = error.response?.data || { message: "Failed to add education" };
-
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(transformAndDispatchError(error, dispatch, "Failed to add education"));
     }
   }
 );
@@ -120,11 +136,11 @@ export const deleteExperience = createAsyncThunk(
   async (id, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.delete(`/profile/experience/${id}`);
-      return { current: response.data };
+      return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      const errorData = error.response?.data || { message: "Failed to delete experience" };
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to delete experience")
+      );
     }
   }
 );
@@ -134,11 +150,11 @@ export const deleteEducation = createAsyncThunk(
   async (id, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.delete(`/profile/education/${id}`);
-      return { current: response.data };
+      return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      const errorData = error.response?.data || { message: "Failed to delete education" };
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to delete education")
+      );
     }
   }
 );
@@ -147,12 +163,14 @@ export const deleteAccount = createAsyncThunk(
   "profile/delete",
   async (_, { dispatch, rejectWithValue }) => {
     try {
+      // Server response is { success: true, message: "...", data: null, error: null }
       await api.delete("/profile");
-      return true;
+      dispatch(logoutUser()); // Also logout user after account deletion
+      return true; // Indicates success for the reducer
     } catch (error) {
-      const errorData = error.response?.data || { message: "Failed to delete profile" };
-      dispatch(setAppError(errorData));
-      return rejectWithValue(errorData);
+      return rejectWithValue(
+        transformAndDispatchError(error, dispatch, "Failed to delete account")
+      );
     }
   }
 );
@@ -163,19 +181,21 @@ const profileSlice = createSlice({
   reducers: {
     clearProfile: state => {
       state.current = null;
+      state.display = null;
+      state.all = []; // Also clear all profiles list
+      state.loading = false;
     },
   },
   extraReducers: builder => {
-    // 1. First add all specific cases
     builder
       .addCase(loadProfileByHandle.fulfilled, (state, action) => {
-        state.display = action.payload.display;
+        state.display = action.payload.display; // display can be null if not found
       })
       .addCase(loadAllProfiles.fulfilled, (state, action) => {
-        state.all = action.payload.current;
+        state.all = action.payload.profiles;
       })
       .addCase(loadCurrentProfile.fulfilled, (state, action) => {
-        state.current = action.payload.current;
+        state.current = action.payload.current; // current can be {} if not found
       })
       .addCase(createProfile.fulfilled, (state, action) => {
         state.current = action.payload.current;
@@ -193,10 +213,12 @@ const profileSlice = createSlice({
         state.current = action.payload.current;
       })
       .addCase(deleteAccount.fulfilled, state => {
-        state.current = null;
+        // State clearing is now handled by clearProfile, which will be dispatched
+        // by the component or by the logoutUser action triggered in the thunk.
+        // For directness, we can also call it here.
+        profileSlice.caseReducers.clearProfile(state);
       });
 
-    // 2. Then add matchers
     builder
       .addMatcher(
         action => action.type.startsWith("profile/") && action.type.endsWith("/pending"),
@@ -205,13 +227,9 @@ const profileSlice = createSlice({
         }
       )
       .addMatcher(
-        action => action.type.startsWith("profile/") && action.type.endsWith("/fulfilled"),
-        state => {
-          state.loading = false;
-        }
-      )
-      .addMatcher(
-        action => action.type.startsWith("profile/") && action.type.endsWith("/rejected"),
+        action =>
+          action.type.startsWith("profile/") &&
+          (action.type.endsWith("/fulfilled") || action.type.endsWith("/rejected")),
         state => {
           state.loading = false;
         }

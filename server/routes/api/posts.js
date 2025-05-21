@@ -1,47 +1,47 @@
 import express from "express";
 import passport from "passport";
 import { validationResult } from "express-validator";
-import { postValidation } from "../../middleware/validation.js";
+import { postValidation } from "../../middleware/validation.js"; // Assuming comment validation is similar
+import { sendSuccess, sendError, handleValidationErrors } from "../../utils/responseHandler.js";
 
-// Models
 import Post from "../../models/Post.js";
+// User model might be needed if you decide to populate user details in posts more extensively
+// import User from "../../models/User.js";
 
 const router = express.Router();
 
 // @route   GET api/posts/test
 // @desc    Tests posts route
 // @access  Public
-router.get("/test", (req, res) => res.json({ msg: "Posts Works" }));
+router.get("/test", (req, res) => sendSuccess(res, 200, "Posts Works"));
 
 // @route   GET api/posts
 // @desc    Get all posts
 // @access  Public
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const posts = await Post.find().sort({ date: -1 });
-    res.json(posts);
+    sendSuccess(res, 200, "Posts fetched successfully", { posts });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    next(err);
   }
 });
 
 // @route   GET api/posts/:id
 // @desc    Get post by ID
 // @access  Public
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) {
-      return res.status(404).json({ msg: "Post not found" });
+      return sendError(res, 404, "Post not found");
     }
-    res.json(post);
+    sendSuccess(res, 200, "Post fetched successfully", { post });
   } catch (err) {
-    console.error(err.message);
     if (err.kind === "ObjectId") {
-      return res.status(404).json({ msg: "Post not found" });
+      return sendError(res, 404, "Post not found (invalid ID format)");
     }
-    res.status(500).send("Server Error");
+    next(err);
   }
 });
 
@@ -52,25 +52,22 @@ router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   postValidation,
-  async (req, res) => {
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return handleValidationErrors(res, errors);
     }
-
     try {
       const newPost = new Post({
         text: req.body.text,
-        name: req.body.name,
-        avatar: req.body.avatar,
+        name: req.user.name, // Use authenticated user's name
+        avatar: req.user.avatar, // Use authenticated user's avatar
         user: req.user.id,
       });
-
       const post = await newPost.save();
-      res.json(post);
+      sendSuccess(res, 201, "Post created successfully", { post });
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+      next(err);
     }
   }
 );
@@ -78,79 +75,75 @@ router.post(
 // @route   DELETE api/posts/:id
 // @desc    Delete post by ID
 // @access  Private
-router.delete("/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
+router.delete("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) {
-      return res.status(404).json({ msg: "Post not found" });
+      return sendError(res, 404, "Post not found");
     }
 
-    // Check user
     if (post.user.toString() !== req.user.id) {
-      return res.status(401).json({ msg: "User not authorized" });
+      return sendError(res, 401, "User not authorized to delete this post");
     }
-
-    await post.deleteOne(); // Updated method
-
-    res.json({ msg: "Post removed" });
+    await post.deleteOne();
+    sendSuccess(res, 200, "Post removed successfully");
   } catch (err) {
-    console.error(err.message);
     if (err.kind === "ObjectId") {
-      return res.status(404).json({ msg: "Post not found" });
+      return sendError(res, 404, "Post not found (invalid ID format)");
     }
-    res.status(500).send("Server Error");
+    next(err);
   }
 });
 
 // @route   POST api/posts/like/:id
 // @desc    Like post
 // @access  Private
-router.post("/like/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) {
-      return res.status(404).json({ msg: "Post not found" });
-    }
+router.post(
+  "/like/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res, next) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) {
+        return sendError(res, 404, "Post not found");
+      }
 
-    // Check if the post has already been liked
-    if (post.likes.some(like => like.user.toString() === req.user.id)) {
-      return res.status(400).json({ msg: "Post already liked" });
+      if (post.likes.some(like => like.user.toString() === req.user.id)) {
+        return sendError(res, 400, "Post already liked by this user");
+      }
+      post.likes.unshift({ user: req.user.id });
+      await post.save();
+      sendSuccess(res, 200, "Post liked successfully", { likes: post.likes });
+    } catch (err) {
+      next(err);
     }
-
-    post.likes.unshift({ user: req.user.id });
-    await post.save();
-    res.json(post.likes);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
   }
-});
+);
 
 // @route   POST api/posts/unlike/:id
 // @desc    Unlike post
 // @access  Private
-router.post("/unlike/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) {
-      return res.status(404).json({ msg: "Post not found" });
+router.post(
+  "/unlike/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res, next) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) {
+        return sendError(res, 404, "Post not found");
+      }
+
+      if (!post.likes.some(like => like.user.toString() === req.user.id)) {
+        return sendError(res, 400, "Post has not yet been liked by this user");
+      }
+      post.likes = post.likes.filter(({ user }) => user.toString() !== req.user.id);
+      await post.save();
+      sendSuccess(res, 200, "Post unliked successfully", { likes: post.likes });
+    } catch (err) {
+      next(err);
     }
-
-    // Check if the post has not yet been liked
-    if (!post.likes.some(like => like.user.toString() === req.user.id)) {
-      return res.status(400).json({ msg: "Post has not yet been liked" });
-    }
-
-    // Remove the like
-    post.likes = post.likes.filter(({ user }) => user.toString() !== req.user.id);
-
-    await post.save();
-    res.json(post.likes);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
   }
-});
+);
 
 // @route   POST api/posts/comment/:id
 // @desc    Add comment to post
@@ -158,32 +151,29 @@ router.post("/unlike/:id", passport.authenticate("jwt", { session: false }), asy
 router.post(
   "/comment/:id",
   passport.authenticate("jwt", { session: false }),
-  postValidation,
-  async (req, res) => {
+  postValidation, // Using postValidation for comment text, adjust if different rules apply
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return handleValidationErrors(res, errors, "Comment validation failed");
     }
-
     try {
       const post = await Post.findById(req.params.id);
       if (!post) {
-        return res.status(404).json({ msg: "Post not found" });
+        return sendError(res, 404, "Post not found");
       }
 
       const newComment = {
         text: req.body.text,
-        name: req.body.name,
-        avatar: req.body.avatar,
+        name: req.user.name, // Use authenticated user's name
+        avatar: req.user.avatar, // Use authenticated user's avatar
         user: req.user.id,
       };
-
       post.comments.unshift(newComment);
       await post.save();
-      res.json(post.comments);
+      sendSuccess(res, 201, "Comment added successfully", { comments: post.comments });
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+      next(err);
     }
   }
 );
@@ -194,32 +184,26 @@ router.post(
 router.delete(
   "/comment/:id/:comment_id",
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const post = await Post.findById(req.params.id);
       if (!post) {
-        return res.status(404).json({ msg: "Post not found" });
+        return sendError(res, 404, "Post not found");
       }
 
-      // Pull out comment
       const comment = post.comments.find(comment => comment.id === req.params.comment_id);
       if (!comment) {
-        return res.status(404).json({ msg: "Comment does not exist" });
+        return sendError(res, 404, "Comment does not exist");
       }
 
-      // Check user
       if (comment.user.toString() !== req.user.id) {
-        return res.status(401).json({ msg: "User not authorized" });
+        return sendError(res, 401, "User not authorized to delete this comment");
       }
-
-      // Remove comment
       post.comments = post.comments.filter(({ id }) => id !== req.params.comment_id);
-
       await post.save();
-      res.json(post.comments);
+      sendSuccess(res, 200, "Comment deleted successfully", { comments: post.comments });
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+      next(err);
     }
   }
 );

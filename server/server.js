@@ -9,14 +9,18 @@ import usersRoutes from "./routes/api/users.js";
 import profileRoutes from "./routes/api/profile.js";
 import postsRoutes from "./routes/api/posts.js";
 
-// Import config (which now loads .env)
+// Import config
 import keys from "./config/keys.js";
 import passportConfig from "./config/passport.js";
+
+// Import utilities and middleware
+import errorHandler from "./middleware/errorHandler.js";
+import { sendError } from "./utils/responseHandler.js"; // For rate limiter
 
 const app = express();
 
 // Security Middleware
-app.use(helmet()); // Set security-related HTTP response headers
+app.use(helmet());
 
 // Body parser middleware
 app.use(express.urlencoded({ extended: false }));
@@ -31,42 +35,42 @@ mongoose
   .then(() => console.log("MongoDB Connected Successfully"))
   .catch(err => {
     console.error("MongoDB connection error:", err);
-    process.exit(1); // Exit process with failure
+    process.exit(1);
   });
 
 // Passport middleware
 app.use(passport.initialize());
 // Passport Config
-passportConfig(passport); // This will use the updated keys
+passportConfig(passport);
 
 // Test the app is running
 app.get("/", (req, res) => res.send("API is running..."));
 
-// Rate Limiting - Apply to all API routes or specific ones as needed
+// Rate Limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    // Use sendError utility for rate limit response
+    sendError(
+      res,
+      options.statusCode,
+      "Too many requests from this IP, please try again after 15 minutes",
+      "Rate limit exceeded"
+    );
+  },
 });
-app.use("/api/", apiLimiter); // Apply rate limiting to all /api routes
+app.use("/api/", apiLimiter);
 
 // Use Routes
 app.use("/api/users", usersRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/posts", postsRoutes);
 
-// Global error handler middleware (should be defined after all routes)
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error stack for debugging
-  // Avoid sending stack trace to client in production
-  const statusCode = err.statusCode || 500;
-  const message = process.env.NODE_ENV === 'production' && statusCode === 500 
-                ? 'Internal Server Error' 
-                : err.message;
-  res.status(statusCode).json({ message });
-});
+// Use Global error handler (must be defined after all routes)
+app.use(errorHandler);
 
-const port = keys.port; // Use port from config
+const port = keys.port;
 app.listen(port, () => console.log(`Server running on port ${port}`));
