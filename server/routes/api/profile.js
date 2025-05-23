@@ -22,7 +22,7 @@ router.get("/test", (req, res) => sendSuccess(res, 200, "Profile Works"));
 // @route   GET api/profile
 // @desc    Get current user's profile
 // @access  Private
-router.get("/", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.get("/me", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id }).populate("user", [
       "name",

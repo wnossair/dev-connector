@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../../utils/api";
 import { setAppError } from "../error/errorSlice";
+import { handleAsyncThunkError } from "../../utils/reduxError";
 
 const initialState = {
   token: localStorage.getItem("token"),
@@ -17,23 +18,6 @@ const clearAuthState = state => {
   state.user = null;
 };
 
-// Unified error handler: Adjusted to expect error details in err.response.data.error
-const handleError = (err, dispatch, defaultMessage) => {
-  const apiResponse = err.response?.data; // This is the standardized server response object
-  const errorDetails = apiResponse?.error; // The actual error payload (string, object, or array)
-
-  const errorToDispatch = errorDetails || { message: apiResponse?.message || defaultMessage };
-
-  dispatch(setAppError(errorToDispatch));
-
-  // For rejectWithValue, we pass an object that includes the status and the detailed error payload
-  return {
-    status: err.response?.status,
-    message: apiResponse?.message || defaultMessage, // Overall message from server
-    error: errorDetails, // Specific error details
-  };
-};
-
 // Async Actions
 export const registerUser = createAsyncThunk(
   "auth/register",
@@ -44,7 +28,7 @@ export const registerUser = createAsyncThunk(
       // The thunk's fulfilled action will carry what's returned here.
       return res.data.data; // Contains { user }
     } catch (err) {
-      return rejectWithValue(handleError(err, dispatch, "Registration failed"));
+      return rejectWithValue(handleAsyncThunkError(err, dispatch, "Registration failed"));
     }
   }
 );
@@ -62,7 +46,7 @@ export const loginUser = createAsyncThunk(
       await dispatch(loadUser()).unwrap(); // Ensure user is loaded before login is considered fully complete
       return { token }; // Fulfilled action payload will be { token }
     } catch (err) {
-      return rejectWithValue(handleError(err, dispatch, "Login failed"));
+      return rejectWithValue(handleAsyncThunkError(err, dispatch, "Login failed"));
     }
   }
 );
@@ -75,7 +59,7 @@ export const loadUser = createAsyncThunk("auth/load", async (_, { dispatch, reje
   } catch (err) {
     // If loadUser fails (e.g. token expired), clear auth state.
     dispatch(logoutUser()); // Ensures UI reflects unauthenticated state
-    return rejectWithValue(handleError(err, dispatch, "Failed to load user session"));
+    return rejectWithValue(handleAsyncThunkError(err, dispatch, "Failed to load user session"));
   }
 });
 
@@ -110,7 +94,7 @@ export const verifyAuth = createAsyncThunk(
       // Individual components might handle the outcome of isAuthenticated.
       return rejectWithValue({
         isValid: false,
-        error: handleError(err, () => {}, "Auth verification failed"),
+        error: handleAsyncThunkError(err, () => {}, "Auth verification failed"),
       });
     }
   }

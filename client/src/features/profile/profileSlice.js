@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../utils/api";
 import { setAppError } from "../error/errorSlice";
 import { logoutUser } from "../auth/authSlice"; // Import for handling 401
+import { handleAsyncThunkError } from "../../utils/reduxError";
 
 const initialState = {
   current: null,
@@ -10,44 +11,27 @@ const initialState = {
   all: [],
 };
 
-// Utility to handle error dispatching for profile slice
-const transformAndDispatchError = (error, dispatch, defaultMessage = "An error occurred") => {
-  const apiResponse = error.response?.data;
-  const errorDetails = apiResponse?.error;
-  const errorMessage = apiResponse?.message || defaultMessage;
-
-  const errorToDispatch = errorDetails || { message: errorMessage };
-  dispatch(setAppError(errorToDispatch));
-
-  // If 401, dispatch logout
-  if (error.response?.status === 401) {
-    dispatch(logoutUser());
-  }
-
-  return {
-    status: error.response?.status,
-    message: errorMessage,
-    error: errorDetails,
-  };
-};
-
+// Async Thunks
 export const loadProfileByHandle = createAsyncThunk(
   "profile/handle",
   async (handle, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get(`/profile/handle/${handle}`);
-      // response.data is { success: true, message: "...", data: { profile }, error: null }
-      return { display: response.data.data.profile }; // Correctly extracting from nested 'data'
+      return { display: response.data.data.profile };
     } catch (error) {
-      // For 404, the server now sends a structured response.
       if (error.response?.status === 404) {
-        dispatch(
-          setAppError(error.response.data.error || { message: `Profile for ${handle} not found` })
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          `Profile for ${handle} not found`
         );
-        return { display: null }; // Maintain previous behavior of returning null for UI
+
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return { display: null };
       }
+
       return rejectWithValue(
-        transformAndDispatchError(error, dispatch, `Failed to load profile for ${handle}`)
+        handleAsyncThunkError(error, dispatch, `Failed to load profile for ${handle}`)
       );
     }
   }
@@ -57,20 +41,22 @@ export const loadCurrentProfile = createAsyncThunk(
   "profile/current",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      const response = await api.get("/profile");
+      const response = await api.get("/profile/me");
       return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
       if (error.response?.status === 404) {
-        // No profile exists for the current user
-        dispatch(
-          setAppError(
-            error.response.data.error || { message: "No profile found. Please create one." }
-          )
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          "No profile found. Please create one."
         );
-        return { current: {} }; // Return empty object as before
+
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return { current: {} };
       }
+
       return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to load current profile")
+        handleAsyncThunkError(error, dispatch, "Failed to load current profile")
       );
     }
   }
@@ -83,9 +69,7 @@ export const loadAllProfiles = createAsyncThunk(
       const response = await api.get("/profile/all");
       return { profiles: response.data.data.profiles }; // Correctly extracting
     } catch (error) {
-      return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to load all profiles")
-      );
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to load all profiles"));
     }
   }
 );
@@ -99,7 +83,7 @@ export const createProfile = createAsyncThunk(
     } catch (error) {
       // Server validation errors are in error.response.data.error
       return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to create/update profile")
+        handleAsyncThunkError(error, dispatch, "Failed to create/update profile")
       );
     }
   }
@@ -112,9 +96,7 @@ export const addExperience = createAsyncThunk(
       const response = await api.post("/profile/experience", experienceData);
       return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to add experience")
-      );
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to add experience"));
     }
   }
 );
@@ -126,7 +108,7 @@ export const addEducation = createAsyncThunk(
       const response = await api.post("/profile/education", educationData);
       return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      return rejectWithValue(transformAndDispatchError(error, dispatch, "Failed to add education"));
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to add education"));
     }
   }
 );
@@ -138,9 +120,7 @@ export const deleteExperience = createAsyncThunk(
       const response = await api.delete(`/profile/experience/${id}`);
       return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to delete experience")
-      );
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete experience"));
     }
   }
 );
@@ -152,9 +132,7 @@ export const deleteEducation = createAsyncThunk(
       const response = await api.delete(`/profile/education/${id}`);
       return { current: response.data.data.profile }; // Correctly extracting
     } catch (error) {
-      return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to delete education")
-      );
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete education"));
     }
   }
 );
@@ -168,9 +146,7 @@ export const deleteAccount = createAsyncThunk(
       dispatch(logoutUser()); // Also logout user after account deletion
       return true; // Indicates success for the reducer
     } catch (error) {
-      return rejectWithValue(
-        transformAndDispatchError(error, dispatch, "Failed to delete account")
-      );
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete account"));
     }
   }
 );
