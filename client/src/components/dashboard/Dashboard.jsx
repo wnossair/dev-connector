@@ -15,7 +15,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
 
   const { user } = useSelector(state => state.auth);
-  const { current: currentProfile, loading } = useSelector(state => state.profile);
+  const { current: profile, loading } = useSelector(state => state.profile);
 
   // Use Effect Hooks
   useEffect(() => {
@@ -24,10 +24,10 @@ const Dashboard = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (user && !currentProfile && !loading) {
+    if (user && !profile && !loading) {
       dispatch(loadCurrentProfile());
     }
-  }, [currentProfile, loading, dispatch]);
+  }, [profile, loading, dispatch]);
 
   // Event handlers
   const onDeleteAccountClick = async e => {
@@ -46,7 +46,7 @@ const Dashboard = () => {
   // Dashboard Content
   const dashboardContent = loading ? (
     <Spinner />
-  ) : !currentProfile || Object.keys(currentProfile).length === 0 ? (
+  ) : !profile || Object.keys(profile).length === 0 ? (
     <div>
       <h2>Welcome, {user?.name || "User"}!</h2>
       <p className="lead">Email: {user?.email || "Not provided"}</p>
@@ -58,13 +58,15 @@ const Dashboard = () => {
   ) : (
     <div>
       <h2>
-        Welcome, <Link to={`/profile/${currentProfile.handle}`} className="text-dark">{user?.name}</Link>
+        Welcome,{" "}
+        <Link to={`/profile/user/${profile.handle}`} className="text-dark">
+          {user?.name}
+        </Link>
       </h2>
       <ProfileActions />
-      {/* Add experience and education */}
-      <Experience experience={currentProfile.experience} />
+      <Experience experience={profile.experience} />
       <div className="py-1 mb-4" />
-      <Education education={currentProfile.education} />
+      <Education education={profile.education} />
 
       <button onClick={onDeleteAccountClick} className="btn btn-danger mt-5 mb-4">
         Delete My Account

@@ -7,7 +7,7 @@ import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
-import { clearAppError, setAppError } from "../../features/error/errorSlice";
+import { setAppError } from "../../features/error/errorSlice";
 import { createProfile } from "../../features/profile/profileSlice";
 
 // Social Inputs
@@ -68,11 +68,10 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   const appError = useSelector(state => state.error);
-  const currentProfile = useSelector(state => state.profile.current);
+  const profile = useSelector(state => state.profile.current);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
-    displaySocialInputs: false,
     handle: "",
     company: "",
     website: "",
@@ -89,6 +88,7 @@ const EditProfile = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
+  const [displaySocialInputs, setDisplaySocialInputs] = useState(false);
 
   // Use Effect Hooks
   useEffect(() => {
@@ -98,41 +98,37 @@ const EditProfile = () => {
   }, [appError]);
 
   useEffect(() => {
-    if (currentProfile && Object.keys(currentProfile).length > 0) {
+    if (profile && Object.keys(profile).length > 0) {
       setFormData(prev => ({
         ...prev,
-        handle: currentProfile.handle || "",
-        company: currentProfile.company || "",
-        website: currentProfile.website || "",
-        role: currentProfile.role || "",
-        skills: currentProfile.skills?.join(",") || "",
-        githubusername: currentProfile.githubusername || "",
-        bio: currentProfile.bio || "",
-        location: currentProfile.location || "",
-        twitter: currentProfile.social?.twitter || "",
-        facebook: currentProfile.social?.facebook || "",
-        linkedin: currentProfile.social?.linkedin || "",
-        youtube: currentProfile.social?.youtube || "",
-        instagram: currentProfile.social?.instagram || "",
-        displaySocialInputs: Boolean(
-          currentProfile.social?.twitter ||
-            currentProfile.social?.facebook ||
-            currentProfile.social?.linkedin ||
-            currentProfile.social?.youtube ||
-            currentProfile.social?.instagram
-        ),
+        handle: profile.handle || "",
+        company: profile.company || "",
+        website: profile.website || "",
+        role: profile.role || "",
+        skills: profile.skills?.join(",") || "",
+        githubusername: profile.githubusername || "",
+        bio: profile.bio || "",
+        location: profile.location || "",
+        twitter: profile.social?.twitter || "",
+        facebook: profile.social?.facebook || "",
+        linkedin: profile.social?.linkedin || "",
+        youtube: profile.social?.youtube || "",
+        instagram: profile.social?.instagram || "",
       }));
+
+      setDisplaySocialInputs(
+        Boolean(
+          profile.social?.twitter ||
+            profile.social?.facebook ||
+            profile.social?.linkedin ||
+            profile.social?.youtube ||
+            profile.social?.instagram
+        )
+      );
     }
-  }, [currentProfile]);
+  }, [profile]);
 
   // Event Handlers
-  const toggleSocialInputs = () => {
-    setFormData(prev => ({
-      ...prev,
-      displaySocialInputs: !prev.displaySocialInputs,
-    }));
-  };
-
   const onChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -156,6 +152,15 @@ const EditProfile = () => {
     }
   };
 
+  const OnCancel = e => {
+    e.preventDefault();
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/dashboard", { replace: true });
+    }
+  };
+
   // Select Options for Role
   const options = [
     { label: "* Select Professional Role", value: "" },
@@ -175,9 +180,6 @@ const EditProfile = () => {
       <div className="container">
         <div className='"row'>
           <div className="col-lg-8 m-auto">
-            <Link to="/dashboard" className="btn btn-light">
-              Go Back
-            </Link>
             <div className="display-4 text-center">Edit Your Profile</div>
             <p className="lead text-center">Let's update your information to what's new</p>
             <small className="d-block p-3">* = required fields</small>
@@ -193,7 +195,6 @@ const EditProfile = () => {
                 onChange={onChange}
                 info="A unique handle for your profile URL. Your full name, company name, nickname, etc"
               />
-
               {/* Professional Role Field */}
               <SelectListGroup
                 name="role"
@@ -205,7 +206,6 @@ const EditProfile = () => {
                 onChange={onChange}
                 info="Give us an idea of where you are at in your career"
               />
-
               {/* Company Field */}
               <TextFieldGroup
                 name="company"
@@ -261,7 +261,6 @@ const EditProfile = () => {
                 onChange={onChange}
                 info="If you want your latest repos and a Github link, include your username"
               />
-
               {/* Bio Field */}
               <TextAreaFieldGroup
                 name="bio"
@@ -273,24 +272,28 @@ const EditProfile = () => {
                 onChange={onChange}
                 info="Tell us a little about yourself"
               />
-
               <div className="mb-3">
                 <button
                   type="button"
-                  onClick={toggleSocialInputs}
+                  onClick={() => setDisplaySocialInputs(!displaySocialInputs)}
                   className={`btn btn-outline-secondary btn-light ${
-                    formData.displaySocialInputs ? "active" : ""
+                    displaySocialInputs ? "active" : ""
                   }`}
-                  aria-pressed={formData.displaySocialInputs}
+                  aria-pressed={displaySocialInputs}
                 >
                   Add Social Networks
                 </button>
                 <span className="text-muted ms-2">(Optional)</span>
               </div>
-              {formData.displaySocialInputs && (
+              {displaySocialInputs && (
                 <SocialInputs formData={formData} fieldErrors={fieldErrors} onChange={onChange} />
               )}
-              <input type="submit" value="Update" className="btn btn-info form-control mt-4" />
+              <div className="d-flex gap-3 mt-4">
+                <input type="submit" value="Submit" className="btn btn-info px-4" />
+                <Link to="#" onClick={OnCancel} className="btn btn-outline-danger px-4">
+                  Cancel
+                </Link>
+              </div>
             </form>
           </div>
         </div>

@@ -30,9 +30,7 @@ router.post("/register", registerValidation, async (req, res, next) => {
     const { name, email, password } = req.body;
     let user = await User.findOne({ email });
     if (user) {
-      return sendError(res, 400, "Email already exists", [
-        { msg: "Email already exists", path: "email" },
-      ]);
+      return sendError(res, 400, "Email already exists", { email: "Email already exists" });
     }
 
     const avatar = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
@@ -70,12 +68,12 @@ router.post("/login", loginValidation, async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return sendError(res, 400, "Invalid credentials", [{ msg: "Invalid credentials" }]);
+      return sendError(res, 400, "Invalid credentials", { email: "Email does not exist" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return sendError(res, 400, "Invalid credentials", [{ msg: "Invalid credentials" }]);
+      return sendError(res, 400, "Invalid credentials", { password: "Password is incorrect" });
     }
 
     const payload = { id: user.id, name: user.name, avatar: user.avatar };

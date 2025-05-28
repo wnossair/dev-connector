@@ -37,5 +37,10 @@ export const sendError = (res, statusCode, message, errorDetails = null) => {
  * @param {string} message - Optional custom message for the validation failure.
  */
 export const handleValidationErrors = (res, errors, message = "Validation failed") => {
-  sendError(res, 400, message, errors.array());
+  const errorsObject = errors.array().reduce((acc, curr) => {
+    acc[curr.path] = curr.msg;
+    return acc;
+  }, {});
+
+  return sendError(res, 400, message, errorsObject);
 };

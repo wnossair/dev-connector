@@ -41,11 +41,6 @@ const Profile = () => {
         <div className="row">
           <div className="col-md-12">
             <div className="row">
-              <div className="col-6">
-                <Link to="/profiles" className="btn btn-dark mb-3 float-left">
-                  Back To Profiles
-                </Link>
-              </div>
               <ProfileHeader profile={profile} />
               <ProfileAbout profile={profile} />
               <ProfileCredentials profile={profile} />

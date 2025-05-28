@@ -8,6 +8,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector(state => state.auth);
+  const { handle } = useSelector(state => state.profile.current);
 
   const logout = async () => {
     try {
@@ -32,7 +33,7 @@ const Navbar = () => {
         </Link>
       </li>
       <li className="nav-item pe-2">
-        <Link className="nav-link" to="/profile">
+        <Link className="nav-link" to={handle ? `/profile/user/${handle}` : "/dashboard"}>
           Profile
         </Link>
       </li>
