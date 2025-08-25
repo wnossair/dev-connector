@@ -8,7 +8,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector(state => state.auth);
-  const { handle } = useSelector(state => state.profile.current);
+  const { handle } = useSelector(state => state.profile.current || {});
 
   const logout = async () => {
     try {
