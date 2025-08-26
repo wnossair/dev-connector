@@ -31,6 +31,14 @@ const ProfileGithub = ({ repos }) => {
                   Forks: {repo.forks_count}
                 </span>
               </div>
+              <div className="d-flex gap-2 flex-wrap mt-2">
+                {repo.languages &&
+                  repo.languages.map(lang => (
+                    <span key={lang.name} className="badge bg-primary">
+                      {lang.name}: {lang.percentage}%
+                    </span>
+                  ))}
+              </div>
             </li>
           ))}
         </ul>

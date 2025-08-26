@@ -298,31 +298,57 @@ router.delete("/", passport.authenticate("jwt", { session: false }), async (req,
 // @desc    Get user repos from Github
 // @access  Public
 router.get("/github/:username", async (req, res, next) => {
-  try {
-    const uri = encodeURI(
-      `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`
-    );
-    const headers = {
-      "user-agent": "node.js",
-    };
+    try {
+        const uri = encodeURI(
+            `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`
+        );
+        const headers = {
+            "user-agent": "node.js",
+        };
 
-    if (keys.githubToken) {
-      headers["Authorization"] = `token ${keys.githubToken}`;
-    }
+        if (keys.githubToken) {
+            headers["Authorization"] = `token ${keys.githubToken}`;
+        }
 
-    const gitHubResponse = await axios.get(uri, { headers });
-    return sendSuccess(res, 200, "GitHub repos found", gitHubResponse.data);
-  } catch (err) {
-    if (err.response) {
-      if (err.response.status === 404) {
-        return sendError(res, 404, "No Github profile found");
-      }
-      if (err.response.status === 401) {
-        return sendError(res, 401, "GitHub token is invalid");
-      }
+        const gitHubResponse = await axios.get(uri, { headers });
+        const repos = gitHubResponse.data;
+
+        const languagePromises = repos.map(repo => {
+            return axios.get(repo.languages_url, { headers });
+        });
+
+        const languageResponses = await Promise.all(languagePromises);
+
+        const reposWithLanguages = repos.map((repo, index) => {
+            const languages = languageResponses[index].data;
+            const totalSize = Object.values(languages).reduce((acc, size) => acc + size, 0);
+
+            if (totalSize === 0) {
+                return { ...repo, languages: [] };
+            }
+
+            const languageData = Object.entries(languages)
+                .map(([name, size]) => ({
+                    name,
+                    percentage: ((size / totalSize) * 100).toFixed(2),
+                }))
+                .sort((a, b) => b.percentage - a.percentage)
+                .slice(0, 3);
+            return { ...repo, languages: languageData };
+        });
+
+        return sendSuccess(res, 200, "GitHub repos found", reposWithLanguages);
+    } catch (err) {
+        if (err.response) {
+            if (err.response.status === 404) {
+                return sendError(res, 404, "No Github profile found");
+            }
+            if (err.response.status === 401) {
+                return sendError(res, 401, "GitHub token is invalid");
+            }
+        }
+        next(err);
     }
-    next(err);
-  }
 });
 
 export default router;
