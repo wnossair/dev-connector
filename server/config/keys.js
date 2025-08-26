@@ -14,8 +14,8 @@ const keys = {
   mongoURI: process.env.MONGO_URI,
   secretOrKey: process.env.JWT_SECRET, // Used for JWT
   port: process.env.PORT || 5000, // Default to 5000 if not specified in .env
+  githubToken: process.env.GITHUB_TOKEN,
 };
-
 // It's good practice to freeze the keys object to prevent accidental modifications
 Object.freeze(keys);
 

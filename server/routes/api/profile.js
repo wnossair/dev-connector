@@ -1,5 +1,7 @@
 import express from "express";
 import passport from "passport";
+import axios from "axios";
+
 import { validationResult } from "express-validator";
 import {
   profileValidation,
@@ -8,6 +10,7 @@ import {
 } from "../../middleware/validation.js";
 import { sendSuccess, sendError, handleValidationErrors } from "../../utils/responseHandler.js";
 
+import keys from "../../config/keys.js";
 import Profile from "../../models/Profile.js";
 import User from "../../models/User.js"; // Required for .populate and potential direct User queries
 import Post from "../../models/Post.js"; // Required for deleting user's posts
@@ -287,6 +290,37 @@ router.delete("/", passport.authenticate("jwt", { session: false }), async (req,
     await User.findOneAndDelete({ _id: req.user.id });
     sendSuccess(res, 200, "User, profile, and posts deleted successfully");
   } catch (err) {
+    next(err);
+  }
+});
+
+// @route   GET api/profile/github/:username
+// @desc    Get user repos from Github
+// @access  Public
+router.get("/github/:username", async (req, res, next) => {
+  try {
+    const uri = encodeURI(
+      `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`
+    );
+    const headers = {
+      "user-agent": "node.js",
+    };
+
+    if (keys.githubToken) {
+      headers["Authorization"] = `token ${keys.githubToken}`;
+    }
+
+    const gitHubResponse = await axios.get(uri, { headers });
+    return sendSuccess(res, 200, "GitHub repos found", gitHubResponse.data);
+  } catch (err) {
+    if (err.response) {
+      if (err.response.status === 404) {
+        return sendError(res, 404, "No Github profile found");
+      }
+      if (err.response.status === 401) {
+        return sendError(res, 401, "GitHub token is invalid");
+      }
+    }
     next(err);
   }
 });

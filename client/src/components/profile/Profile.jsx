@@ -5,19 +5,25 @@ import ProfileCredentials from "./ProfileCredentials";
 import ProfileGithub from "./ProfileGithub";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loadProfileByHandle } from "../../features/profile/profileSlice";
+import { loadProfileByHandle, loadGithubRepos } from "../../features/profile/profileSlice";
 import { Spinner } from "../common/Feedback";
 
 const Profile = () => {
   const { handle } = useParams();
   const dispatch = useDispatch();
-  const { display: profile, loading, error } = useSelector(state => state.profile);
+  const { display: profile, loading, error, repos } = useSelector(state => state.profile);
 
   useEffect(() => {
     if (handle) {
       dispatch(loadProfileByHandle(handle));
     }
   }, [handle, dispatch]);
+
+  useEffect(() => {
+    if (profile?.githubusername) {
+      dispatch(loadGithubRepos(profile.githubusername));
+    }
+  }, [profile, dispatch]);
 
   if (loading) {
     return <Spinner />;
@@ -44,7 +50,7 @@ const Profile = () => {
               <ProfileHeader profile={profile} />
               <ProfileAbout profile={profile} />
               <ProfileCredentials profile={profile} />
-              {profile.githubusername && <ProfileGithub username={profile.githubusername} />}
+              {profile.githubusername && <ProfileGithub repos={repos} />}
             </div>
           </div>
         </div>

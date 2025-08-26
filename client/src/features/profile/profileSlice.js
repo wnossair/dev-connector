@@ -9,6 +9,7 @@ const initialState = {
   display: null,
   loading: false,
   all: [],
+  repos: [],
 };
 
 // Async Thunks
@@ -151,6 +152,18 @@ export const deleteAccount = createAsyncThunk(
   }
 );
 
+export const loadGithubRepos = createAsyncThunk(
+  "profile/github",
+  async (username, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.get(`/profile/github/${username}`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to load Github repos"));
+    }
+  }
+);
+
 const profileSlice = createSlice({
   name: "profile",
   initialState,
@@ -172,6 +185,9 @@ const profileSlice = createSlice({
       })
       .addCase(loadCurrentProfile.fulfilled, (state, action) => {
         state.current = action.payload.current; // current can be {} if not found
+      })
+      .addCase(loadGithubRepos.fulfilled, (state, action) => {
+        state.repos = action.payload;
       })
       .addCase(createProfile.fulfilled, (state, action) => {
         state.current = action.payload.current;
