@@ -59,7 +59,7 @@ const Dashboard = () => {
     <div>
       <h2>
         Welcome,{" "}
-        <Link to={`/profile/user/${profile.handle}`} className="text-dark">
+        <Link to={`/profile/user/${user.id}`} className="text-dark">
           {user?.name}
         </Link>
       </h2>

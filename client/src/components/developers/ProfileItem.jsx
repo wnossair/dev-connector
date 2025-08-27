@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const ProfileItem = ({ profile }) => {
   const { avatar, name, _id } = profile.user;
-  const { role, company, location, skills, handle } = profile;
+  const { role, company, location, skills } = profile;
 
   return (
     <div className="card card-body bg-light mb-3" key={_id}>
@@ -17,19 +17,20 @@ const ProfileItem = ({ profile }) => {
             {role} at {company ?? ""}
           </p>
           <p>{location ?? ""}</p>
-          <Link to={`/profile/user/${handle}`} className="btn btn-success">
+          <Link to={`/profile/user/${profile.user._id}`} className="btn btn-success">
             View Profile
           </Link>
         </div>
         <div className="col-md-4 d-none d-lg-block">
           <h4>Skill Set</h4>
           <ul className="list-group">
-            {Array.isArray(skills) && skills.slice(0, 4).map((skill, index) => (
-              <li className="list-group-item" key={`skill-${index}`}>
-                <span className="bi bi-check-circle-fill text-success me-2"></span>
-                {skill}
-              </li>
-            ))}
+            {Array.isArray(skills) &&
+              skills.slice(0, 4).map((skill, index) => (
+                <li className="list-group-item" key={`skill-${index}`}>
+                  <span className="bi bi-check-circle-fill text-success me-2"></span>
+                  {skill}
+                </li>
+              ))}
           </ul>
         </div>
       </div>

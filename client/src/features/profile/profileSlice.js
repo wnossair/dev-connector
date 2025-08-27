@@ -13,18 +13,18 @@ const initialState = {
 };
 
 // Async Thunks
-export const loadProfileByHandle = createAsyncThunk(
-  "profile/handle",
-  async (handle, { dispatch, rejectWithValue }) => {
+export const loadProfileById = createAsyncThunk(
+  "profile/userId",
+  async (userId, { dispatch, rejectWithValue }) => {
     try {
-      const response = await api.get(`/profile/handle/${handle}`);
+      const response = await api.get(`/profile/user/${userId}`);
       return { display: response.data.data.profile };
     } catch (error) {
       if (error.response?.status === 404) {
         const errorPayload = handleAsyncThunkError(
           error,
           dispatch,
-          `Profile for ${handle} not found`
+          `Profile for user ${userId} not found`
         );
 
         dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
@@ -32,7 +32,7 @@ export const loadProfileByHandle = createAsyncThunk(
       }
 
       return rejectWithValue(
-        handleAsyncThunkError(error, dispatch, `Failed to load profile for ${handle}`)
+        handleAsyncThunkError(error, dispatch, `Failed to load profile for user ${userId}`)
       );
     }
   }
@@ -177,7 +177,7 @@ const profileSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(loadProfileByHandle.fulfilled, (state, action) => {
+      .addCase(loadProfileById.fulfilled, (state, action) => {
         state.display = action.payload.display; // display can be null if not found
       })
       .addCase(loadAllProfiles.fulfilled, (state, action) => {
