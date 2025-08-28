@@ -14,10 +14,9 @@ const ProfileItem = ({ profile }) => {
         <div className="col-lg-6 col-md-4 col-8">
           <h3>{name}</h3>
           <p>
-            {role} at {company ?? ""}
+            {role} {company && `at ${company}`} {location && `in ${location}`}
           </p>
-          <p>{location ?? ""}</p>
-          <Link to={`/profile/user/${profile.user._id}`} className="btn btn-success">
+          <Link to={`/profile/user/${_id}`} className="btn btn-success">
             View Profile
           </Link>
         </div>
