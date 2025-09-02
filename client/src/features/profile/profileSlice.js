@@ -149,7 +149,6 @@ export const loadGithubRepos = createAsyncThunk(
   "profile/github",
   async (username, { dispatch, rejectWithValue }) => {
     try {
-      console.log(username)
       const response = await api.get(`/profile/github/${username}`);
       return response.data.data;
     } catch (error) {
@@ -172,18 +171,20 @@ const profileSlice = createSlice({
     builder
       .addCase(loadProfileById.fulfilled, (state, action) => {
         state.current = action.payload;
+        state.repos = []; // Clear repos on new profile load
       })
       .addCase(loadAllProfiles.fulfilled, (state, action) => {
         state.all = action.payload.profiles;
       })
       .addCase(loadCurrentProfile.fulfilled, (state, action) => {
         state.current = action.payload;
+        state.repos = []; // Clear repos on new profile load
       })
       .addCase(loadGithubRepos.fulfilled, (state, action) => {
         state.repos = action.payload;
       })
-      .addCase(loadGithubRepos.rejected || loadGithubRepos.rejectWithValue, (state) => {
-        state.repos = [];
+      .addCase(loadGithubRepos.rejected, (state) => {
+        state.repos = []; // Clear repos on failed load
       })
       .addCase(createProfile.fulfilled, (state, action) => {
         state.current = action.payload;

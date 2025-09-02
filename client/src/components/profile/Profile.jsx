@@ -52,7 +52,7 @@ const Profile = () => {
               <ProfileHeader profile={current} />
               <ProfileAbout profile={current} />
               <ProfileCredentials profile={current} />
-              {current.githubusername && <ProfileGithub profile={repos} />}
+              {current.githubusername && <ProfileGithub repos={repos} />}
               {auth.isAuthenticated && auth.user.id === current.user._id && (
                 <div className="mt-3">
                   <Link to="/edit-profile" className="btn btn-outline-danger d-inline-block">
