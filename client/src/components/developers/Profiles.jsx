@@ -13,7 +13,7 @@ const Profiles = () => {
 
   useEffect(() => {
     dispatch(loadAllProfiles());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (allProfiles) {

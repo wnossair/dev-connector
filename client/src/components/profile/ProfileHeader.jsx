@@ -30,10 +30,8 @@ const ProfileHeader = ({ profile }) => {
             <h1 className="display-4 text-center">{name}</h1>
             <p className="lead text-center">
               {role}
-              {company && ` at ${company}`}
-            </p>
-            {location && <p>{location}</p>}
-            <p>
+              {company && ` at ${company}`} in
+              {location && <p>{location}</p>}
               {website && (
                 <a
                   className="text-white p-2"

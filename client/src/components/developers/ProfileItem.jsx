@@ -20,7 +20,7 @@ const ProfileItem = ({ profile }) => {
             View Profile
           </Link>
         </div>
-        <div className="col-md-4 d-none d-lg-block">
+        <div className="col-md-4 d-none d-md-block ms-auto">
           <h4>Skill Set</h4>
           <ul className="list-group">
             {Array.isArray(skills) &&

@@ -9,8 +9,10 @@ import { loadProfileById, loadGithubRepos } from "../../features/profile/profile
 import { Spinner } from "../common/Feedback";
 
 const Profile = () => {
-  const { id } = useParams();
   const dispatch = useDispatch();
+
+  const { id } = useParams();
+  const auth = useSelector(state => state.auth);
   const { display: profile, loading, error, repos } = useSelector(state => state.profile);
 
   useEffect(() => {
@@ -51,6 +53,13 @@ const Profile = () => {
               <ProfileAbout profile={profile} />
               <ProfileCredentials profile={profile} />
               {profile.githubusername && <ProfileGithub repos={repos} />}
+              {auth.isAuthenticated && auth.user.id === profile.user._id && (
+                <div className="mt-3">
+                  <Link to="/edit-profile" className="btn btn-outline-danger d-inline-block">
+                    Edit Profile
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
