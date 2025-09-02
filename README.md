@@ -18,6 +18,53 @@
 
 ***
 
+## Project Structure
+
+The repository is organized into a clean monorepo structure with dedicated directories for the server and client applications.
+
+```
+/
+├── client/              # React front-end application (Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   ├── features/
+│   │   └── ...
+│   └── package.json
+├── server/              # Node.js back-end application
+│   ├── config/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   │   └── api/
+│   ├── package.json
+│   └── server.js
+└── package.json         # Root package file to manage both client & server
+```
+* **`client/`**: Contains the complete React application.
+* **`server/`**: Contains the complete back-end application, including routes, models, and server configuration.
+* **`package.json`**: The root-level file used to run both the client and server concurrently.
+
+***
+
+## Primary Libraries and Frameworks Used
+
+### Back-End
+
+* **Node.js**: A JavaScript runtime environment for executing the server-side code.
+* **Express**: A web application framework for Node.js, used to build the RESTful API.
+* **Mongoose**: An Object Data Modeling (ODM) library for MongoDB and Node.js, used to manage data models.
+* **JSON Web Token (JWT)**: Used for implementing secure user authentication.
+* **bcryptjs**: A library for hashing user passwords before storing them in the database.
+
+### Front-End
+
+* **React**: A JavaScript library for building the user interface.
+* **Redux Toolkit**: The official, opinionated toolset for efficient Redux development. It simplifies state management using a "slice"-based pattern.
+* **React Router**: Handles client-side routing and navigation within the single-page application.
+* **Axios**: A promise-based HTTP client for making requests from the client to the back-end API.
+
+***
+
 ## Prerequisites
 
 Before you begin, ensure you have the following software installed on your machine:
@@ -58,9 +105,9 @@ To allow the application to fetch your public repositories from the GitHub API, 
 
 ## Configuration
 
-Now, you will use the credentials you just generated to configure the application.
+The server application requires a configuration file for your credentials.
 
-1.  **Create the Config File**: In the root of the project folder, navigate into the `config/` directory. Create a new file named `default.json`.
+1.  **Create the Config File**: Navigate into the `server/config/` directory. Create a new file named `default.json`.
 2.  **Add Your Credentials**: Paste the following JSON structure into `default.json` and fill in the values you obtained from the steps above.
 
 ```json
@@ -78,7 +125,7 @@ Now, you will use the credentials you just generated to configure the applicatio
 
 ## Installation & Running the App
 
-With the setup and configuration complete, you can now install and run the application.
+With the project refactored and configured, you can now install and run the application from the root directory.
 
 1.  **Clone the Repository**
     Open your terminal and clone the repository:
@@ -87,21 +134,14 @@ With the setup and configuration complete, you can now install and run the appli
     cd dev-connector
     ```
 
-2.  **Install Server Dependencies**
-    In the root project directory, run:
+2.  **Install All Dependencies**
+    From the root project directory, run the install command. This will install dependencies for both the `server` and `client` applications.
     ```bash
     npm install
     ```
 
-3.  **Install Client Dependencies**
-    Navigate to the `client` directory and install its dependencies:
-    ```bash
-    cd client
-    npm install
-    ```
-
-4.  **Run the Application**
-    Go back to the root project directory (`cd ..`) and run the `dev` script, which concurrently starts both the back-end and front-end:
+3.  **Run the Application**
+    From the root project directory, run the `dev` script. This concurrently starts both the back-end server and the front-end client.
     ```bash
     npm run dev
     ```
