@@ -7,6 +7,7 @@ import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loadProfileById, loadGithubRepos } from "../../features/profile/profileSlice";
 import { Spinner } from "../common/Feedback";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -17,15 +18,18 @@ const Profile = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(loadProfileById(id));
+      dispatch(loadProfileById(id))
+        .then(unwrapResult)
+        .then(profile => {
+          if (profile?.githubusername) {
+            dispatch(loadGithubRepos(profile.githubusername));
+          }
+        })
+        .catch(err => {
+          console.error("Failed to fetch profile or repos:", err);
+        });
     }
   }, [id, dispatch]);
-
-  useEffect(() => {
-    if (current?.githubusername) {
-      dispatch(loadGithubRepos(current.githubusername));
-    }
-  }, [current, dispatch]);
 
   if (loading) {
     return <Spinner />;

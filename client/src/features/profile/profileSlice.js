@@ -183,7 +183,7 @@ const profileSlice = createSlice({
       .addCase(loadGithubRepos.fulfilled, (state, action) => {
         state.repos = action.payload;
       })
-      .addCase(loadGithubRepos.rejected, (state) => {
+      .addCase(loadGithubRepos.rejected, state => {
         state.repos = []; // Clear repos on failed load
       })
       .addCase(createProfile.fulfilled, (state, action) => {
