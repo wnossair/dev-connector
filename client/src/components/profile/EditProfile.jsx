@@ -68,7 +68,7 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   const appError = useSelector(state => state.error);
-  const profile = useSelector(state => state.profile.current);
+  const current = useSelector(state => state.profile.current);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -98,35 +98,35 @@ const EditProfile = () => {
   }, [appError]);
 
   useEffect(() => {
-    if (profile && Object.keys(profile).length > 0) {
+    if (current && Object.keys(current).length > 0) {
       setFormData(prev => ({
         ...prev,
-        handle: profile.handle || "",
-        company: profile.company || "",
-        website: profile.website || "",
-        role: profile.role || "",
-        skills: profile.skills?.join(",") || "",
-        githubusername: profile.githubusername || "",
-        bio: profile.bio || "",
-        location: profile.location || "",
-        twitter: profile.social?.twitter || "",
-        facebook: profile.social?.facebook || "",
-        linkedin: profile.social?.linkedin || "",
-        youtube: profile.social?.youtube || "",
-        instagram: profile.social?.instagram || "",
+        handle: current.handle || "",
+        company: current.company || "",
+        website: current.website || "",
+        role: current.role || "",
+        skills: current.skills?.join(",") || "",
+        githubusername: current.githubusername || "",
+        bio: current.bio || "",
+        location: current.location || "",
+        twitter: current.social?.twitter || "",
+        facebook: current.social?.facebook || "",
+        linkedin: current.social?.linkedin || "",
+        youtube: current.social?.youtube || "",
+        instagram: current.social?.instagram || "",
       }));
 
       setDisplaySocialInputs(
         Boolean(
-          profile.social?.twitter ||
-            profile.social?.facebook ||
-            profile.social?.linkedin ||
-            profile.social?.youtube ||
-            profile.social?.instagram
+          current.social?.twitter ||
+            current.social?.facebook ||
+            current.social?.linkedin ||
+            current.social?.youtube ||
+            current.social?.instagram
         )
       );
     }
-  }, [profile]);
+  }, [current]);
 
   // Event Handlers
   const onChange = e => {

@@ -13,7 +13,7 @@ const Profile = () => {
 
   const { id } = useParams();
   const auth = useSelector(state => state.auth);
-  const { display: profile, loading, error, repos } = useSelector(state => state.profile);
+  const { current, loading, error, repos } = useSelector(state => state.profile);
 
   useEffect(() => {
     if (id) {
@@ -22,16 +22,16 @@ const Profile = () => {
   }, [id, dispatch]);
 
   useEffect(() => {
-    if (profile?.githubusername) {
-      dispatch(loadGithubRepos(profile.githubusername));
+    if (current?.githubusername) {
+      dispatch(loadGithubRepos(current.githubusername));
     }
-  }, [profile, dispatch]);
+  }, [current, dispatch]);
 
   if (loading) {
     return <Spinner />;
   }
 
-  if (error || !profile) {
+  if (error || !current) {
     return (
       <div className="container">
         <h1 className="display-4">Profile not found</h1>
@@ -49,11 +49,11 @@ const Profile = () => {
         <div className="row">
           <div className="col-md-12">
             <div className="row">
-              <ProfileHeader profile={profile} />
-              <ProfileAbout profile={profile} />
-              <ProfileCredentials profile={profile} />
-              {profile.githubusername && <ProfileGithub repos={repos} />}
-              {auth.isAuthenticated && auth.user.id === profile.user._id && (
+              <ProfileHeader profile={current} />
+              <ProfileAbout profile={current} />
+              <ProfileCredentials profile={current} />
+              {current.githubusername && <ProfileGithub profile={repos} />}
+              {auth.isAuthenticated && auth.user.id === current.user._id && (
                 <div className="mt-3">
                   <Link to="/edit-profile" className="btn btn-outline-danger d-inline-block">
                     Edit Profile

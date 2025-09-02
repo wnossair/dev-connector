@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -15,7 +15,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
 
   const { user } = useSelector(state => state.auth);
-  const { current: profile, loading } = useSelector(state => state.profile);
+  const { current, loading } = useSelector(state => state.profile);
 
   // Use Effect Hooks
   useEffect(() => {
@@ -24,13 +24,13 @@ const Dashboard = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (user && !profile && !loading) {
+    if (user && !current && !loading) {
       dispatch(loadCurrentProfile());
     }
-  }, [profile, loading, dispatch]);
+  }, [current, loading, user, dispatch]);
 
   // Event handlers
-  const onDeleteAccountClick = async e => {
+  const onDeleteAccountClick = async () => {
     if (window.confirm("Are you sure? This can NOT be undone!")) {
       try {
         if (await dispatch(deleteAccount()).unwrap()) {
@@ -46,7 +46,7 @@ const Dashboard = () => {
   // Dashboard Content
   const dashboardContent = loading ? (
     <Spinner />
-  ) : !profile || Object.keys(profile).length === 0 ? (
+  ) : !current || Object.keys(current).length === 0 ? (
     <div>
       <h2>Welcome, {user?.name || "User"}!</h2>
       <p className="lead">Email: {user?.email || "Not provided"}</p>
@@ -64,9 +64,9 @@ const Dashboard = () => {
         </Link>
       </h2>
       <ProfileActions />
-      <Experience experience={profile.experience} />
+      <Experience experience={current.experience} />
       <div className="py-1 mb-4" />
-      <Education education={profile.education} />
+      <Education education={current.education} />
 
       <button onClick={onDeleteAccountClick} className="btn btn-danger mt-5 mb-4">
         Delete My Account

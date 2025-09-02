@@ -1,12 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../utils/api";
 import { setAppError } from "../error/errorSlice";
-import { logoutUser } from "../auth/authSlice"; // Import for handling 401
+import { logoutUser } from "../auth/authSlice";
 import { handleAsyncThunkError } from "../../utils/reduxError";
 
 const initialState = {
-  current: null,
-  display: null,
+  current: null, // Unified member for both current and display profile
   loading: false,
   all: [],
   repos: [],
@@ -18,7 +17,7 @@ export const loadProfileById = createAsyncThunk(
   async (userId, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get(`/profile/user/${userId}`);
-      return { display: response.data.data.profile };
+      return response.data.data.profile;
     } catch (error) {
       if (error.response?.status === 404) {
         const errorPayload = handleAsyncThunkError(
@@ -26,11 +25,9 @@ export const loadProfileById = createAsyncThunk(
           dispatch,
           `Profile for user ${userId} not found`
         );
-
         dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
-        return { display: null };
+        return null;
       }
-
       return rejectWithValue(
         handleAsyncThunkError(error, dispatch, `Failed to load profile for user ${userId}`)
       );
@@ -43,7 +40,7 @@ export const loadCurrentProfile = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get("/profile/me");
-      return { current: response.data.data.profile }; // Correctly extracting
+      return response.data.data.profile;
     } catch (error) {
       if (error.response?.status === 404) {
         const errorPayload = handleAsyncThunkError(
@@ -51,11 +48,9 @@ export const loadCurrentProfile = createAsyncThunk(
           dispatch,
           "No profile found. Please create one."
         );
-
         dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
-        return { current: {} };
+        return {};
       }
-
       return rejectWithValue(
         handleAsyncThunkError(error, dispatch, "Failed to load current profile")
       );
@@ -68,7 +63,7 @@ export const loadAllProfiles = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.get("/profile/all");
-      return { profiles: response.data.data.profiles }; // Correctly extracting
+      return { profiles: response.data.data.profiles };
     } catch (error) {
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to load all profiles"));
     }
@@ -80,9 +75,8 @@ export const createProfile = createAsyncThunk(
   async (profileData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/profile", profileData);
-      return { current: response.data.data.profile }; // Correctly extracting
+      return response.data.data.profile;
     } catch (error) {
-      // Server validation errors are in error.response.data.error
       return rejectWithValue(
         handleAsyncThunkError(error, dispatch, "Failed to create/update profile")
       );
@@ -95,7 +89,7 @@ export const addExperience = createAsyncThunk(
   async (experienceData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/profile/experience", experienceData);
-      return { current: response.data.data.profile }; // Correctly extracting
+      return response.data.data.profile;
     } catch (error) {
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to add experience"));
     }
@@ -107,7 +101,7 @@ export const addEducation = createAsyncThunk(
   async (educationData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/profile/education", educationData);
-      return { current: response.data.data.profile }; // Correctly extracting
+      return response.data.data.profile;
     } catch (error) {
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to add education"));
     }
@@ -119,7 +113,7 @@ export const deleteExperience = createAsyncThunk(
   async (id, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.delete(`/profile/experience/${id}`);
-      return { current: response.data.data.profile }; // Correctly extracting
+      return response.data.data.profile;
     } catch (error) {
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete experience"));
     }
@@ -131,7 +125,7 @@ export const deleteEducation = createAsyncThunk(
   async (id, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.delete(`/profile/education/${id}`);
-      return { current: response.data.data.profile }; // Correctly extracting
+      return response.data.data.profile;
     } catch (error) {
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete education"));
     }
@@ -142,10 +136,9 @@ export const deleteAccount = createAsyncThunk(
   "profile/delete",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      // Server response is { success: true, message: "...", data: null, error: null }
       await api.delete("/profile");
-      dispatch(logoutUser()); // Also logout user after account deletion
-      return true; // Indicates success for the reducer
+      dispatch(logoutUser());
+      return true;
     } catch (error) {
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete account"));
     }
@@ -156,6 +149,7 @@ export const loadGithubRepos = createAsyncThunk(
   "profile/github",
   async (username, { dispatch, rejectWithValue }) => {
     try {
+      console.log(username)
       const response = await api.get(`/profile/github/${username}`);
       return response.data.data;
     } catch (error) {
@@ -170,44 +164,43 @@ const profileSlice = createSlice({
   reducers: {
     clearProfile: state => {
       state.current = null;
-      state.display = null;
-      state.all = []; // Also clear all profiles list
+      state.all = [];
       state.loading = false;
     },
   },
   extraReducers: builder => {
     builder
       .addCase(loadProfileById.fulfilled, (state, action) => {
-        state.display = action.payload.display; // display can be null if not found
+        state.current = action.payload;
       })
       .addCase(loadAllProfiles.fulfilled, (state, action) => {
         state.all = action.payload.profiles;
       })
       .addCase(loadCurrentProfile.fulfilled, (state, action) => {
-        state.current = action.payload.current; // current can be {} if not found
+        state.current = action.payload;
       })
       .addCase(loadGithubRepos.fulfilled, (state, action) => {
         state.repos = action.payload;
       })
+      .addCase(loadGithubRepos.rejected || loadGithubRepos.rejectWithValue, (state) => {
+        state.repos = [];
+      })
       .addCase(createProfile.fulfilled, (state, action) => {
-        state.current = action.payload.current;
+        state.current = action.payload;
       })
       .addCase(addExperience.fulfilled, (state, action) => {
-        state.current = action.payload.current;
+        state.current = action.payload;
       })
       .addCase(addEducation.fulfilled, (state, action) => {
-        state.current = action.payload.current;
+        state.current = action.payload;
       })
       .addCase(deleteExperience.fulfilled, (state, action) => {
-        state.current = action.payload.current;
+        state.current = action.payload;
       })
       .addCase(deleteEducation.fulfilled, (state, action) => {
-        state.current = action.payload.current;
+        state.current = action.payload;
       })
       .addCase(deleteAccount.fulfilled, state => {
-        // State clearing is now handled by clearProfile, which will be dispatched
-        // by the component or by the logoutUser action triggered in the thunk.
-        // For directness, we can also call it here.
         profileSlice.caseReducers.clearProfile(state);
       });
 
