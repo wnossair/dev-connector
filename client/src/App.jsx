@@ -24,6 +24,7 @@ import "./App.css";
 import Profiles from "./components/developers/Profiles";
 import Profile from "./components/profile/Profile";
 import Posts from "./components/post/Posts";
+import SinglePost from "./components/post/SinglePost";
 
 const App = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -72,6 +73,7 @@ const App = () => {
               <Route path="/add-experience" element={<AddExperience />} />
               <Route path="/add-education" element={<AddEducation />} />
               <Route path="/posts" element={<Posts />} />
+              <Route path="/post/:id" element={<SinglePost />} />
               {/* Add more protected routes here */}
 
               {/* Catch-all Route */}

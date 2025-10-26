@@ -3,7 +3,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
 import errorReducer from "./features/error/errorSlice";
 import profileReducer from "./features/profile/profileSlice";
-import postReducer from "./features/post/postSlice"
 
 import { injectStore } from "./utils/api";
 
@@ -31,7 +30,6 @@ const store = configureStore({
     auth: authReducer,
     error: errorReducer,
     profile: profileReducer,
-    post: postReducer,
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(localStorageMiddleware),
 });

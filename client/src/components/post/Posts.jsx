@@ -1,18 +1,34 @@
 import React, { useEffect } from "react";
 import PostForm from "./PostForm";
-import { useDispatch, useSelector } from "react-redux";
-import { loadAllPosts } from "../../features/post/postSlice";
+import { usePostsStore } from "../../stores/usePostStore";
 import { Spinner } from "../common/Feedback";
 import PostFeed from "./PostFeed";
+import { postApi } from "../../api/postApi";
 
 export default function Posts() {
-  const dispatch = useDispatch();
-  const { posts, loading } = useSelector(state => state.post);
-  const error = useSelector(state => state.error);
+  const { posts, loading, error, setPosts, setLoading, setError } = usePostsStore();
 
   useEffect(() => {
-    dispatch(loadAllPosts());
-  }, [dispatch]);
+    const loadPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const postsData = await postApi.getPosts();
+        setPosts(postsData);
+      } catch (err) {
+        // Use the actual error from the API call
+        const errorMessage = err.response?.data?.message || err.message || "Failed to load posts";
+        setError({
+          message: errorMessage,
+          details: err.response?.data?.error || null,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, [setPosts, setLoading, setError]);
 
   if (loading) {
     return (
@@ -30,7 +46,12 @@ export default function Posts() {
       <div className="feed">
         <div className="container">
           <div className="alert alert-danger">
-            {error.message || "An error occurred while loading posts."}
+            <strong>Error:</strong> {error.message}
+            {error.details && (
+              <div className="mt-2">
+                <small>{JSON.stringify(error.details)}</small>
+              </div>
+            )}
           </div>
         </div>
       </div>
