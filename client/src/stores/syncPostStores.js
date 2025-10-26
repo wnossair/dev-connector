@@ -1,26 +1,26 @@
-import { usePostsStore } from "./usePostsStore";
-import { useCurrentPostStore } from "./useCurrentPostStore";
+import { usePostListStore } from "./usePostListStore";
+import { usePostStore } from "./usePostStore";
 
-// Helper to sync updates between list and current post
+// Helper to sync updates between list and single post
 export const syncPostUpdates = (postId, updates) => {
   // Update in posts list
-  usePostsStore.getState().updatePost(postId, updates);
+  usePostListStore.getState().updatePost(postId, updates);
 
-  // Update in current post if it's the same post
-  const currentPost = useCurrentPostStore.getState().current;
+  // Update in single post if it's the same post
+  const currentPost = usePostStore.getState().post;
   if (currentPost && currentPost._id === postId) {
-    useCurrentPostStore.getState().updateCurrentPost(updates);
+    usePostStore.getState().updatePost(updates);
   }
 };
 
 // Helper to sync deletion
 export const syncPostDeletion = postId => {
   // Delete from posts list
-  usePostsStore.getState().deletePost(postId);
+  usePostListStore.getState().deletePost(postId);
 
-  // Clear current post if it's the same post
-  const currentPost = useCurrentPostStore.getState().current;
+  // Clear single post if it's the same post
+  const currentPost = usePostStore.getState().post;
   if (currentPost && currentPost._id === postId) {
-    useCurrentPostStore.getState().clearCurrentPost();
+    usePostStore.getState().clearPost();
   }
 };

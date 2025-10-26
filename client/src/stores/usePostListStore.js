@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-export const usePostsStore = create(
+export const usePostListStore = create(
   devtools(
-    (set) => ({
+    set => ({
       // State
       posts: [],
       loading: false,
@@ -41,8 +41,8 @@ export const usePostsStore = create(
         ),
     }),
     {
-      name: "Posts Store", // Name in devtools
-      store: "usePostsStore", // Optional store identifier
+      name: "Post List Store",
+      store: "posts",
     }
   )
 );

@@ -1,13 +1,13 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { usePostsStore } from "../../stores/usePostsStore";
+import { usePostListStore } from "../../stores/usePostListStore";
 import { postApi } from "../../api/postApi";
 import { syncPostUpdates, syncPostDeletion } from "../../stores/syncPostStores";
 
 const PostItem = ({ post }) => {
   const { user } = useSelector(state => state.auth);
-  const { loading, setError, setLoading } = usePostsStore();
+  const { loading, setError, setLoading } = usePostListStore();
 
   const displayName = post.name?.includes(" ") ? post.name.split(" ")[0] : post.name;
 

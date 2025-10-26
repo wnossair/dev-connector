@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import PostForm from "./PostForm";
-import { usePostsStore } from "../../stores/usePostsStore";
+import { usePostListStore } from "../../stores/usePostListStore";
 import { Spinner } from "../common/Feedback";
 import PostFeed from "./PostFeed";
 import { postApi } from "../../api/postApi";
 
 export default function Posts() {
-  const { posts, loading, error, setPosts, setLoading, setError } = usePostsStore();
+  const { posts, loading, error, setPosts, setLoading, setError } = usePostListStore();
 
   useEffect(() => {
     const loadPosts = async () => {

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
-import { usePostsStore } from "../../stores/usePostsStore";
+import { usePostListStore } from "../../stores/usePostListStore";
 import { useSelector } from "react-redux";
 import { postApi } from "../../api/postApi";
 
 const PostForm = () => {
   const { user } = useSelector(state => state.auth);
-  const { addPost, setError, clearError } = usePostsStore();
+  const { addPost, setError, clearError } = usePostListStore();
 
   const [postText, setPostText] = useState("");
   const [submitting, setSubmitting] = useState(false);

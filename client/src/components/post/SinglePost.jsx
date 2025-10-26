@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useCurrentPostStore } from "../../stores/useCurrentPostStore";
+import { usePostStore } from "../../stores/usePostStore";
 import { Spinner } from "../common/Feedback";
 import { postApi } from "../../api/postApi";
 
 export default function SinglePost() {
   const { id } = useParams();
-  const { current, loading, error, setCurrentPost, setLoading, setError, clearError } =
-    useCurrentPostStore();
+  const { post, loading, error, setPost, setLoading, setError, clearError } = usePostStore();
 
   useEffect(() => {
     const loadPost = async () => {
@@ -16,8 +15,8 @@ export default function SinglePost() {
       setLoading(true);
       clearError();
       try {
-        const post = await postApi.getPost(id);
-        setCurrentPost(post);
+        const postData = await postApi.getPost(id);
+        setPost(postData);
       } catch (err) {
         // Use the actual error from the API call
         const errorMessage = err.response?.data?.message || err.message || "Failed to load post";
@@ -33,7 +32,7 @@ export default function SinglePost() {
     };
 
     loadPost();
-  }, [id, setCurrentPost, setLoading, setError, clearError]);
+  }, [id, setPost, setLoading, setError, clearError]);
 
   if (loading) {
     return (
@@ -62,7 +61,7 @@ export default function SinglePost() {
     );
   }
 
-  if (!current) {
+  if (!post) {
     return (
       <div className="container">
         <div className="alert alert-warning">Post not found</div>
@@ -86,22 +85,20 @@ export default function SinglePost() {
               <div className="col-md-2">
                 <img
                   className="rounded-circle d-none d-md-block"
-                  src={current.avatar}
-                  alt={current.name}
+                  src={post.avatar}
+                  alt={post.name}
                   style={{ width: "150px", height: "150px", objectFit: "cover" }}
                 />
-                <p className="text-center mt-2">{current.name}</p>
+                <p className="text-center mt-2">{post.name}</p>
               </div>
               <div className="col-md-10">
-                <p className="lead">{current.text}</p>
+                <p className="lead">{post.text}</p>
                 <div className="d-flex align-items-center">
                   <button type="button" className="btn btn-light me-2">
                     <i className="bi bi-hand-thumbs-up text-info"></i>
-                    <span className="badge bg-light text-dark ms-1">
-                      {current.likes.length} likes
-                    </span>
+                    <span className="badge bg-light text-dark ms-1">{post.likes.length} likes</span>
                   </button>
-                  <span className="text-muted">{new Date(current.date).toLocaleDateString()}</span>
+                  <span className="text-muted">{new Date(post.date).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
