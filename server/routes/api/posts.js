@@ -1,10 +1,11 @@
 import express from "express";
 import passport from "passport";
 import { validationResult } from "express-validator";
-import { postValidation } from "../../middleware/validation.js"; // Assuming comment validation is similar
+import { postValidation, commentValidation } from "../../middleware/validation.js"; // Assuming comment validation is similar
 import { sendSuccess, sendError, handleValidationErrors } from "../../utils/responseHandler.js";
 
 import Post from "../../models/Post.js";
+import mongoose from "mongoose";
 // User model might be needed if you decide to populate user details in posts more extensively
 // import User from "../../models/User.js";
 
@@ -20,7 +21,7 @@ router.get("/test", (req, res) => sendSuccess(res, 200, "Posts Works"));
 // @access  Public
 router.get("/", async (req, res, next) => {
   try {
-    const posts = await Post.find().sort({ date: -1 });
+    const posts = await Post.find().sort({ date: -1 }).populate("user", ["name", "avatar"]);
     sendSuccess(res, 200, "Posts fetched successfully", { posts });
   } catch (err) {
     next(err);
@@ -32,7 +33,7 @@ router.get("/", async (req, res, next) => {
 // @access  Public
 router.get("/:id", async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate("user", ["name", "avatar"]);
     if (!post) {
       return sendError(res, 404, "Post not found");
     }
@@ -151,7 +152,7 @@ router.post(
 router.post(
   "/comment/:id",
   passport.authenticate("jwt", { session: false }),
-  postValidation, // Using postValidation for comment text, adjust if different rules apply
+  commentValidation, // Using commentValidation for comment text
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -186,6 +187,9 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   async (req, res, next) => {
     try {
+      if (!mongoose.Types.ObjectId.isValid(req.params.comment_id)) {
+        return sendError(res, 400, "Invalid comment ID");
+      }
       const post = await Post.findById(req.params.id);
       if (!post) {
         return sendError(res, 404, "Post not found");

@@ -98,3 +98,11 @@ export const educationValidation = [
     }),
   body("current").optional().isBoolean().withMessage("Current must be a boolean"),
 ];
+
+export const commentValidation = [
+  body("text")
+    .notEmpty()
+    .withMessage("Text field is required")
+    .isLength({ min: 1, max: 200 })
+    .withMessage("Comments must be between 1 and 200 characters"),
+];

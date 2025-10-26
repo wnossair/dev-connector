@@ -8,13 +8,33 @@ import PostFeed from "./PostFeed";
 export default function Posts() {
   const dispatch = useDispatch();
   const { posts, loading } = useSelector(state => state.post);
+  const error = useSelector(state => state.error);
 
   useEffect(() => {
     dispatch(loadAllPosts());
   }, [dispatch]);
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <div className="feed">
+        <div className="container">
+          <Spinner />
+          <p>Loading posts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="feed">
+        <div className="container">
+          <div className="alert alert-danger">
+            {error.message || "An error occurred while loading posts."}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

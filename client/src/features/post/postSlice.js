@@ -7,6 +7,7 @@ const initialState = {
   current: null, // For a single post view
   posts: [], // For feed
   loading: false,
+  error: null,
 };
 
 // Async Thunks
@@ -51,6 +52,11 @@ export const addPost = createAsyncThunk(
       const response = await api.post("/posts", postData);
       return response.data.data.post;
     } catch (error) {
+      if (error.response?.status === 400) {
+        const errorPayload = handleAsyncThunkError(error, dispatch, "Invalid post data");
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to add post"));
     }
   }
@@ -246,6 +252,33 @@ const postSlice = createSlice({
       })
       .addCase(deleteComment.fulfilled, (state, action) => {
         updatePostInState(state, action.payload.postId, { comments: action.payload.comments });
+      });
+
+    // Rejected cases
+    builder
+      .addCase(loadAllPosts.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(loadCurrentPost.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(addPost.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(deletePost.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(likePost.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(unlikePost.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(addComment.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(deleteComment.rejected, (state, action) => {
+        state.error = action.payload;
       });
 
     builder

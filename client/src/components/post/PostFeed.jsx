@@ -25,4 +25,4 @@ const PostFeed = ({ posts }) => {
   );
 };
 
-export default PostFeed;
+export default React.memo(PostFeed);
