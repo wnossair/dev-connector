@@ -30,6 +30,15 @@ export const loadCurrentPost = createAsyncThunk(
       const response = await api.get(`/posts/${postId}`);
       return response.data.data.post;
     } catch (error) {
+      if (error.response?.status === 404) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          `Post with ID ${postId} not found`
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to load post"));
     }
   }
@@ -55,6 +64,24 @@ export const deletePost = createAsyncThunk(
       // Server returns { success: true, message: "Post removed successfully", data: null, error: null }
       return postId; // Return postId to identify which post to remove from state
     } catch (error) {
+      if (error.response?.status === 404) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          `Post with ID ${postId} not found`
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
+      if (error.response?.status === 401) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          "Not authorized to delete this post"
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete post"));
     }
   }
@@ -75,6 +102,20 @@ export const likePost = createAsyncThunk(
       // We need the post ID to update the correct post in the `posts` array and `current` post.
       return { postId, likes: response.data.data.likes };
     } catch (error) {
+      if (error.response?.status === 404) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          `Post with ID ${postId} not found`
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
+      if (error.response?.status === 400) {
+        const errorPayload = handleAsyncThunkError(error, dispatch, "Post already liked");
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to like post"));
     }
   }
@@ -87,6 +128,20 @@ export const unlikePost = createAsyncThunk(
       const response = await api.post(`/posts/unlike/${postId}`);
       return { postId, likes: response.data.data.likes };
     } catch (error) {
+      if (error.response?.status === 404) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          `Post with ID ${postId} not found`
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
+      if (error.response?.status === 400) {
+        const errorPayload = handleAsyncThunkError(error, dispatch, "Post has not been liked yet");
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to unlike post"));
     }
   }
@@ -100,6 +155,15 @@ export const addComment = createAsyncThunk(
       // server response.data.data is { comments: [...] }
       return { postId, comments: response.data.data.comments };
     } catch (error) {
+      if (error.response?.status === 404) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          `Post with ID ${postId} not found`
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to add comment"));
     }
   }
@@ -112,6 +176,20 @@ export const deleteComment = createAsyncThunk(
       const response = await api.delete(`/posts/comment/${postId}/${commentId}`);
       return { postId, comments: response.data.data.comments };
     } catch (error) {
+      if (error.response?.status === 404) {
+        const errorPayload = handleAsyncThunkError(error, dispatch, `Post or comment not found`);
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
+      if (error.response?.status === 401) {
+        const errorPayload = handleAsyncThunkError(
+          error,
+          dispatch,
+          "Not authorized to delete this comment"
+        );
+        dispatch(setAppError(errorPayload.error || { message: errorPayload.message }));
+        return null;
+      }
       return rejectWithValue(handleAsyncThunkError(error, dispatch, "Failed to delete comment"));
     }
   }
