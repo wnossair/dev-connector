@@ -71,7 +71,7 @@ const App = () => {
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/add-experience" element={<AddExperience />} />
               <Route path="/add-education" element={<AddEducation />} />
-              <Route path="/feed" element={<Posts />} />
+              <Route path="/posts" element={<Posts />} />
               {/* Add more protected routes here */}
 
               {/* Catch-all Route */}

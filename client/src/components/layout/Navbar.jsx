@@ -22,8 +22,8 @@ const Navbar = () => {
   const authLinks = (
     <>
       <li className="nav-item pe-2">
-        <Link className="nav-link" to="/feed">
-          Post Feed
+        <Link className="nav-link" to="/posts">
+          Posts
         </Link>
       </li>
       <li className="nav-item pe-2">
