@@ -1,20 +1,33 @@
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 
-export const useCurrentPostStore = create(set => ({
-  // State
-  current: null,
-  loading: false,
-  error: null,
+export const useCurrentPostStore = create(
+  devtools(
+    set => ({
+      // State
+      current: null,
+      loading: false,
+      error: null,
 
-  // Actions
-  setLoading: loading => set({ loading }),
-  setError: error => set({ error }),
-  clearError: () => set({ error: null }),
+      // Actions
+      setLoading: loading => set({ loading }, false, "setLoading"),
+      setError: error => set({ error }, false, "setError"),
+      clearError: () => set({ error: null }, false, "clearError"),
 
-  setCurrentPost: post => set({ current: post }),
-  clearCurrentPost: () => set({ current: null }),
-  updateCurrentPost: updates =>
-    set(state => ({
-      current: state.current ? { ...state.current, ...updates } : null,
-    })),
-}));
+      setCurrentPost: post => set({ current: post }, false, "setCurrentPost"),
+      clearCurrentPost: () => set({ current: null }, false, "clearCurrentPost"),
+      updateCurrentPost: updates =>
+        set(
+          state => ({
+            current: state.current ? { ...state.current, ...updates } : null,
+          }),
+          false,
+          "updateCurrentPost"
+        ),
+    }),
+    {
+      name: "Current Post Store",
+      store: "useCurrentPostStore",
+    }
+  )
+);

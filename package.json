@@ -27,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/wnossair/dev-connector/issues"
   },
-  "homepage": "https://github.com/wnossair/dev-connector#readme"
+  "homepage": "https://github.com/wnossair/dev-connector#readme",
+  "dependencies": {
+    "@redux-devtools/extension": "^3.3.0"
+  }
 }

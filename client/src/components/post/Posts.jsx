@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PostForm from "./PostForm";
-import { usePostsStore } from "../../stores/usePostStore";
+import { usePostsStore } from "../../stores/usePostsStore";
 import { Spinner } from "../common/Feedback";
 import PostFeed from "./PostFeed";
 import { postApi } from "../../api/postApi";

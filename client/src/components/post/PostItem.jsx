@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { usePostsStore } from "../../stores/usePostStore";
+import { usePostsStore } from "../../stores/usePostsStore";
 import { postApi } from "../../api/postApi";
 import { syncPostUpdates, syncPostDeletion } from "../../stores/syncPostStores";
 

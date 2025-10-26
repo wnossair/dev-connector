@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
-import { usePostsStore } from "../../stores/usePostStore";
+import { usePostsStore } from "../../stores/usePostsStore";
 import { useSelector } from "react-redux";
 import { postApi } from "../../api/postApi";
 

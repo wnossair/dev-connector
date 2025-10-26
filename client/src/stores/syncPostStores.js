@@ -1,4 +1,4 @@
-import { usePostsStore } from "./usePostStore";
+import { usePostsStore } from "./usePostsStore";
 import { useCurrentPostStore } from "./useCurrentPostStore";
 
 // Helper to sync updates between list and current post
