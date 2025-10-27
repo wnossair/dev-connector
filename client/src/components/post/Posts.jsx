@@ -6,12 +6,12 @@ import PostFeed from "./PostFeed";
 import { postApi } from "../../api/postApi";
 
 export default function Posts() {
-  const { posts, loading, error, setPosts, setLoading, setError } = usePostListStore();
+  const { posts, loading, error, setPosts, setLoading, setError, clearError } = usePostListStore();
 
   useEffect(() => {
     const loadPosts = async () => {
+      clearError();
       setLoading(true);
-      setError(null);
       try {
         const postsData = await postApi.getPosts();
         setPosts(postsData);
@@ -28,7 +28,7 @@ export default function Posts() {
     };
 
     loadPosts();
-  }, [setPosts, setLoading, setError]);
+  }, [setPosts, setLoading, setError, clearError]);
 
   if (loading) {
     return (

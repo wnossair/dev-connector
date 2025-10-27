@@ -12,8 +12,8 @@ export default function SinglePost() {
     const loadPost = async () => {
       if (!id) return;
 
-      setLoading(true);
       clearError();
+      setLoading(true);
       try {
         const postData = await postApi.getPost(id);
         setPost(postData);

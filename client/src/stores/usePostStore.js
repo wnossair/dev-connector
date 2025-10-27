@@ -5,29 +5,27 @@ export const usePostStore = create(
   devtools(
     set => ({
       // State
-      post: null, // Changed from 'current' to 'post' for consistency
+      post: null,
       loading: false,
       error: null,
 
       // Actions
-      setLoading: loading => set({ loading }, false, "setLoading"),
-      setError: error => set({ error }, false, "setError"),
-      clearError: () => set({ error: null }, false, "clearError"),
-
-      setPost: post => set({ post }, false, "setPost"), // Changed from setCurrentPost
-      clearPost: () => set({ post: null }, false, "clearPost"), // Changed from clearCurrentPost
+      setLoading: loading => set({ loading }, false, "post/setLoading"),
+      setError: error => set({ error }, false, "post/setError"),
+      clearError: () => set({ error: null }, false, "post/clearError"),
+      setPost: post => set({ post }, false, "post/setPost"),
+      clearPost: () => set({ post: null }, false, "post/clearPost"),
       updatePost: updates =>
         set(
           state => ({
-            // Changed from updateCurrentPost
             post: state.post ? { ...state.post, ...updates } : null,
           }),
           false,
-          "updatePost"
+          "post/updatePost"
         ),
     }),
     {
-      name: "Post Store",
+      name: "Post",
       store: "post",
     }
   )

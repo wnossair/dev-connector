@@ -10,26 +10,16 @@ export const usePostListStore = create(
       error: null,
 
       // Actions
-      setLoading: loading => set({ loading }, false, "setLoading"),
-      setError: error => set({ error }, false, "setError"),
-      clearError: () => set({ error: null }, false, "clearError"),
-
-      setPosts: posts => set({ posts }, false, "setPosts"),
-      addPost: post =>
-        set(
-          state => ({
-            posts: [post, ...state.posts],
-          }),
-          false,
-          "addPost"
-        ),
+      setLoading: loading => set({ loading }, false, "postList/setLoading"),
+      setError: error => set({ error }, false, "postList/setError"),
+      clearError: () => set({ error: null }, false, "postList/clearError"),
+      setPosts: posts => set({ posts }, false, "postList/setPosts"),
+      addPost: post => set(state => ({ posts: [post, ...state.posts] }), false, "postList/addPost"),
       deletePost: postId =>
         set(
-          state => ({
-            posts: state.posts.filter(post => post._id !== postId),
-          }),
+          state => ({ posts: state.posts.filter(post => post._id !== postId) }),
           false,
-          "deletePost"
+          "postList/deletePost"
         ),
       updatePost: (postId, updates) =>
         set(
@@ -37,12 +27,13 @@ export const usePostListStore = create(
             posts: state.posts.map(post => (post._id === postId ? { ...post, ...updates } : post)),
           }),
           false,
-          "updatePost"
+          "postList/updatePost"
         ),
     }),
     {
-      name: "Post List Store",
-      store: "posts",
+      name: "Post List",
+      // This connects to the main Redux DevTools instance
+      store: "postList",
     }
   )
 );
