@@ -12,6 +12,8 @@
     "install-all": "npm install && npm run install-server && npm run install-client"
   },
   "devDependencies": {
+    "@types/react-redux": "^7.1.34",
+    "@types/react-router-dom": "^5.3.3",
     "concurrently": "^9.1.2"
   },
   "engines": {
