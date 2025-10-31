@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TextFieldGroup from "../common/TextFieldGroup";
-import { useDispatch, useSelector } from "react-redux";
 import { clearAppError } from "../../features/error/errorSlice";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import { addExperience } from "../../features/profile/profileSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import type { FieldErrors, InputChangeHandler } from "../../types";
 
 const AddExperience = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useSelector(state => state.error);
+  const appError = useAppSelector(state => state.error);
 
   // Local States
   const [formData, setFormData] = useState({
@@ -23,23 +24,20 @@ const AddExperience = () => {
     description: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({
-    title: "",
-    company: "",
-    from: "",
-    to: "",
-  });
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   // Use effect hooks
   useEffect(() => {
-    if (appError && Object.values(formData).some(v => v !== "")) {
+    if (appError && typeof appError === "object" && Object.values(formData).some(v => v !== "")) {
       setFieldErrors(prev => ({ ...prev, ...appError }));
     }
   }, [appError, formData]);
 
   // Event Handlers
-  const onChange = e => {
-    const { name, value, type, checked } = e.target;
+  const onChange: InputChangeHandler = e => {
+    const target = e.target;
+    const { name, value, type } = target;
+    const checked = "checked" in target ? target.checked : false;
 
     setFormData(prev => ({
       ...prev,
@@ -51,7 +49,7 @@ const AddExperience = () => {
     }
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(clearAppError());
     setFieldErrors({});
@@ -67,13 +65,12 @@ const AddExperience = () => {
   return (
     <section className="container">
       <h1 className="large text-primary">Add An Experience</h1>
-      <p className="lead">
-        Add any developer/programming positions that you have had in the past
-      </p>
+      <p className="lead">Add any developer/programming positions that you have had in the past</p>
       <small>* = required field</small>
       <form className="form" onSubmit={onSubmit} noValidate>
         {/* Title Field */}
         <TextFieldGroup
+          id="title"
           name="title"
           value={formData.title}
           placeholder="* Job Title"
@@ -84,6 +81,7 @@ const AddExperience = () => {
 
         {/* Company Field */}
         <TextFieldGroup
+          id="company"
           name="company"
           value={formData.company}
           placeholder="* Company"
@@ -94,6 +92,7 @@ const AddExperience = () => {
 
         {/* Location Field */}
         <TextFieldGroup
+          id="location"
           name="location"
           value={formData.location}
           placeholder="Location"
@@ -105,6 +104,7 @@ const AddExperience = () => {
         <div className="form-group">
           <h4>From Date</h4>
           <TextFieldGroup
+            id="from"
             name="from"
             value={formData.from}
             error={fieldErrors.from}
@@ -117,12 +117,7 @@ const AddExperience = () => {
         {/* Current Job Checkbox */}
         <div className="form-group">
           <p>
-            <input
-              type="checkbox"
-              name="current"
-              checked={formData.current}
-              onChange={onChange}
-            />{" "}
+            <input type="checkbox" name="current" checked={formData.current} onChange={onChange} />{" "}
             Current Job
           </p>
         </div>
@@ -131,6 +126,7 @@ const AddExperience = () => {
         <div className="form-group">
           <h4>To Date</h4>
           <TextFieldGroup
+            id="to"
             name="to"
             value={formData.to}
             error={fieldErrors.to}
@@ -143,12 +139,11 @@ const AddExperience = () => {
         {/* Description Field */}
         <div className="form-group">
           <TextAreaFieldGroup
+            id="description"
             name="description"
             value={formData.description}
             placeholder="Job Description"
             onChange={onChange}
-            cols="30"
-            rows="5"
           />
         </div>
 

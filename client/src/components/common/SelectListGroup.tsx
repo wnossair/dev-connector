@@ -1,7 +1,6 @@
-import React from "react";
 import { InputChangeHandler, SelectOption } from "../../types";
 
-interface SelectListGroupProps {
+export interface SelectListGroupProps {
   name: string;
   value: string;
   label?: string;
@@ -14,7 +13,7 @@ interface SelectListGroupProps {
   autoComplete?: string;
 }
 
-const SelectListGroup: React.FC<SelectListGroupProps> = ({
+const SelectListGroup = ({
   name,
   value,
   label,
@@ -25,7 +24,7 @@ const SelectListGroup: React.FC<SelectListGroupProps> = ({
   options,
   disabled = false,
   autoComplete = "off",
-}) => {
+}: SelectListGroupProps) => {
   const selectOptions = options.map(item => (
     <option key={item.label} value={item.value}>
       {item.label}

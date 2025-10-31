@@ -1,13 +1,12 @@
-import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/auth/authSlice";
 import { clearProfile } from "../../features/profile/profileSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 const Navbar = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
 
   const logout = async () => {
     try {
@@ -32,7 +31,7 @@ const Navbar = () => {
         </Link>
       </li>
       <li className="nav-item pe-2">
-        <Link className="nav-link" to={user ? `/profile/user/${user.id}` : "/dashboard"}>
+        <Link className="nav-link" to={user ? `/profile/user/${user._id}` : "/dashboard"}>
           Profile
         </Link>
       </li>

@@ -1,8 +1,13 @@
-import React from "react";
 import { Link } from "react-router-dom";
+import type { Profile } from "../../types";
 
-const ProfileItem = ({ profile }) => {
-  const { avatar, name, _id } = profile.user;
+interface ProfileItemProps {
+  profile: Profile;
+}
+
+const ProfileItem = ({ profile }: ProfileItemProps) => {
+  const user = typeof profile.user === "object" ? profile.user : null;
+  const { avatar, name, _id } = user || {};
   const { role, company, location, skills } = profile;
 
   return (

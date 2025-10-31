@@ -1,14 +1,18 @@
-import React from "react";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { deleteEducation } from "../../features/profile/profileSlice";
 import { getDateRange } from "../../utils/date";
+import { useAppDispatch } from "../../hooks/reduxHooks";
+import type { Education as EducationType } from "../../types";
 
-const Education = ({ education }) => {
-  const dispatch = useDispatch();
+interface EducationProps {
+  education?: EducationType[];
+}
+
+const Education = ({ education }: EducationProps) => {
+  const dispatch = useAppDispatch();
 
   // Event Handlers
-  const onDeleteClick = id => {
+  const onDeleteClick = (id: string) => {
     if (window.confirm("Are you sure you want to delete this education?")) {
       dispatch(deleteEducation(id));
     }
@@ -34,7 +38,10 @@ const Education = ({ education }) => {
                 <td>{edu.degree}</td>
                 <td>{getDateRange(edu.from, edu.to, edu.current)}</td>
                 <td>
-                  <button onClick={() => onDeleteClick(edu._id)} className="btn btn-danger btn-sm">
+                  <button
+                    onClick={() => edu._id && onDeleteClick(edu._id)}
+                    className="btn btn-danger btn-sm"
+                  >
                     Delete
                   </button>
                 </td>

@@ -1,18 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 
 import { loginUser } from "../../features/auth/authSlice";
 import { clearAppError } from "../../features/error/errorSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 import TextFieldGroup from "../common/TextFieldGroup";
+import type { FieldErrors, InputChangeHandler } from "../../types";
 
 const Login = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useSelector(state => state.error);
-  const currentUser = useSelector(state => state.auth.user);
+  const appError = useAppSelector(state => state.error);
+  const currentUser = useAppSelector(state => state.auth.user);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ const Login = () => {
     password: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   // Use Effect Hooks
   useEffect(() => {
@@ -33,10 +34,10 @@ const Login = () => {
     if (currentUser) {
       navigate("/dashboard");
     }
-  }, [currentUser]);
+  }, [currentUser, navigate]);
 
   // Event Handlers
-  const onChange = e => {
+  const onChange: InputChangeHandler = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
@@ -45,7 +46,7 @@ const Login = () => {
     }
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(clearAppError());
     setFieldErrors({});

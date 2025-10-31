@@ -1,9 +1,14 @@
-import React from "react";
 import { getDateRange } from "../../utils/date";
+import type { Profile } from "../../types";
 
-const ProfileCredentials = ({ profile }) => {
-  const { experience = {}, education = {} } = profile;
-  const hasItems = array => array && Array.isArray(array) && array.length > 0;
+interface ProfileCredentialsProps {
+  profile: Profile;
+}
+
+const ProfileCredentials = ({ profile }: ProfileCredentialsProps) => {
+  const { experience = [], education = [] } = profile;
+  const hasItems = <T,>(array?: T[]): array is T[] =>
+    array != null && Array.isArray(array) && array.length > 0;
 
   return (
     <div className="row mt-3">
@@ -49,7 +54,7 @@ const ProfileCredentials = ({ profile }) => {
                 </p>
                 <p>
                   <strong>Field Of Study: </strong>
-                  {edu.fieldofstudy}
+                  {edu.fieldOfStudy}
                 </p>
                 {edu.description && (
                   <p>

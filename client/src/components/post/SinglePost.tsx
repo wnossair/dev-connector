@@ -1,8 +1,18 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { usePostStore } from "../../stores/usePostStore";
 import { Spinner } from "../common/Feedback";
 import { postApi } from "../../api/postApi";
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+  message?: string;
+}
 
 export default function SinglePost() {
   const { id } = useParams();
@@ -17,15 +27,13 @@ export default function SinglePost() {
       try {
         const postData = await postApi.getPost(id);
         setPost(postData);
-      } catch (err) {
+      } catch (error) {
         // Use the actual error from the API call
+        const err = error as ApiError;
         const errorMessage = err.response?.data?.message || err.message || "Failed to load post";
-        const errorDetails = err.response?.data?.error || null;
 
-        setError({
-          message: errorMessage,
-          details: errorDetails,
-        });
+        setError(errorMessage);
+        console.log("Error details:", err.response?.data?.error);
       } finally {
         setLoading(false);
       }
@@ -47,12 +55,7 @@ export default function SinglePost() {
     return (
       <div className="container">
         <div className="alert alert-danger">
-          <strong>Error:</strong> {error.message}
-          {error.details && (
-            <div className="mt-2">
-              <small>{JSON.stringify(error.details)}</small>
-            </div>
-          )}
+          <strong>Error:</strong> {error}
         </div>
         <Link to="/posts" className="btn btn-primary">
           Back to Posts

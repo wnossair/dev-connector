@@ -1,21 +1,21 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import ProfileActions from "./ProfileActions";
 import { logoutUser } from "../../features/auth/authSlice";
 import { clearAppError, setAppError } from "../../features/error/errorSlice";
 import { deleteAccount, loadCurrentProfile } from "../../features/profile/profileSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 import Experience from "./Experience";
 import Education from "./Education";
 import { Spinner } from "../common/Feedback";
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const { user } = useSelector(state => state.auth);
-  const { current, loading } = useSelector(state => state.profile);
+  const { user } = useAppSelector(state => state.auth);
+  const { current, loading } = useAppSelector(state => state.profile);
 
   // Use Effect Hooks
   useEffect(() => {
@@ -37,7 +37,7 @@ const Dashboard = () => {
           dispatch(logoutUser());
         }
       } catch (error) {
-        dispatch(setAppError(error));
+        dispatch(setAppError(error as string));
         console.log("Delete account error:", error);
       }
     }
@@ -59,7 +59,7 @@ const Dashboard = () => {
     <div>
       <h2>
         Welcome,{" "}
-        <Link to={`/profile/user/${user.id}`} className="text-dark">
+        <Link to={`/profile/user/${user?._id}`} className="text-dark">
           {user?.name}
         </Link>
       </h2>

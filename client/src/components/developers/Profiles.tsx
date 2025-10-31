@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { loadAllProfiles } from "../../features/profile/profileSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { Spinner } from "../common/Feedback";
 import { Link } from "react-router-dom";
 import ProfileItem from "./ProfileItem";
+import type { Profile } from "../../types";
 
 const Profiles = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const [profiles, setProfiles] = useState([]);
-  const { all: allProfiles, loading } = useSelector(state => state.profile);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const { all: allProfiles, loading } = useAppSelector(state => state.profile);
 
   useEffect(() => {
     dispatch(loadAllProfiles());

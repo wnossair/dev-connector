@@ -1,9 +1,19 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import PostForm from "./PostForm";
 import { usePostListStore } from "../../stores/usePostListStore";
 import { Spinner } from "../common/Feedback";
 import PostFeed from "./PostFeed";
 import { postApi } from "../../api/postApi";
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+  message?: string;
+}
 
 export default function Posts() {
   const { posts, loading, error, setPosts, setLoading, setError, clearError } = usePostListStore();
@@ -15,13 +25,12 @@ export default function Posts() {
       try {
         const postsData = await postApi.getPosts();
         setPosts(postsData);
-      } catch (err) {
+      } catch (error) {
         // Use the actual error from the API call
+        const err = error as ApiError;
         const errorMessage = err.response?.data?.message || err.message || "Failed to load posts";
-        setError({
-          message: errorMessage,
-          details: err.response?.data?.error || null,
-        });
+        setError(errorMessage);
+        console.log("Error details:", err.response?.data?.error);
       } finally {
         setLoading(false);
       }
@@ -46,12 +55,7 @@ export default function Posts() {
       <div className="feed">
         <div className="container">
           <div className="alert alert-danger">
-            <strong>Error:</strong> {error.message}
-            {error.details && (
-              <div className="mt-2">
-                <small>{JSON.stringify(error.details)}</small>
-              </div>
-            )}
+            <strong>Error:</strong> {error}
           </div>
         </div>
       </div>

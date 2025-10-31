@@ -1,9 +1,15 @@
-import React from "react";
+import { memo } from "react";
 import PostItem from "./PostItem";
 import { Link } from "react-router-dom";
+import type { Post } from "../../types";
 
-const PostFeed = ({ posts }) => {
-  const hasItems = array => array && Array.isArray(array) && array.length > 0;
+interface PostFeedProps {
+  posts?: Post[];
+}
+
+const PostFeed = ({ posts }: PostFeedProps) => {
+  const hasItems = <T,>(array?: T[]): array is T[] =>
+    array != null && Array.isArray(array) && array.length > 0;
 
   if (!hasItems(posts)) {
     return (
@@ -25,4 +31,4 @@ const PostFeed = ({ posts }) => {
   );
 };
 
-export default React.memo(PostFeed);
+export default memo(PostFeed);

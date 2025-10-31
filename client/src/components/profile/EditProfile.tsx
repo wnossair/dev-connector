@@ -1,22 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent, MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
-import { setAppError } from "../../features/error/errorSlice";
 import { createProfile } from "../../features/profile/profileSlice";
+import type { FieldErrors, InputChangeHandler } from "../../types";
 
 // Social Inputs
-const SocialInputs = ({ formData, fieldErrors, onChange }) => {
+interface SocialInputsProps {
+  formData: {
+    twitter?: string;
+    facebook?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
+  fieldErrors: FieldErrors;
+  onChange: InputChangeHandler;
+}
+
+const SocialInputs = ({ formData, fieldErrors, onChange }: SocialInputsProps) => {
   return (
     <>
       <InputGroup
         name="twitter"
-        value={formData.twitter}
+        value={formData.twitter || ""}
         placeholder="Twitter Profile URL"
         id="twitter"
         icon="bi bi-twitter"
@@ -25,7 +37,7 @@ const SocialInputs = ({ formData, fieldErrors, onChange }) => {
       />
       <InputGroup
         name="facebook"
-        value={formData.facebook}
+        value={formData.facebook || ""}
         placeholder="Facebook Profile URL"
         id="facebook"
         icon="bi bi-facebook"
@@ -34,7 +46,7 @@ const SocialInputs = ({ formData, fieldErrors, onChange }) => {
       />
       <InputGroup
         name="linkedin"
-        value={formData.linkedin}
+        value={formData.linkedin || ""}
         placeholder="Linkedin Profile URL"
         id="linkedin"
         icon="bi bi-linkedin"
@@ -43,7 +55,7 @@ const SocialInputs = ({ formData, fieldErrors, onChange }) => {
       />
       <InputGroup
         name="youtube"
-        value={formData.youtube}
+        value={formData.youtube || ""}
         placeholder="Youtube Profile URL"
         id="youtube"
         icon="bi bi-youtube"
@@ -52,7 +64,7 @@ const SocialInputs = ({ formData, fieldErrors, onChange }) => {
       />
       <InputGroup
         name="instagram"
-        value={formData.instagram}
+        value={formData.instagram || ""}
         placeholder="Instagram Profile URL"
         id="instagram"
         icon="bi bi-instagram"
@@ -64,11 +76,11 @@ const SocialInputs = ({ formData, fieldErrors, onChange }) => {
 };
 
 const EditProfile = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useSelector(state => state.error);
-  const current = useSelector(state => state.profile.current);
+  const appError = useAppSelector(state => state.error);
+  const current = useAppSelector(state => state.profile.current);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -87,7 +99,7 @@ const EditProfile = () => {
     instagram: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [displaySocialInputs, setDisplaySocialInputs] = useState(false);
 
   // Use Effect Hooks
@@ -129,7 +141,7 @@ const EditProfile = () => {
   }, [current]);
 
   // Event Handlers
-  const onChange = e => {
+  const onChange: InputChangeHandler = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
@@ -138,7 +150,7 @@ const EditProfile = () => {
     }
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
 
@@ -147,12 +159,11 @@ const EditProfile = () => {
       const profile = await dispatch(createProfile(formData)).unwrap();
       if (profile) navigate("/dashboard");
     } catch (err) {
-      dispatch(setAppError(err));
       console.log("Edit profile error: ", err);
     }
   };
 
-  const OnCancel = e => {
+  const OnCancel = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
@@ -199,7 +210,6 @@ const EditProfile = () => {
               <SelectListGroup
                 name="role"
                 value={formData.role}
-                placeholder="Role"
                 id="role"
                 options={options}
                 error={fieldErrors.role}
@@ -265,7 +275,6 @@ const EditProfile = () => {
               <TextAreaFieldGroup
                 name="bio"
                 value={formData.bio}
-                type="text"
                 placeholder="Short Bio"
                 id="bio"
                 error={fieldErrors.bio}

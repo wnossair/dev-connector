@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import { useState, FormEvent } from "react";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import { usePostListStore } from "../../stores/usePostListStore";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "../../hooks/reduxHooks";
 import { postApi } from "../../api/postApi";
+import type { InputChangeHandler } from "../../types";
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+  message?: string;
+}
 
 const PostForm = () => {
-  const { user } = useSelector(state => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const { addPost, setError, clearError } = usePostListStore();
 
   const [postText, setPostText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const onSubmit = async e => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!postText.trim()) return;
 
@@ -23,28 +34,27 @@ const PostForm = () => {
     try {
       const postData = {
         text: postText,
-        name: user.name,
-        avatar: user.avatar,
+        name: user?.name || "",
+        avatar: user?.avatar || "",
       };
       const newPost = await postApi.createPost(postData);
       addPost(newPost);
       setPostText("");
-    } catch (err) {
+    } catch (error) {
       // Use the actual error from the API call
+      const err = error as ApiError;
       const errorMessage = err.response?.data?.message || err.message || "Failed to create post";
       const errorDetails = err.response?.data?.error || null;
 
-      setError({
-        message: errorMessage,
-        details: errorDetails,
-      });
+      setError(errorMessage);
       setFormError(errorMessage);
+      console.log("Error details:", errorDetails);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const onChange = e => {
+  const onChange: InputChangeHandler = e => {
     setPostText(e.target.value);
     if (formError) setFormError("");
   };
@@ -57,7 +67,6 @@ const PostForm = () => {
           <form onSubmit={onSubmit}>
             <div className="form-group">
               <TextAreaFieldGroup
-                className="form-control form-control-lg"
                 name="postText"
                 value={postText}
                 placeholder="Create a post"

@@ -1,7 +1,6 @@
-import React from "react";
 import { InputChangeHandler } from "../../types";
 
-interface InputGroupProps {
+export interface InputGroupProps {
   name: string;
   value: string;
   placeholder: string;
@@ -15,7 +14,7 @@ interface InputGroupProps {
   autoComplete?: string;
 }
 
-const InputGroup: React.FC<InputGroupProps> = ({
+const InputGroup = ({
   name,
   value,
   placeholder,
@@ -27,7 +26,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
   onChange,
   disabled = false,
   autoComplete = "off",
-}) => {
+}: InputGroupProps) => {
   return (
     <div className="input-group mb-3">
       <div className="input-group-prepend">

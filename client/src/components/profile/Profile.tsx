@@ -1,20 +1,20 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import ProfileHeader from "./ProfileHeader";
 import ProfileAbout from "./ProfileAbout";
 import ProfileCredentials from "./ProfileCredentials";
 import ProfileGithub from "./ProfileGithub";
 import { Link, useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { loadProfileById, loadGithubRepos } from "../../features/profile/profileSlice";
 import { Spinner } from "../common/Feedback";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 const Profile = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { id } = useParams();
-  const auth = useSelector(state => state.auth);
-  const { current, loading, error, repos } = useSelector(state => state.profile);
+  const auth = useAppSelector(state => state.auth);
+  const { current, loading, repos } = useAppSelector(state => state.profile);
 
   useEffect(() => {
     if (id) {
@@ -35,7 +35,7 @@ const Profile = () => {
     return <Spinner />;
   }
 
-  if (error || !current) {
+  if (!current) {
     return (
       <div className="container">
         <h1 className="display-4">Profile not found</h1>
@@ -57,13 +57,16 @@ const Profile = () => {
               <ProfileAbout profile={current} />
               <ProfileCredentials profile={current} />
               {current.githubusername && <ProfileGithub repos={repos} />}
-              {auth.isAuthenticated && auth.user.id === current.user._id && (
-                <div className="mt-3">
-                  <Link to="/edit-profile" className="btn btn-outline-danger d-inline-block">
-                    Edit Profile
-                  </Link>
-                </div>
-              )}
+              {auth.isAuthenticated &&
+                auth.user &&
+                typeof current.user !== "string" &&
+                auth.user._id === current.user._id && (
+                  <div className="mt-3">
+                    <Link to="/edit-profile" className="btn btn-outline-danger d-inline-block">
+                      Edit Profile
+                    </Link>
+                  </div>
+                )}
             </div>
           </div>
         </div>

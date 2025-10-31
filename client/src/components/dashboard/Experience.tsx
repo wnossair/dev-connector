@@ -1,14 +1,18 @@
-import React from "react";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { deleteExperience } from "../../features/profile/profileSlice";
 import { getDateRange } from "../../utils/date";
+import { useAppDispatch } from "../../hooks/reduxHooks";
+import type { Experience as ExperienceType } from "../../types";
 
-const Experience = ({ experience }) => {
-  const dispatch = useDispatch();
+interface ExperienceProps {
+  experience?: ExperienceType[];
+}
+
+const Experience = ({ experience }: ExperienceProps) => {
+  const dispatch = useAppDispatch();
 
   // Event Handlers
-  const onDeleteClick = id => {
+  const onDeleteClick = (id: string) => {
     if (window.confirm("Are you sure you want to delete this experience?")) {
       dispatch(deleteExperience(id));
     }
@@ -34,7 +38,10 @@ const Experience = ({ experience }) => {
                 <td>{exp.title}</td>
                 <td>{getDateRange(exp.from, exp.to, exp.current)}</td>
                 <td>
-                  <button onClick={() => onDeleteClick(exp._id)} className="btn btn-danger btn-sm">
+                  <button
+                    onClick={() => exp._id && onDeleteClick(exp._id)}
+                    className="btn btn-danger btn-sm"
+                  >
                     Delete
                   </button>
                 </td>

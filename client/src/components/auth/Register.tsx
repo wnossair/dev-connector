@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { registerUser } from "../../features/auth/authSlice";
 import { clearAppError } from "../../features/error/errorSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 import TextFieldGroup from "../common/TextFieldGroup";
+import type { FieldErrors, InputChangeHandler } from "../../types";
 
 const Register = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useSelector(state => state.error);
+  const appError = useAppSelector(state => state.error);
 
   // Local states
   const [formData, setFormData] = useState({
@@ -21,34 +22,24 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   // Use effect hooks
   useEffect(() => {
     // Clear all errors on mount
     dispatch(clearAppError());
-    setFieldErrors({
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    });
+    setFieldErrors({});
   }, [dispatch]);
 
   useEffect(() => {
     // Only show errors after user interaction
-    if (appError && Object.values(formData).some(v => v !== "")) {
+    if (appError && typeof appError === "object" && Object.values(formData).some(v => v !== "")) {
       setFieldErrors(prev => ({ ...prev, ...appError }));
     }
   }, [appError, formData]);
 
   // Event handlers
-  const onChange = e => {
+  const onChange: InputChangeHandler = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
@@ -57,15 +48,23 @@ const Register = () => {
     }
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(clearAppError());
     setFieldErrors({});
 
-    await dispatch(registerUser(formData))
+    // Transform formData to match RegisterData type
+    const registerData = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      password2: formData.confirmPassword,
+    };
+
+    await dispatch(registerUser(registerData))
       .unwrap()
       .then(result => {
-        console.log("Registration success:", result.payload);
+        console.log("Registration success:", result);
         navigate("/login");
       })
       .catch(err => console.log("Registration error:", err));

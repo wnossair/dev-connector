@@ -1,67 +1,77 @@
-import React from "react";
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { usePostListStore } from "../../stores/usePostListStore";
 import { postApi } from "../../api/postApi";
 import { syncPostUpdates, syncPostDeletion } from "../../stores/syncPostStores";
+import { useAppSelector } from "../../hooks/reduxHooks";
+import type { Post } from "../../types";
 
-const PostItem = ({ post }) => {
-  const { user } = useSelector(state => state.auth);
+interface PostItemProps {
+  post: Post;
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+  message?: string;
+}
+
+const PostItem = ({ post }: PostItemProps) => {
+  const { user } = useAppSelector(state => state.auth);
   const { loading, setError, setLoading } = usePostListStore();
 
   const displayName = post.name?.includes(" ") ? post.name.split(" ")[0] : post.name;
 
-  const onDeleteClick = async id => {
+  const onDeleteClick = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       setLoading(true);
       try {
         await postApi.deletePost(id);
         syncPostDeletion(id);
-      } catch (err) {
+      } catch (error) {
+        const err = error as ApiError;
         const errorMessage = err.response?.data?.message || err.message || "Failed to delete post";
-        setError({
-          message: errorMessage,
-          details: err.response?.data?.error || null,
-        });
+        setError(errorMessage);
+        console.log("Error:", err.response?.data?.error);
       } finally {
         setLoading(false);
       }
     }
   };
 
-  const onLikeClick = async id => {
+  const onLikeClick = async (id: string) => {
     setLoading(true);
     try {
       const { postId, likes } = await postApi.likePost(id);
       syncPostUpdates(postId, { likes });
-    } catch (err) {
+    } catch (error) {
+      const err = error as ApiError;
       const errorMessage = err.response?.data?.message || err.message || "Failed to like post";
-      setError({
-        message: errorMessage,
-        details: err.response?.data?.error || null,
-      });
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const onUnlikeClick = async id => {
+  const onUnlikeClick = async (id: string) => {
     setLoading(true);
     try {
       const { postId, likes } = await postApi.unlikePost(id);
       syncPostUpdates(postId, { likes });
-    } catch (err) {
+    } catch (error) {
+      const err = error as ApiError;
       const errorMessage = err.response?.data?.message || err.message || "Failed to unlike post";
-      setError({
-        message: errorMessage,
-        details: err.response?.data?.error || null,
-      });
+      setError(errorMessage);
+      console.log("Error:", err.response?.data?.error);
     } finally {
       setLoading(false);
     }
   };
 
-  const hasLiked = post.likes.some(like => like.user === user.id);
+  const hasLiked = post.likes?.some(like => like.user === user?._id) || false;
 
   return (
     <div className="card card-body mb-3">
@@ -97,11 +107,11 @@ const PostItem = ({ post }) => {
             <Link to={`/post/${post._id}`} className="btn btn-info me-2">
               Comments
             </Link>
-            {post.user === user.id && (
+            {post.user === user?._id && (
               <button
                 type="button"
                 className="btn btn-danger me-1"
-                onClick={() => onDeleteClick(post._id)}
+                onClick={() => post._id && onDeleteClick(post._id)}
                 disabled={loading}
               >
                 <i className="bi bi-x-lg"></i>

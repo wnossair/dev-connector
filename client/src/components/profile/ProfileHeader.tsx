@@ -1,14 +1,15 @@
-import React from "react";
+import type { Profile } from "../../types";
 
-const ProfileHeader = ({ profile }) => {
-  const {
-    user: { avatar = "https://www.gravatar.com/avatar/default?s=200", name },
-    role,
-    company,
-    location,
-    website,
-    social = {},
-  } = profile;
+interface ProfileHeaderProps {
+  profile: Profile;
+}
+
+const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
+  const user = typeof profile.user === "object" ? profile.user : null;
+  const { avatar = "https://www.gravatar.com/avatar/default?s=200", name = "Unknown User" } =
+    user || {};
+
+  const { role, company, location, website, social = {} } = profile;
 
   return (
     <div className="row">
@@ -21,7 +22,8 @@ const ProfileHeader = ({ profile }) => {
                 src={avatar}
                 alt={name}
                 onError={e => {
-                  e.target.src = "https://www.gravatar.com/avatar/default?s=200";
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://www.gravatar.com/avatar/default?s=200";
                 }}
               />
             </div>

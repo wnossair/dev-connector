@@ -1,6 +1,19 @@
-import React from "react";
+interface GithubRepo {
+  id: string;
+  name: string;
+  html_url: string;
+  description?: string;
+  stargazers_count: number;
+  watchers_count: number;
+  forks_count: number;
+  languages?: Array<{ name: string; percentage: number }>;
+}
 
-const ProfileGithub = ({ repos }) => {
+interface ProfileGithubProps {
+  repos?: GithubRepo[];
+}
+
+const ProfileGithub = ({ repos }: ProfileGithubProps) => {
   return (
     <div className="container py-3 mt-3">
       <h2 className="h4 text-info mb-3">Top GitHub Repositories</h2>

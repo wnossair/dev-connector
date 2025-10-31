@@ -1,6 +1,10 @@
-import React from "react";
+import type { Profile } from "../../types";
 
-const ProfileAbout = ({ profile }) => {
+interface ProfileAboutProps {
+  profile: Profile;
+}
+
+const ProfileAbout = ({ profile }: ProfileAboutProps) => {
   const { bio, skills } = profile;
 
   return (

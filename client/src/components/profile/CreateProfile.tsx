@@ -1,17 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
-import { setAppError } from "../../features/error/errorSlice";
 import { createProfile } from "../../features/profile/profileSlice";
+import type { FieldErrors, InputChangeHandler } from "../../types";
 
 // Social Inputs
-const SocialInputs = ({ formData, fieldErrors, onChange }) => {
+interface SocialInputsProps {
+  formData: {
+    twitter: string;
+    facebook: string;
+    linkedin: string;
+    youtube: string;
+    instagram: string;
+  };
+  fieldErrors: FieldErrors;
+  onChange: InputChangeHandler;
+}
+
+const SocialInputs = ({ formData, fieldErrors, onChange }: SocialInputsProps) => {
   return (
     <>
       <InputGroup
@@ -64,10 +76,10 @@ const SocialInputs = ({ formData, fieldErrors, onChange }) => {
 };
 
 const CreateProfile = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useSelector(state => state.error);
+  const appError = useAppSelector(state => state.error);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -86,7 +98,7 @@ const CreateProfile = () => {
     instagram: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [displaySocialInputs, setDisplaySocialInputs] = useState(false);
 
   // Use Effect Hooks
@@ -97,7 +109,7 @@ const CreateProfile = () => {
   }, [appError]);
 
   // Event Handlers
-  const onChange = e => {
+  const onChange: InputChangeHandler = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
@@ -106,7 +118,7 @@ const CreateProfile = () => {
     }
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
 
@@ -115,14 +127,13 @@ const CreateProfile = () => {
       const profile = await dispatch(createProfile(formData)).unwrap();
       if (profile) navigate("/dashboard");
     } catch (err) {
-      dispatch(setAppError(err));
-      console.log("Edit profile error: ", err);
+      console.log("Create profile error: ", err);
     }
   };
 
   // Select Options for Role
   const options = [
-    { label: "* Select Professional Role", value: 0 },
+    { label: "* Select Professional Role", value: "" },
     { label: "Developer", value: "Developer" },
     { label: "Junior Developer", value: "Junior Developer" },
     { label: "Senior Developer", value: "Senior Developer" },
@@ -160,7 +171,6 @@ const CreateProfile = () => {
               <SelectListGroup
                 name="role"
                 value={formData.role}
-                placeholder="Role"
                 id="role"
                 options={options}
                 error={fieldErrors.role}
@@ -226,7 +236,6 @@ const CreateProfile = () => {
               <TextAreaFieldGroup
                 name="bio"
                 value={formData.bio}
-                type="text"
                 placeholder="Short Bio"
                 id="bio"
                 error={fieldErrors.bio}
