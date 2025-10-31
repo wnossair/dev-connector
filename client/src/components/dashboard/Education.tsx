@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { deleteEducation } from "../../features/profile/profileSlice";
+import { useProfileStore } from "../../stores/useProfileStore";
 import { getDateRange } from "../../utils/date";
-import { useAppDispatch } from "../../hooks/reduxHooks";
 import type { Education as EducationType } from "../../types";
 
 interface EducationProps {
@@ -9,12 +8,12 @@ interface EducationProps {
 }
 
 const Education = ({ education }: EducationProps) => {
-  const dispatch = useAppDispatch();
+  const deleteEducation = useProfileStore(state => state.deleteEducation);
 
   // Event Handlers
   const onDeleteClick = (id: string) => {
     if (window.confirm("Are you sure you want to delete this education?")) {
-      dispatch(deleteEducation(id));
+      deleteEducation(id);
     }
   };
 

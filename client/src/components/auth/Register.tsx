@@ -1,18 +1,18 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { registerUser } from "../../features/auth/authSlice";
-import { clearAppError } from "../../features/error/errorSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useErrorStore } from "../../stores/useErrorStore";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import type { FieldErrors, InputChangeHandler } from "../../types";
 
 const Register = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useAppSelector(state => state.error);
+  const registerUser = useAuthStore(state => state.registerUser);
+  const appError = useErrorStore(state => state.error);
+  const clearError = useErrorStore(state => state.clearError);
 
   // Local states
   const [formData, setFormData] = useState({
@@ -27,9 +27,9 @@ const Register = () => {
   // Use effect hooks
   useEffect(() => {
     // Clear all errors on mount
-    dispatch(clearAppError());
+    clearError();
     setFieldErrors({});
-  }, [dispatch]);
+  }, [clearError]);
 
   useEffect(() => {
     // Only show errors after user interaction
@@ -50,7 +50,7 @@ const Register = () => {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(clearAppError());
+    clearError();
     setFieldErrors({});
 
     // Transform formData to match RegisterData type
@@ -61,8 +61,7 @@ const Register = () => {
       password2: formData.confirmPassword,
     };
 
-    await dispatch(registerUser(registerData))
-      .unwrap()
+    await registerUser(registerData)
       .then(result => {
         console.log("Registration success:", result);
         navigate("/login");

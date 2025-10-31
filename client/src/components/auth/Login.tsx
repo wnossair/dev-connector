@@ -1,19 +1,19 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { loginUser } from "../../features/auth/authSlice";
-import { clearAppError } from "../../features/error/errorSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useErrorStore } from "../../stores/useErrorStore";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import type { FieldErrors, InputChangeHandler } from "../../types";
 
 const Login = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useAppSelector(state => state.error);
-  const currentUser = useAppSelector(state => state.auth.user);
+  const loginUser = useAuthStore(state => state.loginUser);
+  const currentUser = useAuthStore(state => state.user);
+  const appError = useErrorStore(state => state.error);
+  const clearError = useErrorStore(state => state.clearError);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -48,12 +48,10 @@ const Login = () => {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(clearAppError());
+    clearError();
     setFieldErrors({});
 
-    await dispatch(loginUser(formData))
-      .unwrap()
-      .catch(err => console.log("Login error:", err));
+    await loginUser(formData).catch(err => console.log("Login error:", err));
   };
 
   // Component

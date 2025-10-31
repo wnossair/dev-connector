@@ -105,3 +105,14 @@ export interface ProfileResponse {
 export interface ProfilesResponse {
   profiles: Profile[];
 }
+
+export interface GithubRepo {
+  id: string;
+  name: string;
+  html_url: string;
+  description?: string;
+  stargazers_count: number;
+  watchers_count: number;
+  forks_count: number;
+  languages?: Array<{ name: string; percentage: number }>;
+}

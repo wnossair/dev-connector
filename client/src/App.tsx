@@ -16,9 +16,7 @@ import EditProfile from "./components/profile/EditProfile";
 import AddExperience from "./components/profile/AddExperience";
 import AddEducation from "./components/profile/AddEducation";
 
-import store from "./store";
-import { verifyAuth } from "./features/auth/authSlice";
-import { useAppSelector } from "./hooks/reduxHooks";
+import { useAuthStore } from "./stores/useAuthStore";
 
 import "./App.css";
 import Profiles from "./components/developers/Profiles";
@@ -27,7 +25,8 @@ import Posts from "./components/post/Posts";
 import SinglePost from "./components/post/SinglePost";
 
 const App = () => {
-  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const verifyAuth = useAuthStore(state => state.verifyAuth);
 
   // Periodic check for Authorization
   useEffect(() => {
@@ -39,7 +38,7 @@ const App = () => {
 
       try {
         // Forced to check with server if auth expired
-        await store.dispatch(verifyAuth({ forceRefresh: true }));
+        await verifyAuth({ forceRefresh: true });
       } catch (err) {
         console.error("auth/verify error:", err);
       }
@@ -52,7 +51,7 @@ const App = () => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, verifyAuth]);
 
   // Component
   return (

@@ -3,22 +3,24 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
 
-import { Provider } from "react-redux";
-import store from "./store";
-import { loadUser, verifyAuth } from "./features/auth/authSlice";
-import { loadCurrentProfile } from "./features/profile/profileSlice";
+import { useAuthStore } from "./stores/useAuthStore";
+import { useProfileStore } from "./stores/useProfileStore";
+import { setupApiInterceptors } from "./utils/api";
+
+// Setup API interceptors for 401 error handling
+setupApiInterceptors();
 
 // Async function to check auth and load data
 async function initializeApp() {
   try {
-    const { isValid } = await store.dispatch(verifyAuth()).unwrap();
+    const authStore = useAuthStore.getState();
+    const profileStore = useProfileStore.getState();
+
+    const { isValid } = await authStore.verifyAuth();
 
     if (isValid) {
-      // Dispatch both in parallel, wait for all
-      await Promise.all([
-        store.dispatch(loadUser()).unwrap(),
-        store.dispatch(loadCurrentProfile()).unwrap(),
-      ]);
+      // Load both in parallel
+      await Promise.all([authStore.loadUser(), profileStore.loadCurrentProfile()]);
     }
   } catch (error) {
     console.error("Initialization failed:", error);
@@ -32,9 +34,7 @@ initializeApp().then(() => {
 
   createRoot(rootElement).render(
     <StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
+      <App />
     </StrictMode>
   );
 });

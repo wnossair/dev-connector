@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 const Landing = () => {
-  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const navigate = useNavigate();
 
   useEffect(() => {

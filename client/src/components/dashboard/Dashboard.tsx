@@ -2,42 +2,44 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import ProfileActions from "./ProfileActions";
-import { logoutUser } from "../../features/auth/authSlice";
-import { clearAppError, setAppError } from "../../features/error/errorSlice";
-import { deleteAccount, loadCurrentProfile } from "../../features/profile/profileSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useErrorStore } from "../../stores/useErrorStore";
+import { useProfileStore } from "../../stores/useProfileStore";
 
 import Experience from "./Experience";
 import Education from "./Education";
 import { Spinner } from "../common/Feedback";
 
 const Dashboard = () => {
-  const dispatch = useAppDispatch();
-
-  const { user } = useAppSelector(state => state.auth);
-  const { current, loading } = useAppSelector(state => state.profile);
+  const user = useAuthStore(state => state.user);
+  const logout = useAuthStore(state => state.logout);
+  const current = useProfileStore(state => state.current);
+  const loading = useProfileStore(state => state.loading);
+  const loadCurrentProfile = useProfileStore(state => state.loadCurrentProfile);
+  const deleteAccount = useProfileStore(state => state.deleteAccount);
+  const clearError = useErrorStore(state => state.clearError);
+  const setError = useErrorStore(state => state.setError);
 
   // Use Effect Hooks
   useEffect(() => {
     // Clear all errors on mount
-    dispatch(clearAppError());
-  }, [dispatch]);
+    clearError();
+  }, [clearError]);
 
   useEffect(() => {
     if (user && !current && !loading) {
-      dispatch(loadCurrentProfile());
+      loadCurrentProfile();
     }
-  }, [current, loading, user, dispatch]);
+  }, [current, loading, user, loadCurrentProfile]);
 
   // Event handlers
   const onDeleteAccountClick = async () => {
     if (window.confirm("Are you sure? This can NOT be undone!")) {
       try {
-        if (await dispatch(deleteAccount()).unwrap()) {
-          dispatch(logoutUser());
-        }
+        await deleteAccount();
+        logout();
       } catch (error) {
-        dispatch(setAppError(error as string));
+        setError(error as string);
         console.log("Delete account error:", error);
       }
     }

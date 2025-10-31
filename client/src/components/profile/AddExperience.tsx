@@ -1,17 +1,17 @@
 import { useEffect, useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TextFieldGroup from "../common/TextFieldGroup";
-import { clearAppError } from "../../features/error/errorSlice";
+import { useErrorStore } from "../../stores/useErrorStore";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
-import { addExperience } from "../../features/profile/profileSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useProfileStore } from "../../stores/useProfileStore";
 import type { FieldErrors, InputChangeHandler } from "../../types";
 
 const AddExperience = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useAppSelector(state => state.error);
+  const appError = useErrorStore(state => state.error);
+  const clearError = useErrorStore(state => state.clearError);
+  const addExperience = useProfileStore(state => state.addExperience);
 
   // Local States
   const [formData, setFormData] = useState({
@@ -51,11 +51,11 @@ const AddExperience = () => {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(clearAppError());
+    clearError();
     setFieldErrors({});
 
     try {
-      await dispatch(addExperience(formData)).unwrap();
+      await addExperience(formData);
       navigate("/dashboard");
     } catch (error) {
       console.log("Add Experience error: ", error);

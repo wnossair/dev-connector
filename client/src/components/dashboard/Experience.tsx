@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { deleteExperience } from "../../features/profile/profileSlice";
+import { useProfileStore } from "../../stores/useProfileStore";
 import { getDateRange } from "../../utils/date";
-import { useAppDispatch } from "../../hooks/reduxHooks";
 import type { Experience as ExperienceType } from "../../types";
 
 interface ExperienceProps {
@@ -9,12 +8,12 @@ interface ExperienceProps {
 }
 
 const Experience = ({ experience }: ExperienceProps) => {
-  const dispatch = useAppDispatch();
+  const deleteExperience = useProfileStore(state => state.deleteExperience);
 
   // Event Handlers
   const onDeleteClick = (id: string) => {
     if (window.confirm("Are you sure you want to delete this experience?")) {
-      dispatch(deleteExperience(id));
+      deleteExperience(id);
     }
   };
 

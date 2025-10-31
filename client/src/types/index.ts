@@ -29,6 +29,7 @@ export type {
   AddEducationData,
   ProfileResponse,
   ProfilesResponse,
+  GithubRepo,
 } from "./profile.types";
 
 // Post Types
@@ -54,9 +55,6 @@ export type {
 
 // Error Types
 export type { ErrorState, AppError } from "./error.types";
-
-// Store Types
-export type { RootState, AppDispatch, ThunkConfig } from "./store.types";
 
 // Common Types
 export type {

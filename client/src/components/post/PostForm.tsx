@@ -1,7 +1,7 @@
 import { useState, FormEvent } from "react";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import { usePostListStore } from "../../stores/usePostListStore";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { postApi } from "../../api/postApi";
 import type { InputChangeHandler } from "../../types";
 
@@ -16,7 +16,7 @@ interface ApiError {
 }
 
 const PostForm = () => {
-  const { user } = useAppSelector(state => state.auth);
+  const user = useAuthStore(state => state.user);
   const { addPost, setError, clearError } = usePostListStore();
 
   const [postText, setPostText] = useState("");

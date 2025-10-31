@@ -1,17 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
-import { logoutUser } from "../../features/auth/authSlice";
-import { clearProfile } from "../../features/profile/profileSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useProfileStore } from "../../stores/useProfileStore";
 
 const Navbar = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAppSelector(state => state.auth);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
+  const logoutUser = useAuthStore(state => state.logout);
+  const clearProfile = useProfileStore(state => state.clearProfile);
 
   const logout = async () => {
     try {
-      dispatch(logoutUser());
-      dispatch(clearProfile());
+      logoutUser();
+      clearProfile();
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);

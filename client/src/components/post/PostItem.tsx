@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { usePostListStore } from "../../stores/usePostListStore";
 import { postApi } from "../../api/postApi";
 import { syncPostUpdates, syncPostDeletion } from "../../stores/syncPostStores";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
 import type { Post } from "../../types";
 
 interface PostItemProps {
@@ -20,7 +20,7 @@ interface ApiError {
 }
 
 const PostItem = ({ post }: PostItemProps) => {
-  const { user } = useAppSelector(state => state.auth);
+  const user = useAuthStore(state => state.user);
   const { loading, setError, setLoading } = usePostListStore();
 
   const displayName = post.name?.includes(" ") ? post.name.split(" ")[0] : post.name;

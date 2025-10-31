@@ -4,32 +4,35 @@ import ProfileAbout from "./ProfileAbout";
 import ProfileCredentials from "./ProfileCredentials";
 import ProfileGithub from "./ProfileGithub";
 import { Link, useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { loadProfileById, loadGithubRepos } from "../../features/profile/profileSlice";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useProfileStore } from "../../stores/useProfileStore";
 import { Spinner } from "../common/Feedback";
-import { unwrapResult } from "@reduxjs/toolkit";
 
 const Profile = () => {
-  const dispatch = useAppDispatch();
-
   const { id } = useParams();
-  const auth = useAppSelector(state => state.auth);
-  const { current, loading, repos } = useAppSelector(state => state.profile);
+  const auth = useAuthStore(state => ({
+    isAuthenticated: state.isAuthenticated,
+    user: state.user,
+  }));
+  const current = useProfileStore(state => state.current);
+  const loading = useProfileStore(state => state.loading);
+  const repos = useProfileStore(state => state.repos);
+  const loadProfileById = useProfileStore(state => state.loadProfileById);
+  const loadGithubRepos = useProfileStore(state => state.loadGithubRepos);
 
   useEffect(() => {
     if (id) {
-      dispatch(loadProfileById(id))
-        .then(unwrapResult)
+      loadProfileById(id)
         .then(profile => {
           if (profile?.githubusername) {
-            dispatch(loadGithubRepos(profile.githubusername));
+            loadGithubRepos(profile.githubusername);
           }
         })
         .catch(err => {
           console.error("Failed to fetch profile or repos:", err);
         });
     }
-  }, [id, dispatch]);
+  }, [id, loadProfileById, loadGithubRepos]);
 
   if (loading) {
     return <Spinner />;

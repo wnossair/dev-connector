@@ -1,9 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { Spinner } from "../common/Feedback";
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, loading } = useAppSelector(state => state.auth);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const loading = useAuthStore(state => state.loading);
   const token = localStorage.getItem("token");
 
   if (loading) {

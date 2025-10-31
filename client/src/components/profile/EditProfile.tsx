@@ -1,13 +1,13 @@
 import { useState, useEffect, FormEvent, MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useErrorStore } from "../../stores/useErrorStore";
+import { useProfileStore } from "../../stores/useProfileStore";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
-import { createProfile } from "../../features/profile/profileSlice";
 import type { FieldErrors, InputChangeHandler } from "../../types";
 
 // Social Inputs
@@ -76,11 +76,11 @@ const SocialInputs = ({ formData, fieldErrors, onChange }: SocialInputsProps) =>
 };
 
 const EditProfile = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const appError = useAppSelector(state => state.error);
-  const current = useAppSelector(state => state.profile.current);
+  const appError = useErrorStore(state => state.error);
+  const current = useProfileStore(state => state.current);
+  const createProfile = useProfileStore(state => state.createProfile);
 
   // Use State Hooks
   const [formData, setFormData] = useState({
@@ -156,7 +156,7 @@ const EditProfile = () => {
 
     try {
       console.log(formData);
-      const profile = await dispatch(createProfile(formData)).unwrap();
+      const profile = await createProfile(formData);
       if (profile) navigate("/dashboard");
     } catch (err) {
       console.log("Edit profile error: ", err);
