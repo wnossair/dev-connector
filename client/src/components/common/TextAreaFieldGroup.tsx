@@ -1,6 +1,20 @@
 import React from "react";
+import { InputChangeHandler } from "../../types";
 
-const TextAreaFieldGroup = ({
+interface TextAreaFieldGroupProps {
+  name: string;
+  value: string;
+  placeholder: string;
+  label?: string;
+  id: string;
+  error?: string | null;
+  info?: string | null;
+  onChange: InputChangeHandler;
+  disabled?: boolean;
+  autoComplete?: string;
+}
+
+const TextAreaFieldGroup: React.FC<TextAreaFieldGroupProps> = ({
   name,
   value,
   placeholder,

@@ -1,6 +1,22 @@
 import React from "react";
+import { InputChangeHandler } from "../../types";
 
-const TextFieldGroup = ({
+interface TextFieldGroupProps {
+  name: string;
+  value: string;
+  placeholder?: string;
+  label?: string;
+  id: string;
+  error?: string | null;
+  info?: string | null;
+  type?: string;
+  onChange: InputChangeHandler;
+  disabled?: boolean;
+  autoComplete?: string;
+  required?: boolean;
+}
+
+const TextFieldGroup: React.FC<TextFieldGroupProps> = ({
   name,
   value,
   placeholder = "",
@@ -18,10 +34,7 @@ const TextFieldGroup = ({
     <div className="row mb-3">
       {label && (
         <div className="col-12 mb-2">
-          <label
-            htmlFor={id}
-            className="fw-medium text-nowrap" // Added text-nowrap to prevent wrapping
-          >
+          <label htmlFor={id} className="fw-medium text-nowrap">
             {label}
           </label>
         </div>

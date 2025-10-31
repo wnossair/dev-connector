@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
 import Navbar from "./components/layout/Navbar";
@@ -19,6 +18,7 @@ import AddEducation from "./components/profile/AddEducation";
 
 import store from "./store";
 import { verifyAuth } from "./features/auth/authSlice";
+import { useAppSelector } from "./hooks/reduxHooks";
 
 import "./App.css";
 import Profiles from "./components/developers/Profiles";
@@ -27,12 +27,12 @@ import Posts from "./components/post/Posts";
 import SinglePost from "./components/post/SinglePost";
 
 const App = () => {
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const { isAuthenticated } = useAppSelector(state => state.auth);
 
   // Periodic check for Authorization
   useEffect(() => {
     const delayInMinutes = 10;
-    let intervalId;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
     const checkAuth = async () => {
       if (!isAuthenticated) return;

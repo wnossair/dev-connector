@@ -1,7 +1,20 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { Post } from "../types";
 
-export const usePostStore = create(
+interface PostStore {
+  post: Post | null;
+  loading: boolean;
+  error: string | null;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  setPost: (post: Post) => void;
+  clearPost: () => void;
+  updatePost: (updates: Partial<Post>) => void;
+}
+
+export const usePostStore = create<PostStore>()(
   devtools(
     set => ({
       // State

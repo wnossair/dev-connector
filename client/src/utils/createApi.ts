@@ -1,37 +1,52 @@
-import axios from "axios";
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1s initial delay
 
-const isRetryableError = error => {
+interface RetryableConfig extends InternalAxiosRequestConfig {
+  __retryCount?: number;
+  token?: string;
+}
+
+interface CustomAxiosError extends AxiosError {
+  isBusinessError?: boolean;
+}
+
+const isRetryableError = (error: AxiosError): boolean => {
   // Retry only on network errors or 5xx server errors
   return !error.response || (error.response.status >= 500 && error.response.status < 600);
 };
 
-export const createApi = () => {
+export const createApi = (): AxiosInstance => {
   const api = axios.create({
     baseURL: "/api",
     timeout: 10000,
   });
 
-  // Request interceptor (unchanged)
+  // Request interceptor
   api.interceptors.request.use(
-    config => {
+    (config: RetryableConfig) => {
       const token = config.token || localStorage.getItem("token");
-      if (token) config.headers.Authorization = token;
+      if (token && config.headers) {
+        config.headers.Authorization = token;
+      }
       return config;
     },
-    error => Promise.reject(error)
+    (error: AxiosError) => Promise.reject(error)
   );
 
   // Enhanced response interceptor with retry logic
   api.interceptors.response.use(
-    response => response,
-    async error => {
-      const config = error.config;
-      const isExpectedError = [400, 401, 404].includes(error.response?.status);
+    (response: AxiosResponse) => response,
+    async (error: AxiosError) => {
+      const config = error.config as RetryableConfig;
+      const isExpectedError = [400, 401, 404].includes(error.response?.status || 0);
 
       // Set retry count if not already set
+      if (!config) {
+        return Promise.reject(error);
+      }
+
       config.__retryCount = config.__retryCount || 0;
 
       // Check if we should retry
@@ -44,12 +59,16 @@ export const createApi = () => {
       }
 
       // Log unexpected errors (original behavior)
-      if (!isExpectedError) console.error("API Error:", error);
+      if (!isExpectedError) {
+        console.error("API Error:", error);
+      }
 
-      return Promise.reject({
+      const customError: CustomAxiosError = {
         ...error,
         isBusinessError: isExpectedError,
-      });
+      };
+
+      return Promise.reject(customError);
     }
   );
 

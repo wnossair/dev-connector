@@ -1,6 +1,20 @@
 import React from "react";
+import { InputChangeHandler, SelectOption } from "../../types";
 
-const SelectListGroup = ({
+interface SelectListGroupProps {
+  name: string;
+  value: string;
+  label?: string;
+  id: string;
+  error?: string | null;
+  info?: string | null;
+  onChange: InputChangeHandler;
+  options: SelectOption[];
+  disabled?: boolean;
+  autoComplete?: string;
+}
+
+const SelectListGroup: React.FC<SelectListGroupProps> = ({
   name,
   value,
   label,

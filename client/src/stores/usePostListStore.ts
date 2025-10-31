@@ -1,7 +1,21 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { Post } from "../types";
 
-export const usePostListStore = create(
+interface PostListStore {
+  posts: Post[];
+  loading: boolean;
+  error: string | null;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  setPosts: (posts: Post[]) => void;
+  addPost: (post: Post) => void;
+  deletePost: (postId: string) => void;
+  updatePost: (postId: string, updates: Partial<Post>) => void;
+}
+
+export const usePostListStore = create<PostListStore>()(
   devtools(
     set => ({
       // State
@@ -32,7 +46,6 @@ export const usePostListStore = create(
     }),
     {
       name: "Post List",
-      // This connects to the main Redux DevTools instance
       store: "postList",
     }
   )

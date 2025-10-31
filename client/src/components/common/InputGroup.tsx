@@ -1,6 +1,21 @@
 import React from "react";
+import { InputChangeHandler } from "../../types";
 
-const InputGroup = ({
+interface InputGroupProps {
+  name: string;
+  value: string;
+  placeholder: string;
+  label?: string;
+  id: string;
+  icon: string;
+  type?: string;
+  error?: string | null;
+  onChange: InputChangeHandler;
+  disabled?: boolean;
+  autoComplete?: string;
+}
+
+const InputGroup: React.FC<InputGroupProps> = ({
   name,
   value,
   placeholder,
