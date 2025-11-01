@@ -1,8 +1,10 @@
-import mongoose from "mongoose";
-const { Schema, model } = mongoose; // Destructuring Schema and model
+import mongoose, { Model, Schema } from "mongoose";
+import { IProfile, IExperience, IEducation, ISocial } from "../types/models.js";
 
-// Create Schema
-const ProfileSchema = new Schema({
+/**
+ * Profile Schema Definition
+ */
+const ProfileSchema = new Schema<IProfile>({
   user: {
     type: Schema.Types.ObjectId,
     ref: "users",
@@ -118,5 +120,7 @@ const ProfileSchema = new Schema({
   },
 });
 
-const Profile = model("profile", ProfileSchema);
-export default Profile;
+/**
+ * Profile Model
+ */
+export const Profile: Model<IProfile> = mongoose.model<IProfile>("profile", ProfileSchema);

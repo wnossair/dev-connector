@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Application, Request, Response } from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 import helmet from "helmet";
@@ -17,7 +17,7 @@ import passportConfig from "./config/passport.js";
 import errorHandler from "./middleware/errorHandler.js";
 import { sendError } from "./utils/responseHandler.js"; // For rate limiter
 
-const app = express();
+const app: Application = express();
 
 // Security Middleware
 app.use(helmet());
@@ -44,7 +44,7 @@ app.use(passport.initialize());
 passportConfig(passport);
 
 // Test the app is running
-app.get("/", (req, res) => res.send("API is running..."));
+app.get("/", (req: Request, res: Response) => res.send("API is running..."));
 
 // Rate Limiting
 const apiLimiter = rateLimit({

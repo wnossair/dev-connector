@@ -1,8 +1,10 @@
-import mongoose from "mongoose";
-const { Schema, model } = mongoose;
+import mongoose, { Model, Schema } from "mongoose";
+import { IPost, IComment, ILike } from "../types/models.js";
 
-//Create Schema
-const PostSchema = new Schema({
+/**
+ * Post Schema Definition
+ */
+const PostSchema = new Schema<IPost>({
   user: {
     type: Schema.Types.ObjectId,
     ref: "users",
@@ -55,5 +57,7 @@ const PostSchema = new Schema({
   },
 });
 
-const Post = model("post", PostSchema);
-export default Post;
+/**
+ * Post Model
+ */
+export const Post: Model<IPost> = mongoose.model<IPost>("post", PostSchema);

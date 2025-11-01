@@ -1,16 +1,29 @@
+import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import { sendError } from "../utils/responseHandler.js";
+
+/**
+ * Custom Error Interface
+ */
+interface CustomError extends Error {
+  statusCode?: number;
+  errors?: any;
+}
 
 /**
  * Global error handling middleware.
  * Catches errors and sends a standardized JSON response.
  */
-// eslint-disable-next-line no-unused-vars
-const errorHandler = (err, req, res, next) => {
+const errorHandler: ErrorRequestHandler = (
+  err: CustomError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   console.error("ErrorHandler caught an error:", err);
 
   const statusCode = err.statusCode || 500;
   let message = err.message || "An unexpected error occurred";
-  let errorDetails = err.errors || err.message;
+  let errorDetails: string | Record<string, any> = err.errors || err.message;
 
   if (process.env.NODE_ENV === "production" && statusCode === 500) {
     message = "Internal Server Error";

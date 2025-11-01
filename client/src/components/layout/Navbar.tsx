@@ -41,7 +41,7 @@ const Navbar = () => {
           Logout
         </button>
         {user?.avatar && (
-          <Link to="/profile" className="ms-2 d-none d-md-inline-block">
+          <Link to={`/profile/user/${user._id}`} className="ms-2 d-none d-md-inline-block">
             <img
               src={user?.avatar}
               alt="User Avatar"

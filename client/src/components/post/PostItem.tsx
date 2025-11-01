@@ -77,7 +77,7 @@ const PostItem = ({ post }: PostItemProps) => {
     <div className="card card-body mb-3">
       <div className="row">
         <div className="col-md-2 text-center">
-          <Link to="/profile" className="d-block mb-2">
+          <Link to={`/profile/user/${post.user}`} className="d-block mb-2">
             <div className="d-flex justify-content-center">
               <img
                 className="rounded-circle"

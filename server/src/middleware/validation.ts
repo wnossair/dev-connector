@@ -1,6 +1,6 @@
-import { body, check } from "express-validator";
+import { body, ValidationChain } from "express-validator";
 
-export const registerValidation = [
+export const registerValidation: ValidationChain[] = [
   body("name")
     .notEmpty()
     .withMessage("Name field is required")
@@ -23,7 +23,7 @@ export const registerValidation = [
     .withMessage("Passwords must match"),
 ];
 
-export const loginValidation = [
+export const loginValidation: ValidationChain[] = [
   body("email")
     .notEmpty()
     .withMessage("Email field is required")
@@ -32,7 +32,7 @@ export const loginValidation = [
   body("password").notEmpty().withMessage("Password field is required"),
 ];
 
-export const profileValidation = [
+export const profileValidation: ValidationChain[] = [
   body("handle")
     .notEmpty()
     .withMessage("Profile handle is required")
@@ -48,7 +48,7 @@ export const profileValidation = [
   body("instagram").optional({ checkFalsy: true }).isURL().withMessage("Not a valid URL"),
 ];
 
-export const postValidation = [
+export const postValidation: ValidationChain[] = [
   body("text")
     .notEmpty()
     .withMessage("Text field is required")
@@ -56,7 +56,7 @@ export const postValidation = [
     .withMessage("Posts must be between 10 and 300 characters"),
 ];
 
-export const experienceValidation = [
+export const experienceValidation: ValidationChain[] = [
   body("title").notEmpty().withMessage("Job title field is required"),
   body("company").notEmpty().withMessage("Company field is required"),
   body("from")
@@ -77,7 +77,7 @@ export const experienceValidation = [
   body("current").optional().isBoolean().withMessage("Current must be a boolean"),
 ];
 
-export const educationValidation = [
+export const educationValidation: ValidationChain[] = [
   body("school").notEmpty().withMessage("School field is required"),
   body("degree").notEmpty().withMessage("Degree field is required"),
   body("fieldOfStudy").notEmpty().withMessage("Field of study is required"),
@@ -99,7 +99,7 @@ export const educationValidation = [
   body("current").optional().isBoolean().withMessage("Current must be a boolean"),
 ];
 
-export const commentValidation = [
+export const commentValidation: ValidationChain[] = [
   body("text")
     .notEmpty()
     .withMessage("Text field is required")

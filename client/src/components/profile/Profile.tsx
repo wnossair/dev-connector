@@ -10,10 +10,8 @@ import { Spinner } from "../common/Feedback";
 
 const Profile = () => {
   const { id } = useParams();
-  const auth = useAuthStore(state => ({
-    isAuthenticated: state.isAuthenticated,
-    user: state.user,
-  }));
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
   const current = useProfileStore(state => state.current);
   const loading = useProfileStore(state => state.loading);
   const repos = useProfileStore(state => state.repos);
@@ -60,10 +58,10 @@ const Profile = () => {
               <ProfileAbout profile={current} />
               <ProfileCredentials profile={current} />
               {current.githubusername && <ProfileGithub repos={repos} />}
-              {auth.isAuthenticated &&
-                auth.user &&
+              {isAuthenticated &&
+                user &&
                 typeof current.user !== "string" &&
-                auth.user._id === current.user._id && (
+                user._id === current.user._id && (
                   <div className="mt-3">
                     <Link to="/edit-profile" className="btn btn-outline-danger d-inline-block">
                       Edit Profile
