@@ -109,29 +109,23 @@ export const useProfileStore = create<ProfileStore>()(
       },
 
       loadCurrentProfile: async () => {
-        set({ loading: true }, false, "profile/loadCurrentProfile/pending");
+        set({ loading: true }, false, "profile/loadCurrent/pending");
         try {
-          const response = await api.get<ApiResponse<ProfileResponse>>("/profile/me");
-          const profile = response.data.data.profile;
+          const res = await api.get<ApiResponse<ProfileResponse>>("/profile/me");
+          const profile = res.data.data.profile;
 
           set(
-            { current: profile, repos: [], loading: false },
+            {
+              current: profile, // If null, ok - user hasn't created a profile yet
+              loading: false,
+            },
             false,
-            "profile/loadCurrentProfile/fulfilled"
+            "profile/loadCurrent/fulfilled"
           );
 
-          return profile;
+          return res.data.data;
         } catch (error: unknown) {
-          const axiosError = error as AxiosError;
-
-          if (axiosError.response?.status === 404) {
-            const errorStore = useErrorStore.getState();
-            errorStore.setError({ message: "No profile found. Please create one." });
-            set({ loading: false }, false, "profile/loadCurrentProfile/rejected");
-            return {};
-          }
-
-          set({ loading: false }, false, "profile/loadCurrentProfile/rejected");
+          set({ loading: false }, false, "profile/loadCurrent/rejected");
           handleError(error, "Failed to load current profile");
         }
       },

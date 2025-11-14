@@ -39,9 +39,11 @@ router.get(
         "name",
         "avatar",
       ]);
+
       if (!profile) {
-        return sendError(res, 404, "There is no profile for this user");
+        return sendSuccess(res, 200, "No profile found for this user", { profile: null });
       }
+
       sendSuccess(res, 200, "Profile fetched successfully", { profile });
     } catch (err) {
       next(err);
