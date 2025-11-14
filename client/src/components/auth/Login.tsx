@@ -30,11 +30,13 @@ const Login = () => {
     }
   }, [appError]);
 
+  // Redirect if already logged in (on component mount only)
   useEffect(() => {
     if (currentUser) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
-  }, [currentUser, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run on mount
 
   // Event Handlers
   const onChange: InputChangeHandler = e => {
@@ -51,7 +53,12 @@ const Login = () => {
     clearError();
     setFieldErrors({});
 
-    await loginUser(formData).catch(err => console.log("Login error:", err));
+    try {
+      await loginUser(formData);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Login error:", err);
+    }
   };
 
   // Component

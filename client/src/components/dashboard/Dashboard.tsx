@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import ProfileActions from "./ProfileActions";
@@ -20,17 +20,24 @@ const Dashboard = () => {
   const clearError = useErrorStore(state => state.clearError);
   const setError = useErrorStore(state => state.setError);
 
+  // Track if we've already tried to load the profile
+  const hasAttemptedLoad = useRef(false);
+
   // Use Effect Hooks
   useEffect(() => {
     // Clear all errors on mount
     clearError();
-  }, [clearError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - clearError is stable in Zustand
 
   useEffect(() => {
-    if (user && !current && !loading) {
+    // Only attempt to load profile once when component mounts with a user
+    if (user && !current && !loading && !hasAttemptedLoad.current) {
+      hasAttemptedLoad.current = true;
       loadCurrentProfile();
     }
-  }, [current, loading, user, loadCurrentProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]); // Only depend on user, not current or loading
 
   // Event handlers
   const onDeleteAccountClick = async () => {
