@@ -1,13 +1,15 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import passport from "passport";
 import axios from "axios";
-import { validationResult } from "express-validator";
 import {
   profileValidation,
   experienceValidation,
   educationValidation,
 } from "../../middleware/validation.js";
-import { sendSuccess, sendError, handleValidationErrors } from "../../utils/responseHandler.js";
+import { sendSuccess } from "../../utils/responseHandler.js";
+import { asyncHandler } from "../../middleware/asyncHandler.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
+import { NotFoundError, DuplicateError, ExternalServiceError } from "../../errors/AppError.js";
 import keys from "../../config/keys.js";
 import { Profile } from "../../models/Profile.js";
 import { User } from "../../models/User.js";
@@ -33,22 +35,18 @@ router.get("/test", (req: Request, res: Response) => {
 router.get(
   "/me",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const profile = await Profile.findOne({ user: req.user!.id }).populate("user", [
-        "name",
-        "avatar",
-      ]);
+  asyncHandler(async (req: Request, res: Response) => {
+    const profile = await Profile.findOne({ user: req.user!.id }).populate("user", [
+      "name",
+      "avatar",
+    ]);
 
-      if (!profile) {
-        return sendSuccess(res, 200, "No profile found for this user", { profile: null });
-      }
-
-      sendSuccess(res, 200, "Profile fetched successfully", { profile });
-    } catch (err) {
-      next(err);
+    if (!profile) {
+      return sendSuccess(res, 200, "No profile found for this user", { profile: null });
     }
-  }
+
+    sendSuccess(res, 200, "Profile fetched successfully", { profile });
+  })
 );
 
 // @route   POST api/profile
@@ -58,113 +56,106 @@ router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   profileValidation,
-  async (req: Request<{}, {}, ICreateProfileRequest>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors);
+  validateRequest,
+  asyncHandler(async (req: Request<{}, {}, ICreateProfileRequest>, res: Response) => {
+    const {
+      handle,
+      company,
+      website,
+      location,
+      role,
+      skills,
+      bio,
+      githubusername,
+      youtube,
+      twitter,
+      facebook,
+      linkedin,
+      instagram,
+    } = req.body;
+
+    const profileFields: any = {
+      user: req.user!.id,
+      handle,
+      company,
+      website,
+      location,
+      role,
+      bio,
+      githubusername,
+    };
+
+    if (skills) {
+      profileFields.skills = Array.isArray(skills)
+        ? skills
+        : skills.split(",").map((skill: string) => skill.trim());
     }
 
-    try {
-      const {
-        handle,
-        company,
-        website,
-        location,
-        role,
-        skills,
-        bio,
-        githubusername,
-        youtube,
-        twitter,
-        facebook,
-        linkedin,
-        instagram,
-      } = req.body;
+    profileFields.social = { youtube, twitter, facebook, linkedin, instagram };
 
-      const profileFields: any = {
-        user: req.user!.id,
-        handle,
-        company,
-        website,
-        location,
-        role,
-        bio,
-        githubusername,
-      };
+    let profile = await Profile.findOne({ user: req.user!.id });
 
-      if (skills) {
-        profileFields.skills = Array.isArray(skills)
-          ? skills
-          : skills.split(",").map((skill: string) => skill.trim());
-      }
+    if (profile) {
+      // Update existing profile
+      profile = await Profile.findOneAndUpdate(
+        { user: req.user!.id },
+        { $set: profileFields },
+        { new: true }
+      ).populate("user", ["name", "avatar"]);
 
-      profileFields.social = { youtube, twitter, facebook, linkedin, instagram };
-
-      let profile = await Profile.findOne({ user: req.user!.id });
-      let messageAction = "created";
-
-      if (profile) {
-        profile = await Profile.findOneAndUpdate(
-          { user: req.user!.id },
-          { $set: profileFields },
-          { new: true }
-        );
-        messageAction = "updated";
-      } else {
-        const existingProfileByHandle = await Profile.findOne({ handle });
-        if (existingProfileByHandle) {
-          return sendError(res, 400, "That handle already exists", {
-            errors: [{ msg: "That handle already exists", path: "handle" }],
-          });
-        }
-        profile = new Profile(profileFields);
-        await profile.save();
-      }
-
-      sendSuccess(
-        res,
-        messageAction === "created" ? 201 : 200,
-        `Profile ${messageAction} successfully`,
-        { profile }
-      );
-    } catch (err) {
-      next(err);
+      return sendSuccess(res, 200, "Profile updated successfully", { profile });
     }
-  }
+
+    // Check if handle already exists
+    const existingProfileByHandle = await Profile.findOne({ handle });
+    if (existingProfileByHandle) {
+      throw new DuplicateError("Handle");
+    }
+
+    // Create new profile
+    profile = new Profile(profileFields);
+    await profile.save();
+
+    profile = await Profile.populate(profile, { path: "user", select: "name avatar" });
+
+    sendSuccess(res, 201, "Profile created successfully", { profile });
+  })
 );
 
 // @route   GET api/profile/user/:user_id
 // @desc    Get user profile by user_id
 // @access  Public
-router.get("/user/:user_id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
+router.get(
+  "/user/:user_id",
+  asyncHandler(async (req: Request, res: Response) => {
     const profile = await Profile.findOne({ user: req.params.user_id }).populate("user", [
       "name",
       "avatar",
     ]);
+
     if (!profile) {
-      return sendError(res, 404, "Profile not found");
+      throw new NotFoundError("Profile");
     }
+
     sendSuccess(res, 200, "Profile fetched successfully", { profile });
-  } catch (err: any) {
-    if (err.kind === "ObjectId") {
-      return sendError(res, 404, "Profile not found (invalid ID format)");
-    }
-    next(err);
-  }
-});
+  })
+);
 
 // @route   GET api/profile/all
 // @desc    Get all user profiles
 // @access  Public
-router.get("/all", async (req: Request, res: Response, next: NextFunction) => {
-  try {
+router.get(
+  "/all",
+  asyncHandler(async (req: Request, res: Response) => {
     const profiles = await Profile.find().populate("user", ["name", "avatar"]);
-    sendSuccess(res, 200, "All profiles fetched successfully", { profiles });
-  } catch (err) {
-    next(err);
-  }
-});
+
+    if (!profiles || profiles.length === 0) {
+      throw new NotFoundError("Profiles");
+    }
+
+    sendSuccess(res, 200, "Profiles fetched successfully", { profiles });
+  })
+);
 
 // @route   POST api/profile/experience
 // @desc    Add experience to profile
@@ -173,25 +164,34 @@ router.post(
   "/experience",
   passport.authenticate("jwt", { session: false }),
   experienceValidation,
-  async (req: Request<{}, {}, IAddExperienceRequest>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors);
-    }
-    try {
-      const profile = await Profile.findOne({ user: req.user!.id });
-      if (!profile) {
-        return sendError(res, 404, "Profile not found for this user");
-      }
+  validateRequest,
+  asyncHandler(async (req: Request<{}, {}, IAddExperienceRequest>, res: Response) => {
+    const profile = await Profile.findOne({ user: req.user!.id });
 
-      const newExp: any = { ...req.body };
-      profile.experience.unshift(newExp);
-      await profile.save();
-      sendSuccess(res, 201, "Experience added successfully", { profile });
-    } catch (err) {
-      next(err);
+    if (!profile) {
+      throw new NotFoundError("Profile");
     }
-  }
+
+    const newExp = {
+      title: req.body.title,
+      company: req.body.company,
+      location: req.body.location,
+      from: new Date(req.body.from),
+      to: req.body.to ? new Date(req.body.to) : undefined,
+      current: req.body.current,
+      description: req.body.description,
+    } as any;
+
+    profile.experience.unshift(newExp);
+    await profile.save();
+
+    const updatedProfile = await Profile.findOne({ user: req.user!.id }).populate("user", [
+      "name",
+      "avatar",
+    ]);
+
+    sendSuccess(res, 200, "Experience added successfully", { profile: updatedProfile });
+  })
 );
 
 // @route   POST api/profile/education
@@ -201,25 +201,34 @@ router.post(
   "/education",
   passport.authenticate("jwt", { session: false }),
   educationValidation,
-  async (req: Request<{}, {}, IAddEducationRequest>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors);
-    }
-    try {
-      const profile = await Profile.findOne({ user: req.user!.id });
-      if (!profile) {
-        return sendError(res, 404, "Profile not found for this user");
-      }
+  validateRequest,
+  asyncHandler(async (req: Request<{}, {}, IAddEducationRequest>, res: Response) => {
+    const profile = await Profile.findOne({ user: req.user!.id });
 
-      const newEdu: any = { ...req.body };
-      profile.education.unshift(newEdu);
-      await profile.save();
-      sendSuccess(res, 201, "Education added successfully", { profile });
-    } catch (err) {
-      next(err);
+    if (!profile) {
+      throw new NotFoundError("Profile");
     }
-  }
+
+    const newEdu = {
+      school: req.body.school,
+      degree: req.body.degree,
+      fieldofstudy: req.body.fieldOfStudy,
+      from: new Date(req.body.from),
+      to: req.body.to ? new Date(req.body.to) : undefined,
+      current: req.body.current,
+      description: req.body.description,
+    } as any;
+
+    profile.education.unshift(newEdu);
+    await profile.save();
+
+    const updatedProfile = await Profile.findOne({ user: req.user!.id }).populate("user", [
+      "name",
+      "avatar",
+    ]);
+
+    sendSuccess(res, 200, "Education added successfully", { profile: updatedProfile });
+  })
 );
 
 // @route   DELETE api/profile/experience/:exp_id
@@ -228,25 +237,31 @@ router.post(
 router.delete(
   "/experience/:exp_id",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const profile = await Profile.findOne({ user: req.user!.id });
-      if (!profile) {
-        return sendError(res, 404, "Profile not found");
-      }
+  asyncHandler(async (req: Request, res: Response) => {
+    const profile = await Profile.findOne({ user: req.user!.id });
 
-      const removeIndex = profile.experience.map((item: any) => item.id).indexOf(req.params.exp_id);
-      if (removeIndex === -1) {
-        return sendError(res, 404, "Experience not found");
-      }
-
-      profile.experience.splice(removeIndex, 1);
-      await profile.save();
-      sendSuccess(res, 200, "Experience deleted successfully", { profile });
-    } catch (err) {
-      next(err);
+    if (!profile) {
+      throw new NotFoundError("Profile");
     }
-  }
+
+    const removeIndex = profile.experience
+      .map((item: any) => item._id?.toString())
+      .indexOf(req.params.exp_id);
+
+    if (removeIndex === -1) {
+      throw new NotFoundError("Experience");
+    }
+
+    profile.experience.splice(removeIndex, 1);
+    await profile.save();
+
+    const updatedProfile = await Profile.findOne({ user: req.user!.id }).populate("user", [
+      "name",
+      "avatar",
+    ]);
+
+    sendSuccess(res, 200, "Experience deleted successfully", { profile: updatedProfile });
+  })
 );
 
 // @route   DELETE api/profile/education/:edu_id
@@ -255,25 +270,31 @@ router.delete(
 router.delete(
   "/education/:edu_id",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const profile = await Profile.findOne({ user: req.user!.id });
-      if (!profile) {
-        return sendError(res, 404, "Profile not found");
-      }
+  asyncHandler(async (req: Request, res: Response) => {
+    const profile = await Profile.findOne({ user: req.user!.id });
 
-      const removeIndex = profile.education.map((item: any) => item.id).indexOf(req.params.edu_id);
-      if (removeIndex === -1) {
-        return sendError(res, 404, "Education not found");
-      }
-
-      profile.education.splice(removeIndex, 1);
-      await profile.save();
-      sendSuccess(res, 200, "Education deleted successfully", { profile });
-    } catch (err) {
-      next(err);
+    if (!profile) {
+      throw new NotFoundError("Profile");
     }
-  }
+
+    const removeIndex = profile.education
+      .map((item: any) => item._id?.toString())
+      .indexOf(req.params.edu_id);
+
+    if (removeIndex === -1) {
+      throw new NotFoundError("Education");
+    }
+
+    profile.education.splice(removeIndex, 1);
+    await profile.save();
+
+    const updatedProfile = await Profile.findOne({ user: req.user!.id }).populate("user", [
+      "name",
+      "avatar",
+    ]);
+
+    sendSuccess(res, 200, "Education deleted successfully", { profile: updatedProfile });
+  })
 );
 
 // @route    DELETE api/profile
@@ -282,67 +303,52 @@ router.delete(
 router.delete(
   "/",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await Post.deleteMany({ user: req.user!.id });
-      await Profile.findOneAndDelete({ user: req.user!.id });
-      await User.findOneAndDelete({ _id: req.user!.id });
-      sendSuccess(res, 200, "User, profile, and posts deleted successfully");
-    } catch (err) {
-      next(err);
-    }
-  }
+  asyncHandler(async (req: Request, res: Response) => {
+    // Remove user posts
+    await Post.deleteMany({ user: req.user!.id });
+    // Remove profile
+    await Profile.findOneAndDelete({ user: req.user!.id });
+    // Remove user
+    await User.findOneAndDelete({ _id: req.user!.id });
+
+    sendSuccess(res, 200, "User and profile deleted successfully");
+  })
 );
 
 // @route   GET api/profile/github/:username
 // @desc    Get user repos from Github
 // @access  Public
-router.get("/github/:username", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { username } = req.params;
-    const uri = `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc`;
-    const headers: any = { "user-agent": "node.js" };
-
-    if (keys.githubToken) {
-      headers.Authorization = `token ${keys.githubToken}`;
-    }
-
-    const { data: repos } = await axios.get(uri, { headers });
-
-    const reposWithLanguages = await Promise.all(
-      repos.map(async (repo: any) => {
-        const { data: languages } = await axios.get(repo.languages_url, { headers });
-        const totalSize = Object.values(languages).reduce(
-          (acc: number, size: any) => acc + size,
-          0
-        );
-
-        if (totalSize === 0) {
-          return { ...repo, languages: [] };
+router.get(
+  "/github/:username",
+  asyncHandler(async (req: Request, res: Response) => {
+    try {
+      const response = await axios.get(
+        `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`,
+        {
+          headers: {
+            Authorization: `token ${keys.githubToken}`,
+            Accept: "application/vnd.github.v3+json",
+          },
         }
+      );
 
-        const languageData = Object.entries(languages)
-          .map(([name, size]: [string, any]) => ({
-            name,
-            percentage: ((size / totalSize) * 100).toFixed(2),
-          }))
-          .sort((a, b) => parseFloat(b.percentage) - parseFloat(a.percentage))
-          .slice(0, 3);
+      const repos = response.data.map((repo: any) => ({
+        id: repo.id,
+        name: repo.name,
+        url: repo.html_url,
+        description: repo.description,
+        language: repo.language,
+        stargazers_count: repo.stargazers_count,
+      }));
 
-        return { ...repo, languages: languageData };
-      })
-    );
-
-    sendSuccess(res, 200, "GitHub repos found", reposWithLanguages);
-  } catch (err: any) {
-    if (err.response?.status === 404) {
-      return sendError(res, 404, "No Github profile found");
+      sendSuccess(res, 200, "GitHub repos fetched successfully", { repos });
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        throw new NotFoundError("GitHub user");
+      }
+      throw new ExternalServiceError("GitHub", err.response?.status || 502);
     }
-    if (err.response?.status === 401) {
-      return sendError(res, 401, "GitHub token is invalid");
-    }
-    next(err);
-  }
-});
+  })
+);
 
 export default router;

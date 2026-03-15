@@ -15,7 +15,8 @@ import passportConfig from "./config/passport.js";
 
 // Import utilities and middleware
 import errorHandler from "./middleware/errorHandler.js";
-import { sendError } from "./utils/responseHandler.js"; // For rate limiter
+import { sendError } from "./utils/responseHandler.js";
+import { RateLimitError } from "./errors/AppError.js";
 
 const app: Application = express();
 
@@ -49,16 +50,20 @@ app.get("/", (req: Request, res: Response) => res.send("API is running..."));
 // Rate Limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: process.env.NODE_ENV === "production" ? 100 : 1000, // Higher limit for development
   standardHeaders: true,
   legacyHeaders: false,
+  skip: req => {
+    // Skip rate limiting for localhost in development
+    return (
+      process.env.NODE_ENV !== "production" &&
+      (req.ip === "127.0.0.1" || req.ip === "::1" || req.ip === "::ffff:127.0.0.1")
+    );
+  },
   handler: (req, res, next, options) => {
-    // Use sendError utility for rate limit response
-    sendError(
-      res,
-      options.statusCode,
-      "Too many requests from this IP, please try again after 15 minutes",
-      "Rate limit exceeded"
+    // Throw RateLimitError which will be caught by asyncHandler
+    throw new RateLimitError(
+      `Too many requests from this IP. Please try again after ${options.windowMs / 60000} minutes.`
     );
   },
 });

@@ -109,12 +109,19 @@ export interface ICreateCommentRequest {
 
 /**
  * API Response Wrapper
+ * Standard response format for all API endpoints
  */
 export interface IApiResponse<T = any> {
   success: boolean;
-  message?: string;
+  message: string;
   data?: T;
-  error?: string | Record<string, any>;
+  error?: {
+    code: string; // Machine-readable error code
+    message: string;
+    details?: Record<string, any>; // Field-level errors or additional context
+  };
+  timestamp?: string; // ISO timestamp when response was generated
+  path?: string; // Request path for debugging
 }
 
 /**

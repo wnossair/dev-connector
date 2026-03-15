@@ -70,6 +70,13 @@ const Login = () => {
             <h1 className="display-4 text-center">Log In</h1>
             <p className="lead text-center">Sign in to your DevConnector account</p>
             <form onSubmit={onSubmit} noValidate>
+              {/* General error (e.g. invalid credentials) */}
+              {fieldErrors.message && (
+                <div className="alert alert-danger" role="alert">
+                  {fieldErrors.message}
+                </div>
+              )}
+
               {/* Email Field */}
               <TextFieldGroup
                 name="email"

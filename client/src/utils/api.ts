@@ -13,15 +13,18 @@ export const setupApiInterceptors = (): void => {
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
       if (error.response?.status === 401) {
-        // Dynamically import stores to avoid circular dependencies
+        // Only auto-logout if the user is already authenticated (e.g. expired token).
+        // Login failures also return 401 but the user was never authenticated.
         import("../stores/useAuthStore").then(({ useAuthStore }) => {
-          useAuthStore.getState().logout();
-        });
-        import("../stores/useProfileStore").then(({ useProfileStore }) => {
-          useProfileStore.getState().clearProfile();
+          if (useAuthStore.getState().isAuthenticated) {
+            useAuthStore.getState().logout();
+            import("../stores/useProfileStore").then(({ useProfileStore }) => {
+              useProfileStore.getState().clearProfile();
+            });
+          }
         });
       }
       return Promise.reject(error);
-    }
+    },
   );
 };

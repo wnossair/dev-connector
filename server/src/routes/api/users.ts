@@ -1,11 +1,13 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import gravatar from "gravatar";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import passport from "passport";
-import { validationResult } from "express-validator";
 import { registerValidation, loginValidation } from "../../middleware/validation.js";
-import { sendSuccess, sendError, handleValidationErrors } from "../../utils/responseHandler.js";
+import { sendSuccess } from "../../utils/responseHandler.js";
+import { asyncHandler } from "../../middleware/asyncHandler.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
+import { DuplicateError, AuthenticationError, InternalServerError } from "../../errors/AppError.js";
 import { User } from "../../models/User.js";
 import keys from "../../config/keys.js";
 import { IRegisterRequest, ILoginRequest, IJwtPayload, IUserResponse } from "../../types/index.js";
@@ -25,39 +27,36 @@ router.get("/test", (req: Request, res: Response) => {
 router.post(
   "/register",
   registerValidation,
-  async (req: Request<{}, {}, IRegisterRequest>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors);
+  validateRequest,
+  asyncHandler(async (req: Request<{}, {}, IRegisterRequest>, res: Response) => {
+    const { name, email, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new DuplicateError("Email");
     }
 
-    try {
-      const { name, email, password } = req.body;
-      let user = await User.findOne({ email });
-      if (user) {
-        return sendError(res, 400, "Email already exists", { email: "Email already exists" });
-      }
+    // Create new user
+    const avatar = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
+    const user = new User({ name, email, avatar, password });
 
-      const avatar = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
-      user = new User({ name, email, avatar, password });
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    await user.save();
 
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-      await user.save();
+    // Return created user (excluding password)
+    const userResponse: IUserResponse = {
+      _id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      date: user.date,
+    };
 
-      // For registration, return the created user object (excluding password)
-      const userResponse: IUserResponse = {
-        _id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        date: user.date,
-      };
-      sendSuccess(res, 201, "User registered successfully", { user: userResponse });
-    } catch (err) {
-      next(err); // Pass errors to the global error handler
-    }
-  }
+    sendSuccess(res, 201, "User registered successfully", { user: userResponse });
+  })
 );
 
 // @route   POST api/users/login
@@ -66,33 +65,36 @@ router.post(
 router.post(
   "/login",
   loginValidation,
-  async (req: Request<{}, {}, ILoginRequest>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors);
+  validateRequest,
+  asyncHandler(async (req: Request<{}, {}, ILoginRequest>, res: Response) => {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new AuthenticationError("Invalid credentials");
     }
 
-    try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
-      if (!user) {
-        return sendError(res, 400, "Invalid credentials", { email: "Email does not exist" });
-      }
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new AuthenticationError("Invalid credentials");
+    }
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return sendError(res, 400, "Invalid credentials", { password: "Password is incorrect" });
-      }
+    // Generate JWT token
+    const payload: IJwtPayload = { id: user.id, name: user.name, avatar: user.avatar };
 
-      const payload: IJwtPayload = { id: user.id, name: user.name, avatar: user.avatar };
+    return new Promise<void>((resolve, reject) => {
       jwt.sign(payload, keys.secretOrKey, { expiresIn: "1h" }, (err, token) => {
-        if (err) throw err; // This will be caught by the outer try-catch and passed to next(err)
+        if (err) {
+          return reject(new InternalServerError("Failed to generate token"));
+        }
+
         sendSuccess(res, 200, "Login successful", { token: "Bearer " + token });
+        resolve();
       });
-    } catch (err) {
-      next(err);
-    }
-  }
+    });
+  })
 );
 
 // @route   GET api/users/current
@@ -101,7 +103,7 @@ router.post(
 router.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
-  (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const currentUser: IUserResponse = {
       _id: req.user!._id.toString(),
       name: req.user!.name,
@@ -109,8 +111,9 @@ router.get(
       avatar: req.user!.avatar,
       date: req.user!.date,
     };
+
     sendSuccess(res, 200, "Current user fetched successfully", { user: currentUser });
-  }
+  })
 );
 
 export default router;
