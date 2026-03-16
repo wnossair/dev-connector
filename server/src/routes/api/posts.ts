@@ -1,9 +1,11 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import passport from "passport";
 import mongoose from "mongoose";
-import { validationResult } from "express-validator";
 import { postValidation, commentValidation } from "../../middleware/validation.js";
-import { sendSuccess, sendError, handleValidationErrors } from "../../utils/responseHandler.js";
+import { sendSuccess } from "../../utils/responseHandler.js";
+import { asyncHandler } from "../../middleware/asyncHandler.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
+import { NotFoundError, AuthorizationError, ConflictError } from "../../errors/AppError.js";
 import { Post } from "../../models/Post.js";
 import { ICreatePostRequest, ICreateCommentRequest } from "../../types/index.js";
 
@@ -19,32 +21,25 @@ router.get("/test", (req: Request, res: Response) => {
 // @route   GET api/posts
 // @desc    Get all posts
 // @access  Public
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-  try {
+router.get(
+  "/",
+  asyncHandler(async (req: Request, res: Response) => {
     const posts = await Post.find().sort({ date: -1 }).populate("user", ["name", "avatar"]);
     sendSuccess(res, 200, "Posts fetched successfully", { posts });
-  } catch (err) {
-    next(err);
-  }
-});
+  }),
+);
 
 // @route   GET api/posts/:id
 // @desc    Get post by ID
 // @access  Public
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
+router.get(
+  "/:id",
+  asyncHandler(async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id).populate("user", ["name", "avatar"]);
-    if (!post) {
-      return sendError(res, 404, "Post not found");
-    }
+    if (!post) throw new NotFoundError("Post");
     sendSuccess(res, 200, "Post fetched successfully", { post });
-  } catch (err: any) {
-    if (err.kind === "ObjectId") {
-      return sendError(res, 404, "Post not found (invalid ID format)");
-    }
-    next(err);
-  }
-});
+  }),
+);
 
 // @route   POST api/posts
 // @desc    Create post
@@ -53,24 +48,17 @@ router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   postValidation,
-  async (req: Request<{}, {}, ICreatePostRequest>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors);
-    }
-    try {
-      const newPost = new Post({
-        text: req.body.text,
-        name: req.user!.name, // Use authenticated user's name
-        avatar: req.user!.avatar, // Use authenticated user's avatar
-        user: req.user!.id,
-      });
-      const post = await newPost.save();
-      sendSuccess(res, 201, "Post created successfully", { post });
-    } catch (err) {
-      next(err);
-    }
-  }
+  validateRequest,
+  asyncHandler(async (req: Request<{}, {}, ICreatePostRequest>, res: Response) => {
+    const newPost = new Post({
+      text: req.body.text,
+      name: req.user!.name,
+      avatar: req.user!.avatar,
+      user: req.user!.id,
+    });
+    const post = await newPost.save();
+    sendSuccess(res, 201, "Post created successfully", { post });
+  }),
 );
 
 // @route   DELETE api/posts/:id
@@ -79,25 +67,15 @@ router.post(
 router.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const post = await Post.findById(req.params.id);
-      if (!post) {
-        return sendError(res, 404, "Post not found");
-      }
-
-      if (post.user.toString() !== req.user!.id) {
-        return sendError(res, 401, "User not authorized to delete this post");
-      }
-      await post.deleteOne();
-      sendSuccess(res, 200, "Post removed successfully");
-    } catch (err: any) {
-      if (err.kind === "ObjectId") {
-        return sendError(res, 404, "Post not found (invalid ID format)");
-      }
-      next(err);
+  asyncHandler(async (req: Request, res: Response) => {
+    const post = await Post.findById(req.params.id);
+    if (!post) throw new NotFoundError("Post");
+    if (post.user.toString() !== req.user!.id) {
+      throw new AuthorizationError("You are not authorized to delete this post");
     }
-  }
+    await post.deleteOne();
+    sendSuccess(res, 200, "Post removed successfully");
+  }),
 );
 
 // @route   POST api/posts/like/:id
@@ -106,23 +84,26 @@ router.delete(
 router.post(
   "/like/:id",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const post = await Post.findById(req.params.id);
-      if (!post) {
-        return sendError(res, 404, "Post not found");
-      }
+  asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
 
-      if (post.likes.some(like => like.user.toString() === req.user!.id)) {
-        return sendError(res, 400, "Post already liked by this user");
-      }
-      post.likes.unshift({ user: req.user!.id as any });
-      await post.save();
-      sendSuccess(res, 200, "Post liked successfully", { postId: post._id, likes: post.likes });
-    } catch (err) {
-      next(err);
+    // Atomically add like only if the user has not already liked the post.
+    // A single findOneAndUpdate avoids the read-modify-save race condition.
+    const updated = await Post.findOneAndUpdate(
+      { _id: req.params.id, "likes.user": { $ne: userId } },
+      { $push: { likes: { user: userId } } },
+      { new: true },
+    );
+
+    if (!updated) {
+      // Distinguish "post not found" from "already liked"
+      const exists = await Post.exists({ _id: req.params.id });
+      if (!exists) throw new NotFoundError("Post");
+      throw new ConflictError("Post already liked");
     }
-  }
+
+    sendSuccess(res, 200, "Post liked successfully", { postId: updated._id, likes: updated.likes });
+  }),
 );
 
 // @route   POST api/posts/unlike/:id
@@ -131,23 +112,27 @@ router.post(
 router.post(
   "/unlike/:id",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const post = await Post.findById(req.params.id);
-      if (!post) {
-        return sendError(res, 404, "Post not found");
-      }
+  asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
 
-      if (!post.likes.some(like => like.user.toString() === req.user!.id)) {
-        return sendError(res, 400, "Post has not yet been liked by this user");
-      }
-      post.likes = post.likes.filter(({ user }) => user.toString() !== req.user!.id);
-      await post.save();
-      sendSuccess(res, 200, "Post unliked successfully", { postId: post._id, likes: post.likes });
-    } catch (err) {
-      next(err);
+    // Atomically remove like only if the user has actually liked the post.
+    const updated = await Post.findOneAndUpdate(
+      { _id: req.params.id, "likes.user": userId },
+      { $pull: { likes: { user: userId } } },
+      { new: true },
+    );
+
+    if (!updated) {
+      const exists = await Post.exists({ _id: req.params.id });
+      if (!exists) throw new NotFoundError("Post");
+      throw new ConflictError("Post has not been liked yet");
     }
-  }
+
+    sendSuccess(res, 200, "Post unliked successfully", {
+      postId: updated._id,
+      likes: updated.likes,
+    });
+  }),
 );
 
 // @route   POST api/posts/comment/:id
@@ -157,34 +142,23 @@ router.post(
   "/comment/:id",
   passport.authenticate("jwt", { session: false }),
   commentValidation,
-  async (
-    req: Request<{ id: string }, {}, ICreateCommentRequest>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return handleValidationErrors(res, errors, "Comment validation failed");
-    }
-    try {
+  validateRequest,
+  asyncHandler(
+    async (req: Request<Record<string, string>, {}, ICreateCommentRequest>, res: Response) => {
       const post = await Post.findById(req.params.id);
-      if (!post) {
-        return sendError(res, 404, "Post not found");
-      }
+      if (!post) throw new NotFoundError("Post");
 
       const newComment: any = {
         text: req.body.text,
-        name: req.user!.name, // Use authenticated user's name
-        avatar: req.user!.avatar, // Use authenticated user's avatar
+        name: req.user!.name,
+        avatar: req.user!.avatar,
         user: req.user!.id,
       };
       post.comments.unshift(newComment);
       await post.save();
       sendSuccess(res, 201, "Comment added successfully", { comments: post.comments });
-    } catch (err) {
-      next(err);
-    }
-  }
+    },
+  ),
 );
 
 // @route   DELETE api/posts/comment/:id/:comment_id
@@ -193,31 +167,25 @@ router.post(
 router.delete(
   "/comment/:id/:comment_id",
   passport.authenticate("jwt", { session: false }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      if (!mongoose.Types.ObjectId.isValid(req.params.comment_id)) {
-        return sendError(res, 400, "Invalid comment ID");
-      }
-      const post = await Post.findById(req.params.id);
-      if (!post) {
-        return sendError(res, 404, "Post not found");
-      }
-
-      const comment = post.comments.find((comment: any) => comment.id === req.params.comment_id);
-      if (!comment) {
-        return sendError(res, 404, "Comment does not exist");
-      }
-
-      if (comment.user.toString() !== req.user!.id) {
-        return sendError(res, 401, "User not authorized to delete this comment");
-      }
-      post.comments = post.comments.filter(({ id }: any) => id !== req.params.comment_id);
-      await post.save();
-      sendSuccess(res, 200, "Comment deleted successfully", { comments: post.comments });
-    } catch (err) {
-      next(err);
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.comment_id)) {
+      throw new NotFoundError("Comment");
     }
-  }
+
+    const post = await Post.findById(req.params.id);
+    if (!post) throw new NotFoundError("Post");
+
+    const comment = post.comments.find((comment: any) => comment.id === req.params.comment_id);
+    if (!comment) throw new NotFoundError("Comment");
+
+    if (comment.user.toString() !== req.user!.id) {
+      throw new AuthorizationError("You are not authorized to delete this comment");
+    }
+
+    post.comments = post.comments.filter(({ id }: any) => id !== req.params.comment_id);
+    await post.save();
+    sendSuccess(res, 200, "Comment deleted successfully", { comments: post.comments });
+  }),
 );
 
 export default router;
