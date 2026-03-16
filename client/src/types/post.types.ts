@@ -15,9 +15,15 @@ export interface Like {
   user: string;
 }
 
+export interface PopulatedPostUser {
+  _id: string;
+  name?: string;
+  avatar?: string;
+}
+
 export interface Post {
   _id: string;
-  user: string;
+  user: string | PopulatedPostUser;
   text: string;
   name: string;
   avatar: string;

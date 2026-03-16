@@ -24,6 +24,7 @@ const PostItem = ({ post }: PostItemProps) => {
   const { loading, setError, setLoading } = usePostListStore();
 
   const displayName = post.name?.includes(" ") ? post.name.split(" ")[0] : post.name;
+  const postOwnerId = typeof post.user === "string" ? post.user : post.user?._id;
 
   const onDeleteClick = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
@@ -77,7 +78,7 @@ const PostItem = ({ post }: PostItemProps) => {
     <div className="card card-body mb-3">
       <div className="row">
         <div className="col-md-2 text-center">
-          <Link to={`/profile/user/${post.user}`} className="d-block mb-2">
+          <Link to={`/profile/user/${postOwnerId}`} className="d-block mb-2">
             <div className="d-flex justify-content-center">
               <img
                 className="rounded-circle"
@@ -107,7 +108,7 @@ const PostItem = ({ post }: PostItemProps) => {
             <Link to={`/post/${post._id}`} className="btn btn-info me-2">
               Comments
             </Link>
-            {post.user === user?._id && (
+            {postOwnerId === user?._id && (
               <button
                 type="button"
                 className="btn btn-danger me-1"
