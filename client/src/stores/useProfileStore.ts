@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { AxiosError } from "axios";
 import { api } from "../utils/api";
-import { useErrorStore } from "./useErrorStore";
+import { setSharedError, throwWithSharedError } from "../utils/error";
 import { useAuthStore } from "./useAuthStore";
 import {
   Profile,
@@ -40,23 +40,6 @@ interface ProfileStore {
   deleteAccount: () => Promise<void>;
   loadGithubRepos: (username: string) => Promise<void>;
 }
-
-const handleError = (error: unknown, message: string): never => {
-  const errorStore = useErrorStore.getState();
-  const err = error as {
-    response?: { data?: { errors?: Record<string, string>; message?: string } };
-  };
-
-  if (err.response?.data?.errors) {
-    errorStore.setError(err.response.data.errors as Record<string, string>);
-  } else if (err.response?.data?.message) {
-    errorStore.setError({ message: err.response.data.message });
-  } else {
-    errorStore.setError({ message });
-  }
-
-  throw error;
-};
 
 export const useProfileStore = create<ProfileStore>()(
   devtools(
@@ -97,14 +80,16 @@ export const useProfileStore = create<ProfileStore>()(
           const axiosError = error as AxiosError;
 
           if (axiosError.response?.status === 404) {
-            const errorStore = useErrorStore.getState();
-            errorStore.setError({ message: `Profile for user ${userId} not found` });
+            setSharedError(
+              { response: { data: { message: `Profile for user ${userId} not found` } } },
+              `Profile for user ${userId} not found`,
+            );
             set({ loading: false }, false, "profile/loadProfileById/rejected");
             return null;
           }
 
           set({ loading: false }, false, "profile/loadProfileById/rejected");
-          handleError(error, `Failed to load profile for user ${userId}`);
+          throwWithSharedError(error, `Failed to load profile for user ${userId}`);
         }
       },
 
@@ -126,7 +111,7 @@ export const useProfileStore = create<ProfileStore>()(
           return res.data.data;
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/loadCurrent/rejected");
-          handleError(error, "Failed to load current profile");
+          throwWithSharedError(error, "Failed to load current profile");
         }
       },
 
@@ -139,7 +124,7 @@ export const useProfileStore = create<ProfileStore>()(
           set({ all: profiles, loading: false }, false, "profile/loadAllProfiles/fulfilled");
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/loadAllProfiles/rejected");
-          handleError(error, "Failed to load all profiles");
+          throwWithSharedError(error, "Failed to load all profiles");
         }
       },
 
@@ -154,7 +139,7 @@ export const useProfileStore = create<ProfileStore>()(
           return profile;
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/createProfile/rejected");
-          handleError(error, "Failed to create/update profile");
+          throwWithSharedError(error, "Failed to create/update profile");
         }
       },
 
@@ -172,7 +157,7 @@ export const useProfileStore = create<ProfileStore>()(
           return profile;
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/addExperience/rejected");
-          handleError(error, "Failed to add experience");
+          throwWithSharedError(error, "Failed to add experience");
         }
       },
 
@@ -190,7 +175,7 @@ export const useProfileStore = create<ProfileStore>()(
           return profile;
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/addEducation/rejected");
-          handleError(error, "Failed to add education");
+          throwWithSharedError(error, "Failed to add education");
         }
       },
 
@@ -207,7 +192,7 @@ export const useProfileStore = create<ProfileStore>()(
           return profile;
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/deleteExperience/rejected");
-          handleError(error, "Failed to delete experience");
+          throwWithSharedError(error, "Failed to delete experience");
         }
       },
 
@@ -224,7 +209,7 @@ export const useProfileStore = create<ProfileStore>()(
           return profile;
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/deleteEducation/rejected");
-          handleError(error, "Failed to delete education");
+          throwWithSharedError(error, "Failed to delete education");
         }
       },
 
@@ -243,7 +228,7 @@ export const useProfileStore = create<ProfileStore>()(
           set({ loading: false }, false, "profile/deleteAccount/fulfilled");
         } catch (error: unknown) {
           set({ loading: false }, false, "profile/deleteAccount/rejected");
-          handleError(error, "Failed to delete account");
+          throwWithSharedError(error, "Failed to delete account");
         }
       },
 
@@ -258,7 +243,7 @@ export const useProfileStore = create<ProfileStore>()(
           set({ repos, loading: false }, false, "profile/loadGithubRepos/fulfilled");
         } catch (error: unknown) {
           set({ repos: [], loading: false }, false, "profile/loadGithubRepos/rejected");
-          handleError(error, "Failed to load Github repos");
+          throwWithSharedError(error, "Failed to load Github repos");
         }
       },
     }),

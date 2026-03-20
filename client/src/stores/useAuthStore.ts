@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { api } from "../utils/api";
-import { useErrorStore } from "./useErrorStore";
+import { throwWithSharedError } from "../utils/error";
 import {
   User,
   RegisterData,
@@ -46,25 +46,8 @@ const clearAuthState = (set: any) => {
       user: null,
     },
     false,
-    "auth/clearAuthState"
+    "auth/clearAuthState",
   );
-};
-
-const handleError = (error: unknown, message: string): never => {
-  const errorStore = useErrorStore.getState();
-  const err = error as {
-    response?: { data?: { errors?: Record<string, string>; message?: string } };
-  };
-
-  if (err.response?.data?.errors) {
-    errorStore.setError(err.response.data.errors as Record<string, string>);
-  } else if (err.response?.data?.message) {
-    errorStore.setError({ message: err.response.data.message });
-  } else {
-    errorStore.setError({ message });
-  }
-
-  throw error;
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -109,7 +92,7 @@ export const useAuthStore = create<AuthStore>()(
           return res.data.data;
         } catch (error: unknown) {
           set({ loading: false }, false, "auth/register/rejected");
-          handleError(error, "Registration failed");
+          throwWithSharedError(error, "Registration failed");
         }
       },
 
@@ -129,7 +112,7 @@ export const useAuthStore = create<AuthStore>()(
           set({ loading: false }, false, "auth/login/fulfilled");
         } catch (error: unknown) {
           clearAuthState(set);
-          handleError(error, "Login failed");
+          throwWithSharedError(error, "Login failed");
         }
       },
 
@@ -146,14 +129,14 @@ export const useAuthStore = create<AuthStore>()(
               loading: false,
             },
             false,
-            "auth/loadUser/fulfilled"
+            "auth/loadUser/fulfilled",
           );
 
           return userData;
         } catch (error: unknown) {
           get().logout();
           set({ loading: false }, false, "auth/loadUser/rejected");
-          handleError(error, "Failed to load user session");
+          throwWithSharedError(error, "Failed to load user session");
         }
       },
 
@@ -208,6 +191,6 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: "Auth",
       store: "auth",
-    }
-  )
+    },
+  ),
 );
