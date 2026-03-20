@@ -1,0 +1,93 @@
+// Navbar Styling
+
+@use "./colors" as *;
+@use "./spacing" as *;
+@use "./typography" as *;
+@use "./animations" as *;
+@use "./shadows" as *;
+
+.navbar {
+  @extend .transition-all;
+  background-color: $color-neutral-900 !important;
+  border-bottom: 1px solid $color-border-dark;
+  padding: $space-3 0 !important;
+  box-shadow: $shadow-sm;
+
+  &-brand {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $color-text-light !important;
+    @extend .transition-colors;
+
+    &:hover {
+      color: $color-primary-400 !important;
+    }
+  }
+
+  .nav-link {
+    color: $color-neutral-300 !important;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-sm;
+    @extend .transition-colors;
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: $color-primary-500;
+      @extend .transition-transform;
+    }
+
+    &:hover {
+      color: $color-primary-400 !important;
+
+      &::after {
+        width: 100%;
+      }
+    }
+
+    &:active {
+      color: $color-primary-500 !important;
+    }
+  }
+
+  .navbar-toggler {
+    border: none;
+    padding: $space-2;
+
+    &:focus {
+      box-shadow: none;
+      outline: 2px solid $color-primary-500;
+      outline-offset: 2px;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23fff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+  }
+
+  .navbar-collapse {
+    @media (max-width: 576px) {
+      padding-top: $space-3;
+      border-top: 1px solid $color-neutral-700;
+    }
+  }
+}
+
+// Avatar in navbar
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid $color-primary-500;
+  @extend .transition-transform;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}

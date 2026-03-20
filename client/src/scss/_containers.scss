@@ -1,0 +1,289 @@
+// Layout & Container Styles
+
+@use "./colors" as *;
+@use "./spacing" as *;
+@use "./typography" as *;
+
+// Main Container
+.container-main {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: $layout-padding-x;
+
+  @media (min-width: 640px) {
+    padding: $space-4;
+  }
+
+  @media (min-width: 768px) {
+    padding: $space-6;
+  }
+
+  @media (min-width: 1024px) {
+    padding: $space-8;
+  }
+}
+
+// Flex Containers
+.flex-stack {
+  display: flex;
+  flex-direction: column;
+  gap: $component-gap-base;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: $component-gap-base;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $component-gap-base;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $component-gap-base;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $component-gap-base;
+}
+
+// Grid Containers
+.grid-cols-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $component-gap-base;
+}
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $component-gap-base;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $component-gap-base;
+
+  @media (max-width: 991px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $component-gap-base;
+
+  @media (max-width: 1279px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 991px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Main Content Area
+main {
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - 120px); // navbar + footer
+}
+
+// Page Section
+.section {
+  padding: $space-12 $layout-padding-x;
+
+  @media (min-width: 768px) {
+    padding: $space-16 $layout-padding-x;
+  }
+
+  &-light {
+    background-color: $color-background-secondary;
+  }
+
+  &-dark {
+    background-color: $color-neutral-900;
+    color: $color-text-light;
+  }
+
+  &-primary {
+    background-color: $color-primary-500;
+    color: $color-text-light;
+  }
+
+  &-offset {
+    margin-top: $space-12;
+
+    @media (min-width: 768px) {
+      margin-top: $space-16;
+    }
+  }
+}
+
+// Section Header
+.section-header {
+  text-align: center;
+  margin-bottom: $space-12;
+
+  h2 {
+    margin-bottom: $space-4;
+    @include heading-2;
+  }
+
+  p {
+    font-size: $font-size-lg;
+    color: $color-text-secondary;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// Sidebar Layout
+.sidebar-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: $space-8;
+
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  @media (max-width: 1023px) {
+    order: 2;
+  }
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: $space-4;
+
+  @media (max-width: 1023px) {
+    position: static;
+  }
+}
+
+// Card Grid (for responsive profile/item layouts)
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $space-6;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: $space-4;
+  }
+}
+
+// Stack Layout (vertical stacked sections)
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+
+  &-sm {
+    gap: $space-3;
+  }
+
+  &-lg {
+    gap: $space-8;
+  }
+
+  &-xl {
+    gap: $space-12;
+  }
+}
+
+// Divider
+.divider {
+  height: 1px;
+  background-color: $color-border-light;
+  margin: $space-6 0;
+
+  &-vertical {
+    width: 1px;
+    height: 100%;
+    margin: 0 $space-4;
+  }
+}
+
+// Text Utilities
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+// Opacity Utilities
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+// Overflow
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
