@@ -89,7 +89,7 @@ export const useProfileStore = create<ProfileStore>()(
           set(
             { current: profile, repos: [], loading: false },
             false,
-            "profile/loadProfileById/fulfilled"
+            "profile/loadProfileById/fulfilled",
           );
 
           return profile;
@@ -120,7 +120,7 @@ export const useProfileStore = create<ProfileStore>()(
               loading: false,
             },
             false,
-            "profile/loadCurrent/fulfilled"
+            "profile/loadCurrent/fulfilled",
           );
 
           return res.data.data;
@@ -163,7 +163,7 @@ export const useProfileStore = create<ProfileStore>()(
         try {
           const response = await api.post<ApiResponse<ProfileResponse>>(
             "/profile/experience",
-            experienceData
+            experienceData,
           );
           const profile = response.data.data.profile;
 
@@ -181,7 +181,7 @@ export const useProfileStore = create<ProfileStore>()(
         try {
           const response = await api.post<ApiResponse<ProfileResponse>>(
             "/profile/education",
-            educationData
+            educationData,
           );
           const profile = response.data.data.profile;
 
@@ -198,7 +198,7 @@ export const useProfileStore = create<ProfileStore>()(
         set({ loading: true }, false, "profile/deleteExperience/pending");
         try {
           const response = await api.delete<ApiResponse<ProfileResponse>>(
-            `/profile/experience/${id}`
+            `/profile/experience/${id}`,
           );
           const profile = response.data.data.profile;
 
@@ -215,7 +215,7 @@ export const useProfileStore = create<ProfileStore>()(
         set({ loading: true }, false, "profile/deleteEducation/pending");
         try {
           const response = await api.delete<ApiResponse<ProfileResponse>>(
-            `/profile/education/${id}`
+            `/profile/education/${id}`,
           );
           const profile = response.data.data.profile;
 
@@ -250,8 +250,10 @@ export const useProfileStore = create<ProfileStore>()(
       loadGithubRepos: async (username: string) => {
         set({ loading: true }, false, "profile/loadGithubRepos/pending");
         try {
-          const response = await api.get<ApiResponse<GithubRepo[]>>(`/profile/github/${username}`);
-          const repos = response.data.data;
+          const response = await api.get<ApiResponse<{ repos: GithubRepo[] }>>(
+            `/profile/github/${username}`,
+          );
+          const repos = response.data.data.repos;
 
           set({ repos, loading: false }, false, "profile/loadGithubRepos/fulfilled");
         } catch (error: unknown) {
@@ -263,6 +265,6 @@ export const useProfileStore = create<ProfileStore>()(
     {
       name: "Profile",
       store: "profile",
-    }
-  )
+    },
+  ),
 );

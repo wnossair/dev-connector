@@ -111,8 +111,8 @@ export interface GithubRepo {
   name: string;
   html_url: string;
   description?: string;
+  language: string | null;
   stargazers_count: number;
   watchers_count: number;
   forks_count: number;
-  languages?: Array<{ name: string; percentage: number }>;
 }

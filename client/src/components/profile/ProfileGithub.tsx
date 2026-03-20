@@ -12,14 +12,17 @@ const ProfileGithub = ({ repos }: ProfileGithubProps) => {
         <ul className="list-group">
           {repos.map(repo => (
             <li key={repo.id} className="list-group-item">
-              <a
-                href={repo.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary text-decoration-none fw-bold"
-              >
-                {repo.name}
-              </a>
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <a
+                  href={repo.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary text-decoration-none fw-bold"
+                >
+                  {repo.name}
+                </a>
+                {repo.language && <span className="badge bg-primary">{repo.language}</span>}
+              </div>
               <p className="text-muted mb-1">{repo.description || "No description provided"}</p>
               <div className="d-flex gap-3 flex-wrap">
                 <span>
@@ -34,14 +37,6 @@ const ProfileGithub = ({ repos }: ProfileGithubProps) => {
                   <i className="bi bi-diagram-2-fill text-success me-1"></i>
                   Forks: {repo.forks_count}
                 </span>
-              </div>
-              <div className="d-flex gap-2 flex-wrap mt-2">
-                {repo.languages &&
-                  repo.languages.map(lang => (
-                    <span key={lang.name} className="badge bg-primary">
-                      {lang.name}: {lang.percentage}%
-                    </span>
-                  ))}
               </div>
             </li>
           ))}

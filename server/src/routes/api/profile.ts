@@ -22,6 +22,59 @@ import {
 
 const router = express.Router();
 
+type GithubRepoSummary = {
+  id: string;
+  name: string;
+  html_url: string;
+  description: string;
+  language: string | null;
+  stargazers_count: number;
+  watchers_count: number;
+  forks_count: number;
+};
+
+type GithubReposResponse = {
+  repos: GithubRepoSummary[];
+};
+
+const GITHUB_REPOS_CACHE_TTL_MS = 10 * 60 * 1000;
+const githubReposCache = new Map<string, { expiresAt: number; repos: GithubRepoSummary[] }>();
+
+const getCachedGithubRepos = (username: string): GithubRepoSummary[] | null => {
+  const cacheKey = username.toLowerCase();
+  const cached = githubReposCache.get(cacheKey);
+  if (!cached) {
+    return null;
+  }
+
+  if (cached.expiresAt <= Date.now()) {
+    githubReposCache.delete(cacheKey);
+    return null;
+  }
+
+  return cached.repos;
+};
+
+const setCachedGithubRepos = (username: string, repos: GithubRepoSummary[]): void => {
+  githubReposCache.set(username.toLowerCase(), {
+    expiresAt: Date.now() + GITHUB_REPOS_CACHE_TTL_MS,
+    repos,
+  });
+};
+
+const buildGithubHeaders = (useToken: boolean): Record<string, string> => {
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github.v3+json",
+    "User-Agent": "devconnector-api",
+  };
+
+  if (useToken && keys.githubToken?.trim()) {
+    headers.Authorization = `Bearer ${keys.githubToken.trim()}`;
+  }
+
+  return headers;
+};
+
 // @route   GET api/profile/test
 // @desc    Tests profile route
 // @access  Public
@@ -46,7 +99,7 @@ router.get(
     }
 
     sendSuccess(res, 200, "Profile fetched successfully", { profile });
-  })
+  }),
 );
 
 // @route   POST api/profile
@@ -100,7 +153,7 @@ router.post(
       profile = await Profile.findOneAndUpdate(
         { user: req.user!.id },
         { $set: profileFields },
-        { new: true }
+        { new: true },
       ).populate("user", ["name", "avatar"]);
 
       return sendSuccess(res, 200, "Profile updated successfully", { profile });
@@ -119,7 +172,7 @@ router.post(
     profile = await Profile.populate(profile, { path: "user", select: "name avatar" });
 
     sendSuccess(res, 201, "Profile created successfully", { profile });
-  })
+  }),
 );
 
 // @route   GET api/profile/user/:user_id
@@ -138,7 +191,7 @@ router.get(
     }
 
     sendSuccess(res, 200, "Profile fetched successfully", { profile });
-  })
+  }),
 );
 
 // @route   GET api/profile/all
@@ -154,7 +207,7 @@ router.get(
     }
 
     sendSuccess(res, 200, "Profiles fetched successfully", { profiles });
-  })
+  }),
 );
 
 // @route   POST api/profile/experience
@@ -191,7 +244,7 @@ router.post(
     ]);
 
     sendSuccess(res, 200, "Experience added successfully", { profile: updatedProfile });
-  })
+  }),
 );
 
 // @route   POST api/profile/education
@@ -228,7 +281,7 @@ router.post(
     ]);
 
     sendSuccess(res, 200, "Education added successfully", { profile: updatedProfile });
-  })
+  }),
 );
 
 // @route   DELETE api/profile/experience/:exp_id
@@ -261,7 +314,7 @@ router.delete(
     ]);
 
     sendSuccess(res, 200, "Experience deleted successfully", { profile: updatedProfile });
-  })
+  }),
 );
 
 // @route   DELETE api/profile/education/:edu_id
@@ -294,7 +347,7 @@ router.delete(
     ]);
 
     sendSuccess(res, 200, "Education deleted successfully", { profile: updatedProfile });
-  })
+  }),
 );
 
 // @route    DELETE api/profile
@@ -312,7 +365,7 @@ router.delete(
     await User.findOneAndDelete({ _id: req.user!.id });
 
     sendSuccess(res, 200, "User and profile deleted successfully");
-  })
+  }),
 );
 
 // @route   GET api/profile/github/:username
@@ -321,34 +374,63 @@ router.delete(
 router.get(
   "/github/:username",
   asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const response = await axios.get(
-        `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`,
-        {
-          headers: {
-            Authorization: `token ${keys.githubToken}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
+    const username = req.params.username;
+    const cachedRepos = getCachedGithubRepos(username);
+    if (cachedRepos) {
+      return sendSuccess(res, 200, "GitHub repos fetched successfully", { repos: cachedRepos });
+    }
 
-      const repos = response.data.map((repo: any) => ({
-        id: repo.id,
+    const githubUrl = `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc`;
+    const hasToken = Boolean(keys.githubToken?.trim());
+
+    try {
+      let response;
+
+      try {
+        response = await axios.get(githubUrl, {
+          headers: buildGithubHeaders(hasToken),
+        });
+      } catch (err: any) {
+        if (hasToken && err.response?.status === 401) {
+          // Fallback to unauthenticated request when token is invalid/revoked.
+          response = await axios.get(githubUrl, {
+            headers: buildGithubHeaders(false),
+          });
+        } else {
+          throw err;
+        }
+      }
+
+      const repos: GithubRepoSummary[] = response.data.map((repo: any) => ({
+        id: String(repo.id),
         name: repo.name,
-        url: repo.html_url,
-        description: repo.description,
+        html_url: repo.html_url,
+        description: repo.description ?? "",
         language: repo.language,
         stargazers_count: repo.stargazers_count,
+        watchers_count: repo.watchers_count,
+        forks_count: repo.forks_count,
       }));
 
-      sendSuccess(res, 200, "GitHub repos fetched successfully", { repos });
+      setCachedGithubRepos(username, repos);
+
+      sendSuccess<GithubReposResponse>(res, 200, "GitHub repos fetched successfully", { repos });
     } catch (err: any) {
       if (err.response?.status === 404) {
         throw new NotFoundError("GitHub user");
       }
-      throw new ExternalServiceError("GitHub", err.response?.status || 502);
+
+      if (err.response?.status === 403) {
+        throw new ExternalServiceError(
+          "GitHub",
+          503,
+          "GitHub rate limit reached. Please try again later",
+        );
+      }
+
+      throw new ExternalServiceError("GitHub", 502);
     }
-  })
+  }),
 );
 
 export default router;
