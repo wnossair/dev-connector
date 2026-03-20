@@ -1,0 +1,106 @@
+// Shadow System - Elevation Hierarchy
+
+// Shadow Values
+
+// Subtle shadows (for small/inline elements)
+$shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-sm:
+  0 1px 3px 0 rgba(0, 0, 0, 0.1),
+  0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+// Medium shadows (for standard components like cards, buttons)
+$shadow-base:
+  0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-md:
+  0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+// Strong shadows (for elevated components like modals, dropdowns)
+$shadow-lg:
+  0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// Extra shadows (for intense focus/emphasis)
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+$shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+
+// Colored Shadows (for interactive feedback)
+$shadow-primary: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+$shadow-secondary: 0 4px 6px -1px rgba(168, 85, 247, 0.2);
+$shadow-success: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
+$shadow-error: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+
+// Hover/Active Elevation
+$shadow-hover: $shadow-md;
+$shadow-active: $shadow-lg;
+$shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+// Utility Classes
+.shadow-none {
+  box-shadow: none;
+}
+
+.shadow-xs {
+  box-shadow: $shadow-xs;
+}
+
+.shadow-sm {
+  box-shadow: $shadow-sm;
+}
+
+.shadow {
+  box-shadow: $shadow-base;
+}
+
+.shadow-md {
+  box-shadow: $shadow-md;
+}
+
+.shadow-lg {
+  box-shadow: $shadow-lg;
+}
+
+.shadow-xl {
+  box-shadow: $shadow-xl;
+}
+
+.shadow-2xl {
+  box-shadow: $shadow-2xl;
+}
+
+.shadow-inner {
+  box-shadow: $shadow-inner;
+}
+
+// Colored shadow utilities
+.shadow-primary {
+  box-shadow: $shadow-primary;
+}
+
+.shadow-secondary {
+  box-shadow: $shadow-secondary;
+}
+
+.shadow-success {
+  box-shadow: $shadow-success;
+}
+
+.shadow-error {
+  box-shadow: $shadow-error;
+}
+
+// Hover shadow utilities
+.hover\:shadow-md:hover {
+  box-shadow: $shadow-hover;
+}
+
+.hover\:shadow-lg:hover {
+  box-shadow: $shadow-active;
+}
+
+.focus\:shadow:focus,
+.focus\:shadow:focus-visible {
+  box-shadow: $shadow-focus;
+}

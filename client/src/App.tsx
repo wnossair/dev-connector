@@ -18,7 +18,7 @@ import AddEducation from "./components/profile/AddEducation";
 
 import { useAuthStore } from "./stores/useAuthStore";
 
-import "./App.css";
+import "./scss/index.scss";
 import Profiles from "./components/developers/Profiles";
 import Profile from "./components/profile/Profile";
 import Posts from "./components/post/Posts";
