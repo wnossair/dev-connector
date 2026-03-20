@@ -32,32 +32,25 @@ const SelectListGroup = ({
   ));
 
   return (
-    <div className="row mb-3">
+    <div className="form-group">
       {label && (
-        <label
-          htmlFor={id}
-          className="col-sm-2 col-form-label fw-medium d-flex align-items-center mb-0"
-        >
+        <label htmlFor={id} className="form-label">
           {label}
         </label>
       )}
-      <div className={`${label ? "col-sm-10" : "col-sm-12"}`}>
-        <div className="d-flex align-items-center">
-          <select
-            className={`form-control form-control-lg ${error && "is-invalid"}`}
-            id={id}
-            name={name}
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
-            autoComplete={autoComplete}
-          >
-            {selectOptions}
-          </select>
-        </div>
-      </div>
-      {error && <div className="invalid-feedback d-block">{error}</div>}
-      {info && <small className="form-text text-muted">{info}</small>}
+      <select
+        className={`form-control ${error ? "is-invalid" : ""}`}
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        autoComplete={autoComplete}
+      >
+        {selectOptions}
+      </select>
+      {error && <div className="form-error">{error}</div>}
+      {info && <div className="form-hint">{info}</div>}
     </div>
   );
 };

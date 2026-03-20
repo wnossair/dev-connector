@@ -10,31 +10,62 @@
   @extend .transition-all;
   background-color: $color-neutral-900 !important;
   border-bottom: 1px solid $color-border-dark;
-  padding: $space-3 0 !important;
+  padding: $space-2 0 !important;
   box-shadow: $shadow-sm;
+  display: flex;
+  align-items: center;
+
+  .container-fluid {
+    display: flex;
+    align-items: center;
+  }
 
   &-brand {
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
     color: $color-text-light !important;
     @extend .transition-colors;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: $space-2;
+
+    i {
+      font-size: 1.5rem;
+    }
 
     &:hover {
       color: $color-primary-400 !important;
+      text-decoration: none;
     }
+  }
+
+  .navbar-nav {
+    align-items: center;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
   }
 
   .nav-link {
     color: $color-neutral-300 !important;
     font-weight: $font-weight-medium;
-    font-size: $font-size-sm;
+    font-size: $font-size-base;
     @extend .transition-colors;
     position: relative;
+    text-decoration: none;
+    padding: $space-1 $space-3 !important;
+    display: flex;
+    align-items: center;
 
     &::after {
       content: "";
       position: absolute;
-      bottom: -3px;
+      bottom: 0;
       left: 0;
       width: 0;
       height: 2px;
@@ -44,6 +75,7 @@
 
     &:hover {
       color: $color-primary-400 !important;
+      text-decoration: none;
 
       &::after {
         width: 100%;

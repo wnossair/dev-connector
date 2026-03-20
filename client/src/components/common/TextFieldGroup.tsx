@@ -30,32 +30,27 @@ const TextFieldGroup = ({
   required = false,
 }: TextFieldGroupProps) => {
   return (
-    <div className="row mb-3">
+    <div className="form-group">
       {label && (
-        <div className="col-12 mb-2">
-          <label htmlFor={id} className="fw-medium text-nowrap">
-            {label}
-          </label>
-        </div>
+        <label htmlFor={id} className="form-label">
+          {required && <span className="text-danger">*</span>}
+          {label}
+        </label>
       )}
-      <div className="col-12">
-        <div className="d-flex align-items-center">
-          <input
-            type={type}
-            className={`form-control form-control-lg ${error && "is-invalid"}`}
-            placeholder={placeholder}
-            id={id}
-            name={name}
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
-            autoComplete={autoComplete}
-            required={required}
-          />
-        </div>
-      </div>
-      {error && <div className="invalid-feedback d-block">{error}</div>}
-      {info && <small className="form-text text-muted">{info}</small>}
+      <input
+        type={type}
+        className={`form-control ${error ? "is-invalid" : ""}`}
+        placeholder={placeholder}
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        autoComplete={autoComplete}
+        required={required}
+      />
+      {error && <div className="form-error">{error}</div>}
+      {info && <div className="form-hint">{info}</div>}
     </div>
   );
 };

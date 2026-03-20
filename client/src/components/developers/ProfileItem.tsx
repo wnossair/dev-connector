@@ -11,26 +11,28 @@ const ProfileItem = ({ profile }: ProfileItemProps) => {
   const { role, company, location, skills } = profile;
 
   return (
-    <div className="card card-body bg-light mb-3" key={_id}>
+    <div className="card card-body mb-3" key={_id}>
       <div className="row">
-        <div className="col-2">
-          <img className="rounded-circle" src={avatar} alt={name} />
+        <div className="col-md-2 d-flex align-items-center justify-content-center mb-3 mb-md-0">
+          <img className="avatar avatar-lg" src={avatar} alt={name} />
         </div>
-        <div className="col-lg-6 col-md-4 col-8">
-          <h3>{name}</h3>
-          <p>
-            {role} {company && `at ${company}`} {location && `in ${location}`}
+        <div className="col-md-5">
+          <h4 className="mb-2">{name}</h4>
+          <p className="text-muted mb-2">
+            <strong>{role}</strong>
+            {company && ` at ${company}`}
+            {location && ` in ${location}`}
           </p>
-          <Link to={`/profile/user/${_id}`} className="btn btn-success">
+          <Link to={`/profile/user/${_id}`} className="btn btn-sm btn-primary">
             View Profile
           </Link>
         </div>
-        <div className="col-md-4 d-none d-md-block ms-auto">
-          <h4>Skill Set</h4>
+        <div className="col-md-5 d-none d-md-block">
+          <h5 className="mb-3">Skill Set</h5>
           <ul className="list-group">
             {Array.isArray(skills) &&
               skills.slice(0, 4).map((skill, index) => (
-                <li className="list-group-item" key={`skill-${index}`}>
+                <li className="list-group-item py-2" key={`skill-${index}`}>
                   <span className="bi bi-check-circle-fill text-success me-2"></span>
                   {skill}
                 </li>

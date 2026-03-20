@@ -77,53 +77,58 @@ const PostItem = ({ post }: PostItemProps) => {
   return (
     <div className="card card-body mb-3">
       <div className="row">
-        <div className="col-md-2 text-center">
-          <Link to={`/profile/user/${postOwnerId}`} className="d-block mb-2">
-            <div className="d-flex justify-content-center">
-              <img
-                className="rounded-circle"
-                src={post.avatar}
-                alt={displayName}
-                style={{ width: "60px", height: "60px", objectFit: "cover" }}
-                title={post.name}
-              />
-            </div>
+        <div className="col-md-2">
+          <Link
+            to={`/profile/user/${postOwnerId}`}
+            className="d-block mb-3 d-flex justify-content-center"
+          >
+            <img
+              className="avatar avatar-md"
+              src={post.avatar}
+              alt={displayName}
+              title={post.name}
+            />
           </Link>
-          <p className="mb-0">{displayName}</p>
+          <p className="text-center mb-0 text-muted">{displayName}</p>
         </div>
         <div className="col-md-10">
-          <p className="lead">{post.text}</p>
-          <div className="d-flex align-items-center">
+          <p className="lead mb-4">{post.text}</p>
+          <div className="d-flex align-items-center flex-wrap gap-2">
             <button
               type="button"
-              className="btn btn-light me-2"
+              className={`btn btn-sm ${hasLiked ? "btn-primary" : "btn-light"}`}
               onClick={() => (hasLiked ? onUnlikeClick(post._id) : onLikeClick(post._id))}
               disabled={loading}
+              title={hasLiked ? "Unlike post" : "Like post"}
             >
-              <i
-                className={`bi bi-hand-thumbs-up ${hasLiked ? "text-info" : "text-secondary"}`}
-              ></i>
-              <span className="badge bg-light text-dark ms-1">{post.likes.length}</span>
+              <i className="bi bi-hand-thumbs-up"></i>
+              <span className="ms-2">{post.likes.length}</span>
             </button>
-            <Link to={`/post/${post._id}`} className="btn btn-info me-2">
+            <Link to={`/post/${post._id}`} className="btn btn-sm btn-secondary">
+              <i className="bi bi-chat-left"></i>
               Comments
             </Link>
             {postOwnerId === user?._id && (
               <button
                 type="button"
-                className="btn btn-danger me-1"
+                className="btn btn-sm btn-danger"
                 onClick={() => post._id && onDeleteClick(post._id)}
                 disabled={loading}
+                title="Delete post"
               >
-                <i className="bi bi-x-lg"></i>
+                <i className="bi bi-trash"></i>
               </button>
             )}
+            {loading && (
+              <span className="text-muted ms-2">
+                <span
+                  className="spinner spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              </span>
+            )}
           </div>
-          {loading && (
-            <div className="mt-2">
-              <small className="text-muted">Processing...</small>
-            </div>
-          )}
         </div>
       </div>
     </div>

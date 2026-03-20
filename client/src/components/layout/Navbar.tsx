@@ -45,12 +45,7 @@ const Navbar = () => {
             <img
               src={user?.avatar}
               alt="User Avatar"
-              className="rounded-circle"
-              style={{
-                width: "28px",
-                height: "28px",
-                objectFit: "cover",
-              }}
+              className="avatar avatar-sm"
               title={user?.name}
             />
           </Link>
@@ -77,8 +72,8 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4 px-2">
       <div className="container-fluid px-1">
-        <Link className="navbar-brand" to="/">
-          Developer Social Network
+        <Link className="navbar-brand" to="/" title="DevConnector Home">
+          <i className="bi bi-house-door-fill"></i>
         </Link>
         <button
           className="navbar-toggler"
