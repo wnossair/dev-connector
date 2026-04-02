@@ -6,7 +6,7 @@ A robust social network API built with Express.js, TypeScript, MongoDB, and Pass
 
 ### Prerequisites
 
-- Node.js >= 14.0.0
+- Node.js >= 20.0.0
 - MongoDB instance running
 - npm or yarn
 
