@@ -24,9 +24,8 @@
     "forceConsistentCasingInFileNames": true,
 
     /* Path Aliases (Optional but recommended) */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
