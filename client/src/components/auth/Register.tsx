@@ -58,7 +58,7 @@ const Register = () => {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      password2: formData.confirmPassword,
+      confirmPassword: formData.confirmPassword,
     };
 
     await registerUser(registerData)

@@ -44,7 +44,6 @@ export const sendError = (
 ): void => {
   const response: IApiResponse = {
     success: false,
-    message,
     error: {
       code,
       message,

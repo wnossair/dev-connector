@@ -7,18 +7,25 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   data: T;
-  error: string | null;
 }
 
 export interface ValidationError {
   [field: string]: string;
 }
 
+export interface ApiErrorDetails {
+  [field: string]: string;
+}
+
+export interface ApiErrorEnvelope {
+  code: string;
+  message: string;
+  details?: ApiErrorDetails;
+}
+
 export interface ErrorResponse {
   success: false;
-  message: string;
-  data: null;
-  error: string | ValidationError;
+  error: ApiErrorEnvelope;
 }
 
 export interface ApiError {

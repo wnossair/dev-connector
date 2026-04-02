@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { api } from "../utils/api";
-import { throwWithSharedError } from "../utils/error";
+import { extractErrorMessage, throwWithSharedError } from "../utils/error";
 import {
   User,
   RegisterData,
@@ -179,8 +179,7 @@ export const useAuthStore = create<AuthStore>()(
           get().logout();
           set({ loading: false }, false, "auth/verify/rejected");
 
-          const err = error as { response?: { data?: { message?: string } } };
-          const errorMessage = err.response?.data?.message || "Auth verification failed";
+          const errorMessage = extractErrorMessage(error, "Auth verification failed");
           return {
             isValid: false,
             error: errorMessage,

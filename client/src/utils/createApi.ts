@@ -32,7 +32,7 @@ export const createApi = (): AxiosInstance => {
       }
       return config;
     },
-    (error: AxiosError) => Promise.reject(error)
+    (error: AxiosError) => Promise.reject(error),
   );
 
   // Enhanced response interceptor with retry logic
@@ -41,6 +41,8 @@ export const createApi = (): AxiosInstance => {
     async (error: AxiosError) => {
       const config = error.config as RetryableConfig;
       const isExpectedError = [400, 401, 404].includes(error.response?.status || 0);
+      const method = (config?.method || "get").toLowerCase();
+      const isIdempotentMethod = method === "get" || method === "head" || method === "options";
 
       // Set retry count if not already set
       if (!config) {
@@ -50,7 +52,7 @@ export const createApi = (): AxiosInstance => {
       config.__retryCount = config.__retryCount || 0;
 
       // Check if we should retry
-      if (isRetryableError(error) && config.__retryCount < MAX_RETRIES) {
+      if (isIdempotentMethod && isRetryableError(error) && config.__retryCount < MAX_RETRIES) {
         config.__retryCount += 1;
         const delay = RETRY_DELAY * Math.pow(2, config.__retryCount - 1); // Exponential backoff
 
@@ -69,7 +71,7 @@ export const createApi = (): AxiosInstance => {
       };
 
       return Promise.reject(customError);
-    }
+    },
   );
 
   return api;

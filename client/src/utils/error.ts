@@ -4,21 +4,24 @@ import { useErrorStore } from "../stores/useErrorStore";
 type ErrorPayload = {
   response?: {
     data?: {
-      errors?: Record<string, string>;
-      message?: string;
+      error?: {
+        message?: string;
+        details?: Record<string, string>;
+      };
     };
   };
 };
 
 export const extractAppError = (error: unknown, fallbackMessage: string): AppError => {
   const err = error as ErrorPayload;
+  const data = err.response?.data;
 
-  if (err.response?.data?.errors) {
-    return err.response.data.errors;
+  if (data?.error?.details && typeof data.error.details === "object") {
+    return data.error.details;
   }
 
-  if (err.response?.data?.message) {
-    return { message: err.response.data.message };
+  if (data?.error?.message) {
+    return { message: data.error.message };
   }
 
   return { message: fallbackMessage };

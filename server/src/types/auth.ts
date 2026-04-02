@@ -22,7 +22,7 @@ export interface IRegisterRequest {
   name: string;
   email: string;
   password: string;
-  password2?: string;
+  confirmPassword?: string;
 }
 
 export interface ILoginRequest {
@@ -113,7 +113,7 @@ export interface ICreateCommentRequest {
  */
 export interface IApiResponse<T = any> {
   success: boolean;
-  message: string;
+  message?: string;
   data?: T;
   error?: {
     code: string; // Machine-readable error code
