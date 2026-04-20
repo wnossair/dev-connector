@@ -1,4 +1,4 @@
-import pino, { LoggerOptions } from "pino";
+import pino, { LoggerOptions, Logger } from "pino";
 
 const isProduction = process.env.NODE_ENV === "production";
 const configuredLevel = process.env.LOG_LEVEL;
@@ -28,6 +28,6 @@ if (!isProduction && process.stdout.isTTY) {
 
 const logger = pino(options);
 
-export const withContext = (context: Record<string, unknown>) => logger.child(context);
+export const withContext = (context: Record<string, unknown>): Logger => logger.child(context);
 
 export default logger;

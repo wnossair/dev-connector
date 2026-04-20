@@ -15,6 +15,7 @@ import passportConfig from "./config/passport.js";
 
 // Import utilities and middleware
 import errorHandler from "./middleware/errorHandler.js";
+import { requestLoggerMiddleware } from "./middleware/requestLogger.js";
 import { RateLimitError } from "./errors/AppError.js";
 import logger from "./utils/logger.js";
 
@@ -22,6 +23,9 @@ const app: Application = express();
 
 // Security Middleware
 app.use(helmet());
+
+// Request logging middleware (must be early to capture all requests)
+app.use(requestLoggerMiddleware);
 
 // Body parser middleware
 app.use(express.urlencoded({ extended: false }));

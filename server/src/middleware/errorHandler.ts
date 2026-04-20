@@ -63,10 +63,13 @@ const errorHandler: ErrorRequestHandler = (
     method: req.method,
   };
 
+  // Use request-scoped logger if available (includes requestId), fall back to global logger
+  const requestLogger = req.logger || logger;
+
   if (appError.statusCode >= 500) {
-    logger.error(errorLogContext, "Unhandled server error");
+    requestLogger.error(errorLogContext, "Unhandled server error");
   } else {
-    logger.warn(errorLogContext, "Request failed");
+    requestLogger.warn(errorLogContext, "Request failed");
   }
 
   // Send error response
