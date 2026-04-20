@@ -10,7 +10,7 @@ import { IApiResponse } from "../types/index.js";
  * @param message User-friendly success message
  * @param data Response data
  */
-export const sendSuccess = <T = any>(
+export const sendSuccess = <T = unknown>(
   res: Response,
   statusCode: number,
   message: string,
@@ -40,11 +40,10 @@ export const sendError = (
   statusCode: number,
   code: string,
   message: string,
-  details?: Record<string, any>,
+  details?: Record<string, unknown>,
 ): void => {
   const response: IApiResponse = {
     success: false,
-    message,
     error: {
       code,
       message,

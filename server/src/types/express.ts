@@ -1,10 +1,11 @@
 /**
  * Express Type Extensions
  *
- * Extends Express types to include authenticated user
+ * Extends Express types to include authenticated user and request-scoped logger
  */
 
 import { IUser } from "./models";
+import type { Logger } from "pino";
 
 declare global {
   namespace Express {
@@ -12,6 +13,7 @@ declare global {
 
     interface Request {
       user?: IUser;
+      logger?: Logger;
     }
   }
 }

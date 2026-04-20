@@ -9,6 +9,7 @@ import { useProfileStore } from "../../stores/useProfileStore";
 import Experience from "./Experience";
 import Education from "./Education";
 import { Spinner } from "../common/Feedback";
+import { logger } from "../../utils/logger";
 
 const Dashboard = () => {
   const user = useAuthStore(state => state.user);
@@ -47,7 +48,7 @@ const Dashboard = () => {
         logout();
       } catch (error) {
         setError(error as string);
-        console.log("Delete account error:", error);
+        logger.error("Account deletion failed", error);
       }
     }
   };

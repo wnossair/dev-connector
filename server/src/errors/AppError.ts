@@ -10,14 +10,14 @@
 export class AppError extends Error {
   public readonly code: string;
   public readonly statusCode: number;
-  public readonly details?: Record<string, any>;
+  public readonly details?: Record<string, unknown>;
   public readonly isOperational: boolean = true;
 
   constructor(
     code: string,
     message: string,
     statusCode: number = 500,
-    details?: Record<string, any>
+    details?: Record<string, unknown>,
   ) {
     super(message);
     this.code = code;

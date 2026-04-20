@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useProfileStore } from "../../stores/useProfileStore";
+import { logger } from "../../utils/logger";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Navbar = () => {
       clearProfile();
       navigate("/login");
     } catch (err) {
-      console.error("Logout failed:", err);
+      logger.error("Logout action failed", err);
     }
   };
 

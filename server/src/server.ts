@@ -15,13 +15,17 @@ import passportConfig from "./config/passport.js";
 
 // Import utilities and middleware
 import errorHandler from "./middleware/errorHandler.js";
-import { sendError } from "./utils/responseHandler.js";
+import { requestLoggerMiddleware } from "./middleware/requestLogger.js";
 import { RateLimitError } from "./errors/AppError.js";
+import logger from "./utils/logger.js";
 
 const app: Application = express();
 
 // Security Middleware
 app.use(helmet());
+
+// Request logging middleware (must be early to capture all requests)
+app.use(requestLoggerMiddleware);
 
 // Body parser middleware
 app.use(express.urlencoded({ extended: false }));
@@ -33,9 +37,9 @@ const db = keys.mongoURI;
 // Connect to MongoDB
 mongoose
   .connect(db)
-  .then(() => console.log("MongoDB Connected Successfully"))
+  .then(() => logger.info("MongoDB connected"))
   .catch(err => {
-    console.error("MongoDB connection error:", err);
+    logger.fatal({ err }, "MongoDB connection failed");
     process.exit(1);
   });
 
@@ -63,7 +67,7 @@ const apiLimiter = rateLimit({
   handler: (req, res, next, options) => {
     // Throw RateLimitError which will be caught by asyncHandler
     throw new RateLimitError(
-      `Too many requests from this IP. Please try again after ${options.windowMs / 60000} minutes.`
+      `Too many requests from this IP. Please try again after ${options.windowMs / 60000} minutes.`,
     );
   },
 });
@@ -78,4 +82,4 @@ app.use("/api/posts", postsRoutes);
 app.use(errorHandler);
 
 const port = keys.port;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(port, () => logger.info({ port }, "Server started"));

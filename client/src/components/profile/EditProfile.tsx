@@ -9,6 +9,7 @@ import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
 import type { FieldErrors, InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 // Social Inputs
 interface SocialInputsProps {
@@ -131,11 +132,11 @@ const EditProfile = () => {
       setDisplaySocialInputs(
         Boolean(
           current.social?.twitter ||
-            current.social?.facebook ||
-            current.social?.linkedin ||
-            current.social?.youtube ||
-            current.social?.instagram
-        )
+          current.social?.facebook ||
+          current.social?.linkedin ||
+          current.social?.youtube ||
+          current.social?.instagram,
+        ),
       );
     }
   }, [current]);
@@ -155,11 +156,10 @@ const EditProfile = () => {
     setFieldErrors({});
 
     try {
-      console.log(formData);
       const profile = await createProfile(formData);
       if (profile) navigate("/dashboard");
     } catch (err) {
-      console.log("Edit profile error: ", err);
+      logger.warn("Profile update failed", err);
     }
   };
 

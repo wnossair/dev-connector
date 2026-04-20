@@ -5,6 +5,7 @@ import { useErrorStore } from "../../stores/useErrorStore";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import { useProfileStore } from "../../stores/useProfileStore";
 import type { FieldErrors, InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 const AddExperience = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const AddExperience = () => {
       await addExperience(formData);
       navigate("/dashboard");
     } catch (error) {
-      console.log("Add Experience error: ", error);
+      logger.warn("Failed to add experience", error);
     }
   };
 

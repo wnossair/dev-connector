@@ -9,11 +9,16 @@ const ProfileSchema = new Schema<IProfile>({
     type: Schema.Types.ObjectId,
     ref: "users",
     required: true,
+    unique: true,
+    index: true,
   },
   handle: {
     type: String,
     required: true,
     max: 40,
+    unique: true,
+    index: true,
+    trim: true,
   },
   company: {
     type: String,

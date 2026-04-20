@@ -2,30 +2,35 @@
  * API Related Types
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
-  error: string | null;
 }
 
 export interface ValidationError {
   [field: string]: string;
 }
 
+export interface ApiErrorDetails {
+  [field: string]: string;
+}
+
+export interface ApiErrorEnvelope {
+  code: string;
+  message: string;
+  details?: ApiErrorDetails;
+}
+
 export interface ErrorResponse {
   success: false;
-  message: string;
-  data: null;
-  error: string | ValidationError;
+  error: ApiErrorEnvelope;
 }
 
 export interface ApiError {
   response?: {
     status: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data?: ErrorResponse | any;
+    data?: ErrorResponse | unknown;
     statusText?: string;
   };
   message: string;

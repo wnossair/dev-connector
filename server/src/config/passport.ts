@@ -3,6 +3,7 @@ import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-j
 import { User } from "../models/User.js";
 import { IUser } from "../types/models.js";
 import keys from "./keys.js";
+import logger from "../utils/logger.js";
 
 const opts: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,9 +20,9 @@ export default (passport: PassportStatic): void => {
         }
         return done(null, false);
       } catch (err) {
-        console.error("Error in JWT Strategy user lookup:", err);
+        logger.error({ err }, "JWT strategy user lookup failed");
         return done(err, false);
       }
-    })
+    }),
   );
 };

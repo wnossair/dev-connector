@@ -4,6 +4,7 @@ import { usePostListStore } from "../../stores/usePostListStore";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { postApi } from "../../api/postApi";
 import type { InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 interface ApiError {
   response?: {
@@ -44,11 +45,10 @@ const PostForm = () => {
       // Use the actual error from the API call
       const err = error as ApiError;
       const errorMessage = err.response?.data?.message || err.message || "Failed to create post";
-      const errorDetails = err.response?.data?.error || null;
 
       setError(errorMessage);
       setFormError(errorMessage);
-      console.log("Error details:", errorDetails);
+      logger.warn("Post creation failed", err);
     } finally {
       setSubmitting(false);
     }

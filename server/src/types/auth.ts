@@ -22,7 +22,7 @@ export interface IRegisterRequest {
   name: string;
   email: string;
   password: string;
-  password2?: string;
+  confirmPassword?: string;
 }
 
 export interface ILoginRequest {
@@ -111,14 +111,14 @@ export interface ICreateCommentRequest {
  * API Response Wrapper
  * Standard response format for all API endpoints
  */
-export interface IApiResponse<T = any> {
+export interface IApiResponse<T = unknown> {
   success: boolean;
-  message: string;
+  message?: string;
   data?: T;
   error?: {
     code: string; // Machine-readable error code
     message: string;
-    details?: Record<string, any>; // Field-level errors or additional context
+    details?: Record<string, unknown>; // Field-level errors or additional context
   };
   timestamp?: string; // ISO timestamp when response was generated
   path?: string; // Request path for debugging

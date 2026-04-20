@@ -4,6 +4,7 @@ import { postApi } from "../../api/postApi";
 import { syncPostUpdates, syncPostDeletion } from "../../stores/syncPostStores";
 import { useAuthStore } from "../../stores/useAuthStore";
 import type { Post } from "../../types";
+import { logger } from "../../utils/logger";
 
 interface PostItemProps {
   post: Post;
@@ -36,7 +37,7 @@ const PostItem = ({ post }: PostItemProps) => {
         const err = error as ApiError;
         const errorMessage = err.response?.data?.message || err.message || "Failed to delete post";
         setError(errorMessage);
-        console.log("Error:", err.response?.data?.error);
+        logger.warn("Post deletion failed", err);
       } finally {
         setLoading(false);
       }
@@ -52,6 +53,7 @@ const PostItem = ({ post }: PostItemProps) => {
       const err = error as ApiError;
       const errorMessage = err.response?.data?.message || err.message || "Failed to like post";
       setError(errorMessage);
+      logger.warn("Post like failed", err);
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ const PostItem = ({ post }: PostItemProps) => {
       const err = error as ApiError;
       const errorMessage = err.response?.data?.message || err.message || "Failed to unlike post";
       setError(errorMessage);
-      console.log("Error:", err.response?.data?.error);
+      logger.warn("Post unlike failed", err);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,18 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import { sendError } from "../utils/responseHandler.js";
 import { AppError, isAppError } from "../errors/AppError.js";
+import logger from "../utils/logger.js";
+
+type MongoDuplicateKeyError = {
+  code?: number;
+  keyPattern?: Record<string, unknown>;
+};
+
+const isMongoDuplicateKeyError = (error: unknown): error is MongoDuplicateKeyError => {
+  return (
+    typeof error === "object" && error !== null && (error as MongoDuplicateKeyError).code === 11000
+  );
+};
 
 /**
  * Global Error Handling Middleware
@@ -17,20 +29,8 @@ const errorHandler: ErrorRequestHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
-  // Log error for debugging
-  console.error("Error caught by error handler:", {
-    name: err.name,
-    message: err.message,
-    code: isAppError(err) ? err.code : "UNKNOWN",
-    statusCode: isAppError(err) ? err.statusCode : 500,
-    path: req.path,
-    method: req.method,
-    timestamp: new Date().toISOString(),
-    ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
-  });
-
   let appError: AppError;
 
   if (isAppError(err)) {
@@ -42,9 +42,9 @@ const errorHandler: ErrorRequestHandler = (
   } else if (err.name === "CastError") {
     // Mongoose CastError (invalid ObjectId)
     appError = new AppError("INVALID_ID", "Invalid ID format", 400);
-  } else if (err.name === "MongoServerError" && (err as any).code === 11000) {
+  } else if (err.name === "MongoServerError" && isMongoDuplicateKeyError(err)) {
     // MongoDB duplicate key error
-    const field = Object.keys((err as any).keyPattern)[0] || "field";
+    const field = Object.keys(err.keyPattern ?? {})[0] || "field";
     appError = new AppError("DUPLICATE_ENTRY", `${field} already exists`, 400, { field });
   } else {
     // Unknown error - create generic AppError
@@ -53,6 +53,23 @@ const errorHandler: ErrorRequestHandler = (
         ? "An unexpected error occurred"
         : err.message || "Unknown error";
     appError = new AppError("INTERNAL_SERVER_ERROR", message, 500);
+  }
+
+  const errorLogContext = {
+    err,
+    code: appError.code,
+    statusCode: appError.statusCode,
+    path: req.path,
+    method: req.method,
+  };
+
+  // Use request-scoped logger if available (includes requestId), fall back to global logger
+  const requestLogger = req.logger || logger;
+
+  if (appError.statusCode >= 500) {
+    requestLogger.error(errorLogContext, "Unhandled server error");
+  } else {
+    requestLogger.warn(errorLogContext, "Request failed");
   }
 
   // Send error response

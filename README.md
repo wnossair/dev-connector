@@ -1,150 +1,217 @@
-# DevConnector: A Social Network for Developers
+# DevConnector
 
-## Description
+A full-stack social network for developers. Users create profiles featuring their experience and education, connect with other developers, and engage in a social feed where they post, comment, and like content.
 
-**DevConnector** is a full-stack social networking application built for developers. 👨‍💻 It allows users to create profiles, showcase their experience and education, and connect with other developers. Users can create posts, comment on them, and like them, fostering a collaborative community. The application is built using the **MERN** stack (MongoDB, Express.js, React, Node.js) and features a RESTful API on the back end and a responsive, component-based user interface on the front end.
+## Features
 
+- 👤 **Developer Profiles**: Showcase your professional experience, education, skills, and GitHub repositories
+- 💬 **Social Feed**: Create posts, comment, and like contributions from the developer community
+- 🐙 **GitHub Integration**: Automatically display your latest public repositories on your profile
+- 🔐 **Secure Authentication**: JWT-based auth with password hashing via bcryptjs
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile
 
+## Stack
 
-***
+- **Frontend**: React 19, TypeScript, Vite, React Router 7, Zustand, Axios
+- **Backend**: Node.js >= 20, Express, TypeScript, Mongoose, Passport JWT
+- **Cross-cutting**: Structured logging (Pino), request correlation, global error handling, type safety end-to-end
 
-## Key Features
+## Runtime Requirements
 
-* ✅ **User Authentication**: Secure user registration and login functionality using JSON Web Tokens (JWT).
-* 👤 **Developer Profiles**: Create and manage personal developer profiles with a bio, social media links, and professional experience.
-* 🎓 **Experience & Education**: Add and display career experience and educational background on user profiles.
-* 🌐 **Social Feed**: A central feed where users can create, view, like, and comment on posts.
-* 🐙 **GitHub Integration**: Automatically fetch and display a user's latest public GitHub repositories on their profile.
+- Node.js >= 20.0.0
+- npm
+- MongoDB (Atlas or local instance)
 
-***
-
-## Project Structure
-
-The repository is organized into a clean monorepo structure with dedicated directories for the server and client applications.
+## Monorepo Structure
 
 ```
-/
-├── client/              # React front-end application (Vite)
+.
+├── client/
 │   ├── src/
+│   │   ├── api/
 │   │   ├── components/
-│   │   ├── features/
-│   │   └── ...
+│   │   ├── stores/
+│   │   ├── types/
+│   │   └── utils/
 │   └── package.json
-├── server/              # Node.js back-end application
-│   ├── config/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   │   └── api/
-│   ├── package.json
-│   └── server.js
-└── package.json         # Root package file to manage both client & server
+├── server/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── errors/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── types/
+│   │   └── utils/
+│   └── package.json
+└── package.json
 ```
-* **`client/`**: Contains the complete React application.
-* **`server/`**: Contains the complete back-end application, including routes, models, and server configuration.
-* **`package.json`**: The root-level file used to run both the client and server concurrently.
 
-***
+## Backend Architecture
 
-## Primary Libraries and Frameworks Used
+The server is organized into **thin routes and thick services**:
 
-### Back-End
+- **Routes** (`src/routes/`): Parse HTTP input, validate with middleware, call services, return responses
+- **Services** (`src/services/`): Contain all business logic (auth, profile management, posts, GitHub integration)
+- **Models** (`src/models/`): Mongoose schemas for User, Profile, and Post
+- **Middleware** (`src/middleware/`): Request logging (with correlation IDs), validation, error handling, async wrapper
+- **Types** (`src/types/`): Shared TypeScript interfaces and Express extensions
+- **Utils** (`src/utils/`): Logger configuration and response standardization
 
-* **Node.js**: A JavaScript runtime environment for executing the server-side code.
-* **Express**: A web application framework for Node.js, used to build the RESTful API.
-* **Mongoose**: An Object Data Modeling (ODM) library for MongoDB and Node.js, used to manage data models.
-* **JSON Web Token (JWT)**: Used for implementing secure user authentication.
-* **bcryptjs**: A library for hashing user passwords before storing them in the database.
+This separation makes code testable, reusable, and keeps concerns isolated.
 
-### Front-End
+## Logging and Request Tracing
 
-* **React**: A JavaScript library for building the user interface.
-* **Redux Toolkit**: The official, opinionated toolset for efficient Redux development. It simplifies state management using a "slice"-based pattern.
-* **React Router**: Handles client-side routing and navigation within the single-page application.
-* **Axios**: A promise-based HTTP client for making requests from the client to the back-end API.
+Every request gets a unique correlation ID:
 
-***
+- If the client sends `x-request-id` or `x-correlation-id`, it's used
+- Otherwise, a UUID is generated automatically
+- The ID is returned in response header `x-request-id`
+- All logs for that request include the correlation ID, enabling full request tracing across middleware, services, and error handlers
+
+In development, logs are pretty-printed. In production, they're JSON for log aggregation tools.
 
 ## Prerequisites
 
-Before you begin, ensure you have the following software installed on your machine:
+Before you begin, ensure you have:
 
-* **Node.js and npm**: [Download Node.js](https://nodejs.org/en/download/) (npm comes bundled with it).
-* **Git**: [Download Git](https://git-scm.com/downloads).
-* **MongoDB Atlas Account**: You will need a cloud-hosted MongoDB database. You can get one for free from [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register).
+- Node.js >= 20.0.0 ([download](https://nodejs.org/))
+- npm (comes with Node.js)
+- Git
+- MongoDB instance (free tier available at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register))
+- (Optional) GitHub Personal Access Token for fetching your public repositories
 
-***
+### Setting Up MongoDB
 
-## Setup Instructions (From Scratch)
+1. Create a free Atlas account at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. Build a **free M0 cluster**
+3. Under **Database Access**, create a user with read/write privileges
+4. Under **Network Access**, allow access from anywhere (`0.0.0.0/0`)
+5. Click **Connect**, select **Connect your application**, and copy your connection string
+6. Keep your connection string safe for the next step
 
-Follow these steps carefully to get the required credentials and database connection string.
+### Setting Up GitHub Personal Access Token (Optional)
 
-### 1. Set Up MongoDB Atlas Database ☁️
+To display your GitHub repos on your profile:
 
-1.  **Create a Free Cluster**: After registering on MongoDB Atlas, create a new project and build a database. Choose the **M0 (Free)** cluster tier on your preferred cloud provider.
-2.  **Create a Database User**: In your cluster dashboard, go to **Database Access** under the "Security" tab. Click **Add New Database User**, enter a username and password, and grant the user **Read and write to any database** privileges. **Save this username and password**.
-3.  **Whitelist Your IP Address**: Go to **Network Access**. Click **Add IP Address** and select **Allow Access from Anywhere** (`0.0.0.0/0`). This allows your application to connect to the database.
-4.  **Get Your Connection String**: Go back to your **Databases** view, click the **Connect** button for your cluster, select **Connect your application**, and copy the connection string. It will look like this:
-    `mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+1. Go to GitHub **Settings** → **Developer settings** → **Personal access tokens (classic)**
+2. Click **Generate new token (classic)**
+3. Check only the **`public_repo`** scope
+4. Copy your token immediately (you won't see it again)
 
-### 2. Set Up GitHub Personal Access Token 🔑
+## Getting Started
 
-To allow the application to fetch your public repositories from the GitHub API, you'll need a Personal Access Token (PAT).
+### 1. Clone the Repository
 
-1.  **Navigate to GitHub Settings**: Log in to your GitHub account, go to **Settings** > **Developer settings** > **Personal access tokens** > **Tokens (classic)**.
-2.  **Generate a New Token**:
-    * Click **Generate new token** and then **Generate new token (classic)**.
-    * **Note**: Give your token a descriptive name, like `DevConnector App`.
-    * **Expiration**: Set an expiration date for your token (e.g., 90 days).
-    * **Select scopes**: Check the **`public_repo`** scope. This is the only permission needed for the app to read your public repositories.
-3.  **Copy Your Token**:
-    * Click **Generate token**.
-    * **Important**: Copy your new token immediately and save it somewhere secure. **You will not be able to see it again after you leave this page.**
-
-***
-
-## Configuration
-
-The server application requires a configuration file for your credentials.
-
-1.  **Create the Config File**: Navigate into the `server/config/` directory. Create a new file named `default.json`.
-2.  **Add Your Credentials**: Paste the following JSON structure into `default.json` and fill in the values you obtained from the steps above.
-
-```json
-{
-  "mongoURI": "YOUR_MONGODB_CONNECTION_STRING",
-  "jwtSecret": "a_secret_key_of_your_choice",
-  "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
-}
+```bash
+git clone https://github.com/wnossair/dev-connector.git
+cd dev-connector
 ```
-* Replace `"YOUR_MONGODB_CONNECTION_STRING"` with the URI from MongoDB Atlas. **Remember to insert your database user's username and password** into the string.
-* The `jwtSecret` can be any string of your choice.
-* Paste your **Personal Access Token** you just generated from GitHub.
 
-***
+### 2. Install All Dependencies
 
-## Installation & Running the App
+From the repository root:
 
-With the project refactored and configured, you can now install and run the application from the root directory.
+```bash
+npm run install-all
+```
 
-1.  **Clone the Repository**
-    Open your terminal and clone the repository:
-    ```bash
-    git clone [https://github.com/wnossair/dev-connector.git](https://github.com/wnossair/dev-connector.git)
-    cd dev-connector
-    ```
+This installs dependencies for both server and client.
 
-2.  **Install All Dependencies**
-    From the root project directory, run the install command. This will install dependencies for both the `server` and `client` applications.
-    ```bash
-    npm install
-    ```
+### 3. Configure Environment
 
-3.  **Run the Application**
-    From the root project directory, run the `dev` script. This concurrently starts both the back-end server and the front-end client.
-    ```bash
-    npm run dev
-    ```
-    The application is now running! 🚀
-    * Front-end client: `http://localhost:5173`
-    * Back-end server API: `http://localhost:5000`
+Create `server/.env`:
+
+```env
+# Required
+MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/devconnector?retryWrites=true&w=majority
+JWT_SECRET=your_secret_key_here_at_least_32_chars
+
+# Optional
+PORT=5000
+NODE_ENV=development
+GITHUB_TOKEN=your_github_token_here
+```
+
+Replace `MONGO_URI` with your connection string from MongoDB Atlas (with your credentials inserted).
+
+### 4. Run the Application
+
+From the repository root:
+
+```bash
+npm run dev
+```
+
+- Frontend: http://localhost:5173
+- API: http://localhost:5000
+
+## Development Workflow
+
+### Running in Development Mode
+
+```bash
+# From root: run both client and server with hot reload
+npm run dev
+
+# Or run them individually:
+npm run dev --prefix server      # Just the API
+npm run dev --prefix client      # Just the frontend
+```
+
+### Type Checking Before Commit
+
+TypeScript catches many bugs at compile time. Always run:
+
+```bash
+npm run type-check --prefix server
+npm run type-check --prefix client
+```
+
+### Linting
+
+Fix code style issues:
+
+```bash
+npm run lint:fix --prefix server
+npm run lint:fix --prefix client
+```
+
+### Building for Production
+
+```bash
+npm run build --prefix server
+npm run build --prefix client
+npm start --prefix server
+```
+
+## Testing the API
+
+Use [Postman](https://www.postman.com/) with the included collection `server/devconnector.postman_collection.json`.
+
+**Basic workflow:**
+1. POST `/api/users/register` with name, email, password
+2. POST `/api/users/login` to get a JWT token
+3. Add `Authorization: Bearer YOUR_TOKEN` header to access private endpoints
+4. POST `/api/profile` to create your profile
+5. POST `/api/posts` to create a post
+
+## Common Issues
+
+**Port already in use**: Change `PORT` in `server/.env`
+**MongoDB connection failed**: Verify your Atlas connection string and IP whitelist
+**CORS errors**: Client/server ports must match environment config
+**TypeScript errors**: Run `npm run type-check` to see full error list
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run `npm run type-check` and `npm run lint:fix` before committing
+4. Follow existing service/route patterns for consistency
+5. Submit a pull request
+
+## License
+
+MIT
