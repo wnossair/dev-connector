@@ -6,6 +6,7 @@ import { useErrorStore } from "../../stores/useErrorStore";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import type { FieldErrors, InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ const Login = () => {
       await loginUser(formData);
       navigate("/dashboard");
     } catch (err) {
-      console.error("Login error:", err);
+      logger.warn("User login failed", err);
     }
   };
 

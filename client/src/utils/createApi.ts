@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
+import { logger } from "./logger";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1s initial delay
@@ -62,7 +63,13 @@ export const createApi = (): AxiosInstance => {
 
       // Log unexpected errors (original behavior)
       if (!isExpectedError) {
-        console.error("API Error:", error);
+        logger.error("Unexpected API response interceptor failure", {
+          method,
+          url: config.url,
+          status: error.response?.status,
+          retryCount: config.__retryCount,
+          error,
+        });
       }
 
       const customError: CustomAxiosError = {

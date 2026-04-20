@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import mongoose from "mongoose";
 
 import keys from "../config/keys.js";
@@ -17,12 +17,24 @@ import {
   ICreateProfileRequest,
 } from "../types/index.js";
 import type { IEducation, IExperience, IProfile } from "../types/models.js";
+import logger from "../utils/logger.js";
 
 export type GithubRepoSummary = {
   id: string;
   name: string;
   html_url: string;
   description: string;
+  language: string | null;
+  stargazers_count: number;
+  watchers_count: number;
+  forks_count: number;
+};
+
+type GithubRepoApiResponse = {
+  id: number;
+  name: string;
+  html_url: string;
+  description: string | null;
   language: string | null;
   stargazers_count: number;
   watchers_count: number;
@@ -342,12 +354,14 @@ export const fetchGithubRepos = async (username: string): Promise<GithubRepoSumm
     let response;
 
     try {
-      response = await axios.get(githubUrl, {
+      response = await axios.get<GithubRepoApiResponse[]>(githubUrl, {
         headers: buildGithubHeaders(hasToken),
       });
-    } catch (error: any) {
-      if (hasToken && error.response?.status === 401) {
-        response = await axios.get(githubUrl, {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError;
+      if (hasToken && axiosError.response?.status === 401) {
+        logger.warn({ username }, "GitHub token rejected, retrying without token");
+        response = await axios.get<GithubRepoApiResponse[]>(githubUrl, {
           headers: buildGithubHeaders(false),
         });
       } else {
@@ -355,7 +369,7 @@ export const fetchGithubRepos = async (username: string): Promise<GithubRepoSumm
       }
     }
 
-    const repos: GithubRepoSummary[] = response.data.map((repo: any) => ({
+    const repos: GithubRepoSummary[] = response.data.map(repo => ({
       id: String(repo.id),
       name: repo.name,
       html_url: repo.html_url,
@@ -368,18 +382,24 @@ export const fetchGithubRepos = async (username: string): Promise<GithubRepoSumm
 
     setCachedGithubRepos(username, repos);
     return repos;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError;
+
+    if (axiosError.response?.status === 404) {
+      logger.warn({ username }, "GitHub user not found");
       throw new NotFoundError("GitHub user");
     }
 
-    if (error.response?.status === 403) {
+    if (axiosError.response?.status === 403) {
+      logger.warn({ username }, "GitHub API rate limit reached");
       throw new ExternalServiceError(
         "GitHub",
         503,
         "GitHub rate limit reached. Please try again later",
       );
     }
+
+    logger.error({ err: error, username }, "GitHub repos fetch failed");
 
     throw new ExternalServiceError("GitHub", 502);
   }

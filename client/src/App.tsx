@@ -17,6 +17,7 @@ import AddExperience from "./components/profile/AddExperience";
 import AddEducation from "./components/profile/AddEducation";
 
 import { useAuthStore } from "./stores/useAuthStore";
+import { logger } from "./utils/logger";
 
 import "./App.css";
 import Profiles from "./components/developers/Profiles";
@@ -40,7 +41,7 @@ const App = () => {
         // Forced to check with server if auth expired
         await verifyAuth({ forceRefresh: true });
       } catch (err) {
-        console.error("auth/verify error:", err);
+        logger.warn("Periodic auth verification failed", err);
       }
     };
 

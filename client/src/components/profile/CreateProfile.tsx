@@ -9,6 +9,7 @@ import SelectListGroup from "../common/SelectListGroup";
 import InputGroup from "../common/InputGroup";
 
 import type { FieldErrors, InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 // Social Inputs
 interface SocialInputsProps {
@@ -123,11 +124,10 @@ const CreateProfile = () => {
     setFieldErrors({});
 
     try {
-      console.log(formData);
       const profile = await createProfile(formData);
       if (profile) navigate("/dashboard");
     } catch (err) {
-      console.log("Create profile error: ", err);
+      logger.warn("Profile creation failed", err);
     }
   };
 

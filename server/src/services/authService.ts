@@ -7,6 +7,7 @@ import { AuthenticationError, DuplicateError, InternalServerError } from "../err
 import { User } from "../models/User.js";
 import { ILoginRequest, IRegisterRequest, IJwtPayload, IUserResponse } from "../types/index.js";
 import type { IUser } from "../types/models.js";
+import logger from "../utils/logger.js";
 
 type MongoDuplicateError = {
   code?: number;
@@ -48,6 +49,8 @@ export const registerUser = async (payload: IRegisterRequest): Promise<IUserResp
     if (isDuplicateKeyError(error)) {
       throw new DuplicateError("Email");
     }
+
+    logger.error({ err: error }, "User registration persistence failed");
     throw error;
   }
 
@@ -76,6 +79,7 @@ export const loginUser = async (payload: ILoginRequest): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     jwt.sign(jwtPayload, keys.secretOrKey, { expiresIn: "1h" }, (error, token) => {
       if (error || !token) {
+        logger.error({ err: error, userId: user.id }, "JWT generation failed");
         reject(new InternalServerError("Failed to generate token"));
         return;
       }

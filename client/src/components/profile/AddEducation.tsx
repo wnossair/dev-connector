@@ -5,6 +5,7 @@ import { useErrorStore } from "../../stores/useErrorStore";
 import TextAreaFieldGroup from "../common/TextAreaFieldGroup";
 import { useProfileStore } from "../../stores/useProfileStore";
 import type { FieldErrors, InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 const AddEducation = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const AddEducation = () => {
       await addEducation(formData);
       navigate("/dashboard");
     } catch (error) {
-      console.log("Add Education error: ", error);
+      logger.warn("Failed to add education", error);
     }
   };
 

@@ -7,6 +7,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useProfileStore } from "../../stores/useProfileStore";
 import { Spinner } from "../common/Feedback";
+import { logger } from "../../utils/logger";
 
 const Profile = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const Profile = () => {
           }
         })
         .catch(err => {
-          console.error("Failed to fetch profile or repos:", err);
+          logger.warn("Failed to load profile or GitHub repositories", { id, err });
         });
     }
   }, [id, loadProfileById, loadGithubRepos]);

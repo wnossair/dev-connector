@@ -6,6 +6,7 @@ import App from "./App";
 import { useAuthStore } from "./stores/useAuthStore";
 import { useProfileStore } from "./stores/useProfileStore";
 import { setupApiInterceptors } from "./utils/api";
+import { logger } from "./utils/logger";
 
 // Setup API interceptors for 401 error handling
 setupApiInterceptors();
@@ -23,7 +24,7 @@ async function initializeApp() {
       await Promise.all([authStore.loadUser(), profileStore.loadCurrentProfile()]);
     }
   } catch (error) {
-    console.error("Initialization failed:", error);
+    logger.error("App initialization failed", error);
   }
 }
 
@@ -35,6 +36,6 @@ initializeApp().then(() => {
   createRoot(rootElement).render(
     <StrictMode>
       <App />
-    </StrictMode>
+    </StrictMode>,
   );
 });

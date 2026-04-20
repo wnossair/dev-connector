@@ -2,8 +2,7 @@
  * API Related Types
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
@@ -31,8 +30,7 @@ export interface ErrorResponse {
 export interface ApiError {
   response?: {
     status: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data?: ErrorResponse | any;
+    data?: ErrorResponse | unknown;
     statusText?: string;
   };
   message: string;

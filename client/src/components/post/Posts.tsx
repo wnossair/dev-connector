@@ -4,6 +4,7 @@ import { usePostListStore } from "../../stores/usePostListStore";
 import { Spinner } from "../common/Feedback";
 import PostFeed from "./PostFeed";
 import { postApi } from "../../api/postApi";
+import { logger } from "../../utils/logger";
 
 interface ApiError {
   response?: {
@@ -30,7 +31,7 @@ export default function Posts() {
         const err = error as ApiError;
         const errorMessage = err.response?.data?.message || err.message || "Failed to load posts";
         setError(errorMessage);
-        console.log("Error details:", err.response?.data?.error);
+        logger.warn("Post list load failed", err);
       } finally {
         setLoading(false);
       }

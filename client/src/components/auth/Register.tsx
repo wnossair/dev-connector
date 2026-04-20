@@ -6,6 +6,7 @@ import { useErrorStore } from "../../stores/useErrorStore";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 import type { FieldErrors, InputChangeHandler } from "../../types";
+import { logger } from "../../utils/logger";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -62,11 +63,12 @@ const Register = () => {
     };
 
     await registerUser(registerData)
-      .then(result => {
-        console.log("Registration success:", result);
+      .then(() => {
         navigate("/login");
       })
-      .catch(err => console.log("Registration error:", err));
+      .catch(err => {
+        logger.warn("User registration failed", err);
+      });
   };
 
   return (
