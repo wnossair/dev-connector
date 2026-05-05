@@ -19,8 +19,10 @@ const isRetryableError = (error: AxiosError): boolean => {
 };
 
 export const createApi = (): AxiosInstance => {
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+
   const api = axios.create({
-    baseURL: "/api",
+    baseURL: configuredBaseUrl || "/api",
     timeout: 10000,
   });
 

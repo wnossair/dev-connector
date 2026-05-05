@@ -1,0 +1,17 @@
+# Copy this file to terraform.tfvars locally if you want to run Terraform manually.
+# In CI, values are provided by GitHub Actions secrets as TF_VAR_* variables.
+
+repo_url                  = "https://github.com/wnossair/dev-connector"
+branch                    = "main"
+backend_service_name      = "dev-connector-api"
+frontend_service_name     = "dev-connector-web"
+backend_region            = "oregon"
+backend_plan              = "starter"
+backend_auto_deploy_trigger = "checksPass"
+frontend_auto_deploy_trigger = "checksPass"
+
+# Sensitive values intentionally omitted.
+# mongo_uri                 = ""
+# jwt_secret                = ""
+# github_token              = ""
+# cors_allowed_origins_csv  = "https://your-frontend-domain"

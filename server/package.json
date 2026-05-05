@@ -19,10 +19,11 @@
   "author": "Wassim Nossair",
   "license": "MIT",
   "dependencies": {
+    "@types/cors": "^2.8.19",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "concurrently": "^9.1.2",
-    "dev-connector-root": "file:..",
+    "cors": "^2.8.6",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
