@@ -10,6 +10,10 @@ backend_plan              = "starter"
 backend_auto_deploy_trigger = "checksPass"
 frontend_auto_deploy_trigger = "checksPass"
 
+# Terraform Cloud
+tf_organization           = "your-org-name"
+tf_workspace              = "dev-connector"
+
 # Sensitive values intentionally omitted.
 # mongo_uri                 = ""
 # jwt_secret                = ""

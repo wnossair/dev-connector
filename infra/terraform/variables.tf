@@ -70,3 +70,15 @@ variable "cors_allowed_origins_csv" {
   type        = string
   default     = ""
 }
+
+variable "tf_organization" {
+  description = "Terraform Cloud organization name"
+  type        = string
+  sensitive   = false
+}
+
+variable "tf_workspace" {
+  description = "Terraform Cloud workspace name"
+  type        = string
+  sensitive   = false
+}
