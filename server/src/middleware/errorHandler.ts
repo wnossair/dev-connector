@@ -29,7 +29,7 @@ const errorHandler: ErrorRequestHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ): void => {
   let appError: AppError;
 

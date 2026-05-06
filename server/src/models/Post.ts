@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { IPost, IComment, ILike } from "../types/models.js";
+import { IPost } from "../types/models.js";
 
 /**
  * Post Schema Definition

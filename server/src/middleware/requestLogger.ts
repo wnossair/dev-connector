@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { randomUUID } from "crypto";
-import logger, { withContext } from "../utils/logger.js";
+import { withContext } from "../utils/logger.js";
 
 /**
  * Request Logger Middleware

@@ -1,7 +1,6 @@
-import passport, { PassportStatic } from "passport";
+import { PassportStatic } from "passport";
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-jwt";
 import { User } from "../models/User.js";
-import { IUser } from "../types/models.js";
 import keys from "./keys.js";
 import logger from "../utils/logger.js";
 

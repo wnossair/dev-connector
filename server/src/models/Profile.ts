@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { IProfile, IExperience, IEducation, ISocial } from "../types/models.js";
+import { IProfile } from "../types/models.js";
 
 /**
  * Profile Schema Definition

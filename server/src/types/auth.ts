@@ -2,8 +2,6 @@
  * Authentication and Request/Response Type Definitions
  */
 
-import { Types } from "mongoose";
-
 /**
  * JWT Payload
  */
