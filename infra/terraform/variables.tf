@@ -71,6 +71,7 @@ variable "cors_allowed_origins_csv" {
   default     = ""
 }
 
-# Note: tf_organization and tf_workspace are configured via -backend-config flags
-# in CI/CD workflows and passed directly to terraform init. They are not Terraform
-# input variables because the cloud block must be static during initialization.
+# Note: Terraform Cloud organization is provided via TF_CLOUD_ORGANIZATION in CI/CD.
+# Workspace is selected by the static cloud.workspaces.name value in
+# infra/terraform/versions.tf (currently dev-connector-prod).
+# These are not Terraform input variables.

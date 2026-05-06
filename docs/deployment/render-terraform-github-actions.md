@@ -30,17 +30,25 @@ Notes:
 - If you started creating a manual web service, stop and leave it unprovisioned.
 - Terraform will create and manage services from code.
 
-### 2) Terraform Cloud workspace variables
+### 2) Terraform Cloud organization and workspace
 
-The workflow uses Terraform Cloud remote state via `backend "remote" {}`.
+The workflow uses the Terraform `cloud` block (HCP Terraform).
 
-1. In Terraform Cloud, open your organization and workspace.
-2. Confirm VCS is connected to this repository.
-3. Create an API token in Terraform Cloud (user settings).
-4. Keep these values ready for GitHub secrets:
-   - Terraform organization name
-   - Terraform workspace name
-   - Terraform API token
+1. In Terraform Cloud, open your organization.
+2. Confirm a workspace named `dev-connector-prod` exists.
+3. Confirm that workspace is connected to this repository (or configured for this project).
+4. Create an API token in Terraform Cloud (user settings).
+5. Keep these values ready for GitHub secrets:
+
+- Terraform organization name
+- Terraform API token
+
+Workspace significance and future changes:
+
+- Current workspace name is `dev-connector-prod`.
+- This name is set in [infra/terraform/versions.tf](infra/terraform/versions.tf) in the `cloud.workspaces.name` field.
+- Terraform state, runs, and history are tied to this workspace.
+- If you rename or switch workspaces later, update [infra/terraform/versions.tf](infra/terraform/versions.tf) and ensure the target workspace already exists and is intended to hold this project's state.
 
 ### 3) MongoDB production access
 
@@ -59,7 +67,6 @@ Create these repository secrets exactly:
 - `RENDER_OWNER_ID`
 - `TF_API_TOKEN`
 - `TF_ORGANIZATION`
-- `TF_WORKSPACE`
 - `MONGO_URI`
 - `JWT_SECRET`
 - `GITHUB_TOKEN_RENDER` (optional)
@@ -114,7 +121,7 @@ For most cases, deletion + Terraform recreate is simpler and less error-prone.
 
 ## Troubleshooting quick checks
 
-- Terraform init fails: verify `TF_API_TOKEN`, `TF_ORGANIZATION`, `TF_WORKSPACE`
+- Terraform init fails: verify `TF_API_TOKEN`, `TF_ORGANIZATION`, and confirm workspace `dev-connector-prod` exists in that organization
 - Render provider auth fails: verify `RENDER_API_KEY`, `RENDER_OWNER_ID`
 - Backend boot fails: verify `MONGO_URI`, `JWT_SECRET`
 - Frontend calls wrong API: verify `VITE_API_BASE_URL` in Terraform static site env vars
