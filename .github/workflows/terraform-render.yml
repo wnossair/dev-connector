@@ -80,7 +80,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init -input=false
+        run: terraform init -input=false -backend-config="organization=${{ secrets.TF_ORGANIZATION }}" -backend-config="workspaces.name=${{ secrets.TF_WORKSPACE }}"
 
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve
