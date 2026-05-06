@@ -61,6 +61,7 @@ jobs:
 
     env:
       TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+      TF_CLOUD_ORGANIZATION: ${{ secrets.TF_ORGANIZATION }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
       TF_VAR_repo_url: https://github.com/${{ github.repository }}
@@ -69,8 +70,6 @@ jobs:
       TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
       TF_VAR_github_token: ${{ secrets.GH_TOKEN_RENDER }}
       TF_VAR_cors_allowed_origins_csv: ${{ secrets.CORS_ALLOWED_ORIGINS_CSV }}
-      TF_VAR_tf_organization: ${{ secrets.TF_ORGANIZATION }}
-      TF_VAR_tf_workspace: ${{ secrets.TF_WORKSPACE }}
 
     steps:
       - name: Checkout
@@ -80,7 +79,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init -input=false -backend-config="organization=${{ secrets.TF_ORGANIZATION }}" -backend-config="workspaces.name=${{ secrets.TF_WORKSPACE }}"
+        run: terraform init -input=false
 
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve

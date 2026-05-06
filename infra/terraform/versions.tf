@@ -8,6 +8,11 @@ terraform {
     }
   }
 
-  cloud {}
-  # Organization and workspace configured via -backend-config flags in CI/CD
+  cloud {
+    # Organization configured via TF_CLOUD_ORGANIZATION environment variable
+    # Workspace name must be static
+    workspaces {
+      name = "dev-connector-prod"
+    }
+  }
 }
