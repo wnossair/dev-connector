@@ -61,7 +61,7 @@ jobs:
 
     env:
       TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-        TF_CLOUD_ORGANIZATION: ${{ secrets.TF_ORGANIZATION }}
+      TF_CLOUD_ORGANIZATION: ${{ secrets.TF_ORGANIZATION }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
       TF_VAR_repo_url: https://github.com/${{ github.repository }}
