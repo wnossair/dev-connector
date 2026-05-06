@@ -6,7 +6,7 @@ branch                    = "main"
 backend_service_name      = "dev-connector-api"
 frontend_service_name     = "dev-connector-web"
 backend_region            = "oregon"
-backend_plan              = "starter"
+backend_plan              = "free"
 backend_auto_deploy_trigger = "checksPass"
 frontend_auto_deploy_trigger = "checksPass"
 
