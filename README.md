@@ -22,6 +22,19 @@ A full-stack social network for developers. Users create profiles featuring thei
 - npm
 - MongoDB (Atlas or local instance)
 
+## Deployment
+
+Automated deployment with Render + Terraform + GitHub Actions is documented in:
+
+- `docs/deployment/render-terraform-github-actions.md`
+
+This guide includes:
+
+- infrastructure setup with Terraform
+- CI/CD workflow behavior
+- required GitHub secrets
+- step-by-step manual actions that must be done in Render, Terraform Cloud, and GitHub
+
 ## Monorepo Structure
 
 ```
@@ -191,6 +204,7 @@ npm start --prefix server
 Use [Postman](https://www.postman.com/) with the included collection `server/devconnector.postman_collection.json`.
 
 **Basic workflow:**
+
 1. POST `/api/users/register` with name, email, password
 2. POST `/api/users/login` to get a JWT token
 3. Add `Authorization: Bearer YOUR_TOKEN` header to access private endpoints

@@ -13,7 +13,7 @@ TypeScript Express API for DevConnector.
 - **Node.js** >= 20.0.0 — [Download](https://nodejs.org/)
 - **npm** >= 10.0.0 (comes with Node)
 - **MongoDB Atlas** — Free sandbox cluster at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas) OR local MongoDB instance
-- **GitHub Token** *(optional, for fetching GitHub profile data)* — Create a [Personal Access Token](https://github.com/settings/tokens)
+- **GitHub Token** _(optional, for fetching GitHub profile data)_ — Create a [Personal Access Token](https://github.com/settings/tokens)
 
 ### Install & Configure
 
@@ -30,6 +30,7 @@ TypeScript Express API for DevConnector.
    PORT=5000
    NODE_ENV=development
    GITHUB_TOKEN=ghp_your_github_token_here
+   CORS_ORIGIN=https://dev-connector-web.onrender.com
    ```
 
    **Important:** Never commit `.env` — it contains secrets.
@@ -133,17 +134,20 @@ MongoDB
 ### Service Examples
 
 **AuthService** (`src/services/authService.ts`):
+
 - `register(userData)` — Validate input, hash password, save user, return new user
 - `login(email, password)` — Find user, verify password, generate JWT
 - `getCurrentUser(userId)` — Fetch authenticated user by ID (used by `/api/users/current`)
 
 **ProfileService** (`src/services/profileService.ts`):
+
 - `getProfile(userId)` — Fetch user's profile
 - `createOrUpdateProfile(userId, profileData)` — Validate and save profile
 - `getGitHubProfile(username)` — Call GitHub API, cache result
 - `getAllProfiles()` — List all developers with profiles
 
 **PostService** (`src/services/postService.ts`):
+
 - `createPost(userId, text)` — Save post, add timestamps
 - `getAllPosts()` — Fetch all posts with author info, sorted by date
 - `likePost(userId, postId)` — Toggle like (idempotent)
@@ -164,15 +168,16 @@ export const login = asyncHandler(async (req, res) => {
 // services/authService.ts — pure business logic
 export async function login(email: string, password: string) {
   const user = await User.findOne({ email });
-  if (!user) throw new AppError('User not found', 401);
+  if (!user) throw new AppError("User not found", 401);
   const isMatch = await comparePassword(password, user.password);
-  if (!isMatch) throw new AppError('Invalid credentials', 401);
+  if (!isMatch) throw new AppError("Invalid credentials", 401);
   const token = generateJWT({ id: user._id });
   return { user, token };
 }
 ```
 
 This separation means:
+
 - Services are framework-agnostic (could call from CLI, job queue, or another route)
 - Routes are simple glue code (easy to understand flow at a glance)
 - Tests can mock services without spinning up Express
@@ -199,12 +204,14 @@ To trace a specific user's activity: `grep "REQUEST_ID=a1b2c3d4" logs/server.log
 ### Logger Format
 
 **Development** (pretty-printed with colors):
+
 ```
 [INFO]  app started on port 5000
 [WARN]  duplicate key error: index 'email_1' violated
 ```
 
 **Production** (structured JSON):
+
 ```json
 {"level":"info","msg":"app started on port 5000","timestamp":"2025-01-15T10:23:45Z"}
 {"level":"warn","msg":"duplicate key error","error":"index 'email_1' violated","timestamp":"2025-01-15T10:23:45Z"}
@@ -221,12 +228,12 @@ JSON logs pipe easily to aggregation services (CloudWatch, ELK Stack).
 ### Adding Logs
 
 ```typescript
-import logger from '../utils/logger';
+import logger from "../utils/logger";
 
 // In a service:
-logger.info('User registered', { userId: user._id });
-logger.warn('GitHub rate limit hit', { remaining: 5 });
-logger.error('Database connection failed', { error: err.message });
+logger.info("User registered", { userId: user._id });
+logger.warn("GitHub rate limit hit", { remaining: 5 });
+logger.error("Database connection failed", { error: err.message });
 ```
 
 Logs automatically include request correlation ID if called during request lifecycle.
@@ -357,13 +364,13 @@ npm run lint:fix     # Auto-fix what can be fixed
 
 ## Environment Variables Reference
 
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `MONGO_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/devconnector` |
-| `JWT_SECRET` | Secret key for signing JWT tokens | Any random string, 32+ chars recommended |
-| `PORT` | Server port | `5000` |
-| `NODE_ENV` | Environment mode | `development` or `production` |
-| `GITHUB_TOKEN` | GitHub API token for fetching profiles | `ghp_xxxxx...` (optional) |
+| Variable       | Purpose                                | Example                                                    |
+| -------------- | -------------------------------------- | ---------------------------------------------------------- |
+| `MONGO_URI`    | MongoDB connection string              | `mongodb+srv://user:pass@cluster.mongodb.net/devconnector` |
+| `JWT_SECRET`   | Secret key for signing JWT tokens      | Any random string, 32+ chars recommended                   |
+| `PORT`         | Server port                            | `5000`                                                     |
+| `NODE_ENV`     | Environment mode                       | `development` or `production`                              |
+| `GITHUB_TOKEN` | GitHub API token for fetching profiles | `ghp_xxxxx...` (optional)                                  |
 
 ## Testing with Postman
 

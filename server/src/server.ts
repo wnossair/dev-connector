@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
 
 // Import routes
 import usersRoutes from "./routes/api/users.js";
@@ -30,6 +31,21 @@ app.use(requestLoggerMiddleware);
 // Body parser middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+const corsOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+if (corsOrigins.length > 0) {
+  app.use(
+    cors({
+      origin: corsOrigins,
+    }),
+  );
+} else {
+  app.use(cors());
+}
 
 // DB Config
 const db = keys.mongoURI;

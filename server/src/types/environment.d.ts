@@ -9,5 +9,6 @@ declare namespace NodeJS {
     MONGO_URI: string;
     JWT_SECRET: string;
     GITHUB_TOKEN?: string;
+    CORS_ORIGIN?: string;
   }
 }
