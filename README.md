@@ -85,6 +85,50 @@ Every request gets a unique correlation ID:
 
 In development, logs are pretty-printed. In production, they're JSON for log aggregation tools.
 
+## Frontend Architecture
+
+The client is organized for clarity and fast iteration, with a thin view layer and small, focused stores:
+
+- **State Management**: Zustand is used for lightweight, typed stores. Key stores live under `client/src/stores/`:
+  - `useAuthStore.ts` — authentication, token handling, current user
+  - `usePostStore.ts` — single-post operations and editing
+  - `usePostListStore.ts` — listing, filtering, pagination
+  - `useProfileStore.ts` — profile CRUD and related forms
+  - `useErrorStore.ts` — centralized error notifications
+  - `syncPostStores.ts` — synchronization between post stores
+
+- **Components**: Organized by feature (auth, dashboard, post, profile, developers) and shared UI under `client/src/components/common/`.
+
+- **API Layer**: `client/src/api/` contains thin API wrappers (Axios-based) and `createApi` helpers that return typed `ApiResponse<T>` shapes—this keeps UI code focused on state and rendering.
+
+- **Types**: Domain types live under `client/src/types/` and are exported via `client/src/types/index.ts`. The type system is the single source of truth for client-server contracts.
+
+## TypeScript Strategy
+
+- **Strict Mode & Path Aliases**: `tsconfig.json` enables `strict` and path aliases for clearer imports and safer refactors.
+- **Type Flow**: Shared types model API responses and domain entities (auth, profile, post). The client imports types from `client/src/types/` and mirrors server response shapes to ensure end-to-end safety.
+- **Type Definitions**: 46 domain-specific types are organized by area (auth, profile, post, api, error, common). See `docs/typescript-migration/MIGRATION_COMPLETE_SUMMARY.md` for a complete breakdown.
+- **Checks Before Commit**: Run `npm run type-check --prefix client` and `npm run type-check --prefix server` during CI and locally to prevent regressions.
+
+## Backend Architecture Details
+
+The server follows a "thin routes / thick services" pattern with several additional conventions:
+
+- **Error Handling**: A custom `AppError` (in `server/src/errors/AppError.ts`) standardizes status codes, messages, and metadata. All errors pass through centralized `errorHandler` middleware which formats responses as `ErrorResponse`.
+- **Validation**: Request validation is implemented via `server/src/middleware/validation.ts` and per-route validators. Validation failures return a structured `ValidationError` object to the client.
+- **Async Handler Pattern**: `server/src/middleware/asyncHandler.ts` wraps async route handlers to forward errors to the central error handler without try/catch clutter.
+- **Data Model Relationships**: Models express clear relationships:
+  - `User` stores auth credentials and basic profile references
+  - `Profile` contains extended profile data (experience, education, social links) and references the `User`
+  - `Post` references author `User` and embeds comments/likes metadata
+
+## Client–Server Contract
+
+- **Typed API Responses**: The API surface uses a small set of response shapes (see `client/src/types/api.types.ts`): `ApiResponse<T>`, `ErrorResponse`, and `ValidationError`. The client API helpers return these shapes so components receive typed data.
+- **Authentication Flow**: Login returns a token payload; the client stores tokens in the auth store and sends `Authorization: Bearer <token>` on protected requests.
+- **Validation & Errors**: The client expects validation errors in a predictable `ValidationError` format and surfaces field-level messages in forms.
+- **Versioning & Stability**: Keep small additive changes to API responses; update `client/src/types/` when server shapes change and use `npm run type-check` to validate.
+
 ## Prerequisites
 
 Before you begin, ensure you have:
