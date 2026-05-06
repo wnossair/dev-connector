@@ -43,7 +43,7 @@ resource "render_web_service" "backend" {
       repo_url            = var.repo_url
       branch              = var.branch
       runtime             = "node"
-      build_command       = "npm install && npm run build"
+      build_command       = "npm install --include=dev && npm run build"
       auto_deploy_trigger = var.backend_auto_deploy_trigger
       build_filter = {
         paths = ["server/**"]

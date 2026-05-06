@@ -1,8 +1,14 @@
 import { PassportStatic } from "passport";
-import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-jwt";
+import {
+  Strategy as JwtStrategy,
+  ExtractJwt,
+  StrategyOptions,
+  VerifiedCallback,
+} from "passport-jwt";
 import { User } from "../models/User.js";
 import keys from "./keys.js";
 import logger from "../utils/logger.js";
+import type { IJwtPayload } from "../types/index.js";
 
 const opts: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -11,7 +17,7 @@ const opts: StrategyOptions = {
 
 export default (passport: PassportStatic): void => {
   passport.use(
-    new JwtStrategy(opts, async (jwt_payload, done) => {
+    new JwtStrategy(opts, async (jwt_payload: IJwtPayload, done: VerifiedCallback) => {
       try {
         const user = await User.findById(jwt_payload.id);
         if (user) {

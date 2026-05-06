@@ -9,7 +9,9 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-server": "npm install --prefix server",
     "install-client": "npm install --prefix client",
-    "install-all": "npm install && npm run install-server && npm run install-client"
+    "install-all": "npm install && npm run install-server && npm run install-client",
+    "lint": "npm run lint --prefix server && npm run lint --prefix client",
+    "type-check": "npm run type-check --prefix server && npm run type-check --prefix client"
   },
   "devDependencies": {
     "@types/react-redux": "^7.1.34",

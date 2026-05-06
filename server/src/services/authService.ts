@@ -77,15 +77,20 @@ export const loginUser = async (payload: ILoginRequest): Promise<string> => {
   };
 
   return new Promise<string>((resolve, reject) => {
-    jwt.sign(jwtPayload, keys.secretOrKey, { expiresIn: "1h" }, (error, token) => {
-      if (error || !token) {
-        logger.error({ err: error, userId: user.id }, "JWT generation failed");
-        reject(new InternalServerError("Failed to generate token"));
-        return;
-      }
+    jwt.sign(
+      jwtPayload,
+      keys.secretOrKey,
+      { expiresIn: "1h" },
+      (error: Error | null, token: string | undefined) => {
+        if (error || !token) {
+          logger.error({ err: error, userId: user.id }, "JWT generation failed");
+          reject(new InternalServerError("Failed to generate token"));
+          return;
+        }
 
-      resolve(`Bearer ${token}`);
-    });
+        resolve(`Bearer ${token}`);
+      },
+    );
   });
 };
 
