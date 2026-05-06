@@ -31,7 +31,7 @@ variable "backend_region" {
 variable "backend_plan" {
   description = "Render plan for backend web service"
   type        = string
-  default     = "starter"
+  default     = "free"
 }
 
 variable "frontend_auto_deploy_trigger" {
