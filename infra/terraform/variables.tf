@@ -71,6 +71,18 @@ variable "cors_allowed_origins_csv" {
   default     = ""
 }
 
+variable "render_api_key" {
+  description = "Render API key used by the Terraform Render provider"
+  type        = string
+  sensitive   = true
+}
+
+variable "render_owner_id" {
+  description = "Render owner ID used by the Terraform Render provider"
+  type        = string
+  sensitive   = true
+}
+
 # Note: Terraform Cloud organization is provided via TF_CLOUD_ORGANIZATION in CI/CD.
 # Workspace is selected by the static cloud.workspaces.name value in
 # infra/terraform/versions.tf (currently dev-connector-prod).

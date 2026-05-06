@@ -30,6 +30,8 @@ jobs:
       TF_VAR_jwt_secret: "placeholder-jwt-secret"
       TF_VAR_github_token: ""
       TF_VAR_cors_allowed_origins_csv: ""
+      TF_VAR_render_api_key: "placeholder-render-api-key"
+      TF_VAR_render_owner_id: "placeholder-render-owner-id"
 
     steps:
       - name: Checkout
@@ -64,6 +66,8 @@ jobs:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_ORGANIZATION }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
+      TF_VAR_render_api_key: ${{ secrets.RENDER_API_KEY }}
+      TF_VAR_render_owner_id: ${{ secrets.RENDER_OWNER_ID }}
       TF_VAR_repo_url: https://github.com/${{ github.repository }}
       TF_VAR_branch: main
       TF_VAR_mongo_uri: ${{ secrets.MONGO_URI }}

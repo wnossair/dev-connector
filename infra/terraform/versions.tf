@@ -10,7 +10,7 @@ terraform {
 
   cloud {
     # Organization configured via TF_CLOUD_ORGANIZATION environment variable
-    # Workspace name must be static
+    # Workspace name is static; set in CI/CD
     workspaces {
       name = "dev-connector-prod"
     }
