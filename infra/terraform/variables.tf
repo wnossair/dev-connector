@@ -71,14 +71,6 @@ variable "cors_allowed_origins_csv" {
   default     = ""
 }
 
-variable "tf_organization" {
-  description = "Terraform Cloud organization name"
-  type        = string
-  sensitive   = false
-}
-
-variable "tf_workspace" {
-  description = "Terraform Cloud workspace name"
-  type        = string
-  sensitive   = false
-}
+# Note: tf_organization and tf_workspace are configured via -backend-config flags
+# in CI/CD workflows and passed directly to terraform init. They are not Terraform
+# input variables because the cloud block must be static during initialization.

@@ -8,11 +8,6 @@ terraform {
     }
   }
 
-  cloud {
-    organization = var.tf_organization
-
-    workspaces {
-      name = var.tf_workspace
-    }
-  }
+  cloud {}
+  # Organization and workspace configured via -backend-config flags in CI/CD
 }
