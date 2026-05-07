@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
 import Navbar from "./components/layout/Navbar";
@@ -18,6 +18,8 @@ import AddEducation from "./components/profile/AddEducation";
 
 import { useAuthStore } from "./stores/useAuthStore";
 import { logger } from "./utils/logger";
+
+import NotFound from "./components/common/NotFound";
 
 import "./App.css";
 import Profiles from "./components/developers/Profiles";
@@ -74,11 +76,9 @@ const App = () => {
               <Route path="/add-education" element={<AddEducation />} />
               <Route path="/posts" element={<Posts />} />
               <Route path="/post/:id" element={<SinglePost />} />
-              {/* Add more protected routes here */}
-
-              {/* Catch-all Route */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
+            {/* Catch-all for invalid paths (applied regardless of auth) */}
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </main>

@@ -1,6 +1,7 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { Spinner } from "../common/Feedback";
+import Unauthorized from "../common/Unauthorized";
 
 const ProtectedRoute = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -11,7 +12,11 @@ const ProtectedRoute = () => {
     return <Spinner />;
   }
 
-  return !isAuthenticated && !token ? <Navigate to="/login" replace /> : <Outlet />;
+  if (!isAuthenticated && !token) {
+    return <Unauthorized />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
